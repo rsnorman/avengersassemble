@@ -9,7 +9,7 @@ class Api::V1::CharactersController < ApplicationController
   private
 
   def matching_characters
-    CharacterSearch.new(marvel_client).matching(params[:query])
+    CharacterSearch.new(Character.valid.original).matching(params[:query])
   end
 
 end

@@ -26,7 +26,9 @@ module MarvelExplorer
     config.autoload_paths += %W(
       #{config.root}/app/services
       #{config.root}/app/queries
+      #{config.root}/app/value_objects
       #{config.root}/lib/services
+      #{config.root}/lib/services/character_pages
     )
   end
 end
