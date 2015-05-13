@@ -11,18 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150511015343) do
+ActiveRecord::Schema.define(version: 20150512012936) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "characters", force: :cascade do |t|
-    t.string  "name",                                null: false
+    t.string  "name",                                  null: false
     t.string  "real_name"
     t.text    "description"
     t.text    "powers"
     t.string  "thumbnail_url"
-    t.integer "marvel_id",                           null: false
+    t.integer "marvel_id",                             null: false
     t.integer "wiki_id"
     t.integer "fighting_rating"
     t.integer "strength_rating"
@@ -30,9 +30,13 @@ ActiveRecord::Schema.define(version: 20150511015343) do
     t.integer "intelligence_rating"
     t.integer "durability_rating"
     t.integer "speed_rating"
-    t.boolean "is_missing_image",    default: false, null: false
-    t.boolean "is_missing_ratings",  default: false, null: false
-    t.boolean "is_invalid",          default: false, null: false
+    t.boolean "is_missing_image",      default: false, null: false
+    t.boolean "is_missing_ratings",    default: false, null: false
+    t.boolean "is_invalid",            default: false, null: false
+    t.integer "original_character_id"
+    t.boolean "is_original",           default: false, null: false
   end
+
+  add_index "characters", ["original_character_id"], name: "index_characters_on_original_character_id", using: :btree
 
 end
