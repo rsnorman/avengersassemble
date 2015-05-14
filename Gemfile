@@ -29,7 +29,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'pg'
 
-gem 'marvelite', path: '~/projects/personal/marvelite'
+gem 'marvelite'
 
 gem 'nokogiri'
 
