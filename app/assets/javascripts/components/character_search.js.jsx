@@ -29,13 +29,13 @@ var CharacterSearch = React.createClass({
 
   render: function() {
       return <form onSubmit={this.searchCharacters}>
-        <div class="row collapse">
+        <div className="row collapse">
 
-          <div class="large-10 small-8 columns">
+          <div className="large-10 small-8 columns">
             <input type="search" onChange={this.onChange} value={this.state.text}/>
           </div>
 
-          <div class="large-2 small-3 columns">
+          <div className="large-2 small-3 columns">
             <input type="submit" className="postfix button expand" value="Search" />
           </div>
 

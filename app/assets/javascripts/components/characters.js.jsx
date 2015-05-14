@@ -1,8 +1,14 @@
 var Characters = React.createClass({
 
+  mixins: [
+    MasonryMixin('masonryContainer', {
+      transitionDuration: 0
+    })
+  ],
+
   render: function() {
     var createItem = function(character, index) {
-      return <div key={character.id} className="character-result large-3 small-6 columns">
+      return <div key={character.id} className="character-result">
         <img src={character.thumbnail_url} />
         <div className="panel">
           <h4>{character.name}</h4>
@@ -27,7 +33,9 @@ var Characters = React.createClass({
       </div>;
     };
 
-    return <ul>{this.props.characters.map(createItem)}</ul>;
+    return <div id="character_results" ref="masonryContainer">
+      {this.props.characters.map(createItem)}
+    </div>;
   }
 
 });

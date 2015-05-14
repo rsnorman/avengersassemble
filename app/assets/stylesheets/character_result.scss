@@ -1,5 +1,17 @@
+#character_results {
+  margin-left: 0.9375rem;
+  margin-right: 0.9375rem;
+}
 .character-result {
-  img{
-    
+  width: 24%;
+  margin-right: 1%;
+  float: left;
+
+  img {
+      width: 100%;
+  }
+
+  table{
+    width: 100%;
   }
 }

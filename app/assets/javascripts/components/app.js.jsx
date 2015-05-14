@@ -73,12 +73,11 @@ var App = React.createClass({
         </div>
 
         <div className="row">
-
-          <div className="large-12 show-for-small columns">
-            <h3>Find Superheroes</h3><hr/>
+          <div className="row">
+            <div className="large-12 columns">
+              <Characters characters={this.state.characters} />
+            </div>
           </div>
-
-          <Characters characters={this.state.characters} />
 
         </div>
 
