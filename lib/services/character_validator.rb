@@ -7,7 +7,7 @@ class CharacterValidator
   def validate_all
     @characters.each do |character|
       character.is_missing_image   = character.thumbnail_image.missing?
-      character.is_missing_ratings = characters.ratings.missing?
+      character.is_missing_ratings = character.ratings.missing?
       character.is_invalid         = is_invalid?(character)
       character.save
     end

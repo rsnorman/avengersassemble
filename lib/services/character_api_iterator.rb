@@ -1,14 +1,16 @@
 class CharacterApiIterator
 
+  PAGE_SIZE = 100
+
   def initialize(client = MarvelClient.new)
     @client = client
   end
 
   def each(&block)
     characters = []
-    limit = 20
+    limit = PAGE_SIZE
     offset = 0
-    count = 20
+    count = PAGE_SIZE
     character_data = @client.characters(limit: limit, offset: offset).data
 
     while character_data["total"] > offset + count do
