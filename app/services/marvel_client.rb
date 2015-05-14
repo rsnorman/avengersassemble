@@ -1,4 +1,5 @@
 class MarvelClient
+
   delegate :characters, to: :@client
 
   def initialize
@@ -7,4 +8,5 @@ class MarvelClient
       private_key: 'f12aa40d394a82ae7b0ebe08351310e87cf50d9c'
     )
   end
+
 end
