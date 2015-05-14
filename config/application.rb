@@ -29,6 +29,7 @@ module MarvelExplorer
       #{config.root}/app/value_objects
       #{config.root}/lib/services
       #{config.root}/lib/services/character_pages
+      #{config.root}/lib/services/character_migration
     )
   end
 end
