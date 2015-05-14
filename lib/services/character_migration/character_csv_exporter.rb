@@ -12,7 +12,9 @@ class CharacterCSVExporter
     CSV.open(@filepath, 'wb') do |row|
       characters.each do |character|
         row << attrs_names.collect do |a|
-          character.public_send(a).try(:gsub, Regexp.new("\r\n|\n"), ' ')
+          value = character.public_send(a)
+          value = value.gsub(Regexp.new("\r\n|\n"), ' ') if value.is_a?(String)
+          value
         end
       end
     end
