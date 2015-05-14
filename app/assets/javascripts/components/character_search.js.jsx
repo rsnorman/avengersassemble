@@ -32,7 +32,7 @@ var CharacterSearch = React.createClass({
         <div className="row collapse">
 
           <div className="large-10 small-8 columns">
-            <input type="search" onChange={this.onChange} value={this.state.text}/>
+            <input type="search" onChange={this.onChange} value={this.state.text} placeholder="Search Marvel Characters"/>
           </div>
 
           <div className="large-2 small-3 columns">
