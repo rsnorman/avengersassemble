@@ -7,7 +7,7 @@ class CharacterImporter
   def import_all
     characters = []
     @character_iterator.each do |character_data|
-      characters << image_character(character_data)
+      characters << import_character(character_data)
     end
     characters
   end

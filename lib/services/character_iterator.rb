@@ -32,6 +32,7 @@ class CharacterIterator
   private
 
   def concat_image_url(image_url_pieces)
+    return ThumbnailImage::MISSING_IMAGE_PATH if image_url_pieces.nil?
     "#{image_url_pieces["path"]}.#{image_url_pieces["extension"]}"
   end
 
