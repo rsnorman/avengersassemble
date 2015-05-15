@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150512012936) do
+ActiveRecord::Schema.define(version: 20150514235821) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -35,6 +35,7 @@ ActiveRecord::Schema.define(version: 20150512012936) do
     t.boolean "is_invalid",            default: false, null: false
     t.integer "original_character_id"
     t.boolean "is_original",           default: false, null: false
+    t.integer "experience"
   end
 
   add_index "characters", ["original_character_id"], name: "index_characters_on_original_character_id", using: :btree

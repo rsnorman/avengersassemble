@@ -14,6 +14,7 @@ class CharacterCSVExporter
         row << attrs_names.collect do |a|
           value = character.public_send(a)
           value = value.gsub(Regexp.new("\r\n|\n"), ' ') if value.is_a?(String)
+          value = value.gsub('http:', '') if a == 'thumbnail_image'
           value
         end
       end
