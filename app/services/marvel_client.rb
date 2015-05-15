@@ -3,6 +3,7 @@ require 'yaml'
 class MarvelClient
 
   delegate :characters, to: :@client
+  delegate :character_comics, to: :@client
 
   def initialize
     @client = Marvelite::API::Client.new(
