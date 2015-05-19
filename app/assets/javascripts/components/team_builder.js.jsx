@@ -1,7 +1,12 @@
-var App = React.createClass({
+var TeamBuilder = React.createClass({
   getInitialState: function() {
     return {
-      characters: []
+      characters: [],
+      team: {
+        characters: [],
+        description: 'This is the best team evarrrrr!!!',
+        name: 'Ryan Norman\'s Avengers'
+      }
     };
   },
 
@@ -9,6 +14,11 @@ var App = React.createClass({
     this.setState({
       characters: characters
     });
+  },
+
+  addCharacterToTeam: function(character) {
+    this.state.team.characters.push(character);
+    this.setState(this.state);
   },
 
   render: function() {
@@ -19,6 +29,8 @@ var App = React.createClass({
             <li><a href="#" className="button">Home</a></li>
             <li><a href="#" className="button">Teams</a></li>
           </ul>
+
+          <NewTeam team={this.state.team}></NewTeam>
 
         <div className="row">
 
@@ -35,7 +47,7 @@ var App = React.createClass({
         <div className="row">
           <div className="row">
             <div className="large-12 columns">
-              <Characters characters={this.state.characters} />
+              <Characters onCharacterSelect={this.addCharacterToTeam} characters={this.state.characters} />
             </div>
           </div>
 
@@ -47,5 +59,5 @@ var App = React.createClass({
 });
 
 window.onload = function() {
-  React.render(<App />, document.body);
+  React.render(<TeamBuilder />, document.body);
 };

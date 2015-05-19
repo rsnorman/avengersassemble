@@ -9,8 +9,14 @@
   margin-right: 1%;
   float: left;
 
+  a {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+  }
+
   img {
-      width: 100%;
+    width: 100%;
   }
 
   table{
