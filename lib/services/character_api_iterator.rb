@@ -1,6 +1,7 @@
 class CharacterApiIterator
 
-  PAGE_SIZE = 100
+  PAGE_SIZE = 10
+  START_OFFSET = 520
 
   def initialize(client = MarvelClient.new)
     @client = client
@@ -9,12 +10,14 @@ class CharacterApiIterator
   def each(&block)
     characters = []
     limit = PAGE_SIZE
-    offset = 0
+    offset = START_OFFSET
     count = PAGE_SIZE
     character_data = @client.characters(limit: limit, offset: offset).data
 
     while character_data["total"] > offset + count do
+      puts "Got character data from API at offset: #{offset}"
       character_data["results"].each do |character|
+        puts "Yield character #{character['name']}"
         block.call(character)
       end
 

@@ -24,12 +24,14 @@ module MarvelExplorer
     config.active_record.raise_in_transactional_callbacks = true
 
     config.autoload_paths += %W(
+      #{config.root}/app/form_objects
       #{config.root}/app/services
       #{config.root}/app/queries
       #{config.root}/app/value_objects
       #{config.root}/lib/services
       #{config.root}/lib/services/character_pages
       #{config.root}/lib/services/character_migration
+      #{config.root}/lib/services/original_characters
     )
   end
 end
