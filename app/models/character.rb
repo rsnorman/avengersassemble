@@ -9,7 +9,6 @@ class Character < ActiveRecord::Base
   scope :missing_image, -> { where( is_missing_image:   true) }
   scope :rated,         -> { where( is_missing_ratings: false) }
   scope :valid,         -> { where( is_missing_image:   false,
-                                    is_missing_ratings: false,
                                     is_invalid:         false ) }
 
   scope :experienced,   -> { where('experience IS NOT NULL') }

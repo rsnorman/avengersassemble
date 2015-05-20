@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150514235821) do
+ActiveRecord::Schema.define(version: 20150519060343) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -39,5 +39,30 @@ ActiveRecord::Schema.define(version: 20150514235821) do
   end
 
   add_index "characters", ["original_character_id"], name: "index_characters_on_original_character_id", using: :btree
+
+  create_table "teams", force: :cascade do |t|
+    t.string   "name",                           null: false
+    t.text     "description"
+    t.integer  "total_experience",   default: 0, null: false
+    t.integer  "total_fighting",     default: 0, null: false
+    t.integer  "total_strength",     default: 0, null: false
+    t.integer  "total_energy",       default: 0, null: false
+    t.integer  "total_intelligence", default: 0, null: false
+    t.integer  "total_durability",   default: 0, null: false
+    t.integer  "total_speed",        default: 0, null: false
+    t.integer  "total_camaraderie",  default: 0, null: false
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+  end
+
+  create_table "teams_characters", force: :cascade do |t|
+    t.integer  "character_id"
+    t.integer  "team_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "teams_characters", ["character_id"], name: "index_teams_characters_on_character_id", using: :btree
+  add_index "teams_characters", ["team_id"], name: "index_teams_characters_on_team_id", using: :btree
 
 end

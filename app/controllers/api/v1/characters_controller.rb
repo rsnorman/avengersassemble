@@ -1,9 +1,7 @@
 class Api::V1::CharactersController < ApplicationController
 
   def index
-    respond_to do |format|
-      format.json { render json: matching_characters}
-    end
+    @characters = matching_characters
   end
 
   private

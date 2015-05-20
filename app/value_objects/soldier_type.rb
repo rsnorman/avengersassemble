@@ -11,7 +11,7 @@ class SoldierType
   end
 
   def self.from_experience(experience)
-    type = if experience < mode_experience
+    type = if experience.to_i < mode_experience
               SOLDIER_TYPE
            elsif experience < average_experience
               SHIELD_AGENT_TYPE
