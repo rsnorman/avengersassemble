@@ -17,38 +17,7 @@ var Character = React.createClass({
           <h4>{this.props.character.name}</h4>
           <h6>{this.props.character.soldier_type}</h6>
           <em>{this.props.character.real_name}</em>
-          <table>
-            <tbody>
-              <tr>
-                <td className='rating'>Strength</td>
-                <td>{this.props.character.ratings.strength}</td>
-              </tr>
-              <tr>
-                <td className='rating'>Speed</td>
-                <td>{this.props.character.ratings.speed}</td>
-              </tr>
-              <tr>
-                <td className='rating'>Intelligence</td>
-                <td>{this.props.character.ratings.intelligence}</td>
-              </tr>
-              <tr>
-                <td className='rating'>Fighting</td>
-                <td>{this.props.character.ratings.fighting}</td>
-              </tr>
-              <tr>
-                <td className='rating'>Durability</td>
-                <td>{this.props.character.ratings.durability}</td>
-              </tr>
-              <tr>
-                <td className='rating'>Energy</td>
-                <td>{this.props.character.ratings.energy}</td>
-              </tr>
-              <tr>
-                <td className='rating'>Experience</td>
-                <td>{this.props.character.experience}</td>
-              </tr>
-            </tbody>
-          </table>
+          <p>{this.props.character.description}</p>
         </div>
       </div>
     );

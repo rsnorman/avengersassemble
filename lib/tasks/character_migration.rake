@@ -7,7 +7,19 @@ namespace :character do
 
   desc "Imports characters from csv file"
   task :import => :environment do
-    exporter = CharacterCSVImporter.new('db/characters.csv')
+    file = if ENV['DATE'].nil?
+             'db/characters.csv'
+           else
+             "db/characters-#{ENV['DATE']}.csv"
+           end
+    exporter = CharacterCSVImporter.new(file)
     exporter.import
+  end
+
+  namespace :import do
+    task :fresh => :environment do
+      Character.destroy_all
+      Rake::Task['character:import'].invoke
+    end
   end
 end
