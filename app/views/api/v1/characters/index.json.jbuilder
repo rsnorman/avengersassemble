@@ -6,5 +6,5 @@ json.array! @characters do |character|
   json.ratings character.ratings
   json.experience character.experience
   json.soldier_type character.soldier_type.name
-  json.thumbnail_url character.thumbnail_url
+  json.thumbnail_url character.thumbnail_image.url
 end

@@ -10,4 +10,8 @@ class ThumbnailImage
     @url.include?(MISSING_IMAGE_PATH)
   end
 
+  def url
+    @url.gsub(/(?:http|https):/, '')
+  end
+
 end
