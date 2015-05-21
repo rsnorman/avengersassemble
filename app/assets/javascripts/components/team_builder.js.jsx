@@ -6,11 +6,7 @@ var TeamBuilder = React.createClass({
         characters: [],
         description: 'This is the best team evarrrrr!!!',
         name: 'Ryan Norman\'s Avengers'
-      },
-      avengerSize: 0,
-      shieldAgentSize: 0,
-      soldierSize: 0,
-      totalSize: 0
+      }
     };
   },
 
@@ -21,18 +17,14 @@ var TeamBuilder = React.createClass({
   },
 
   addCharacterToTeam: function(character) {
-    if ( character.soldier_type === 'Avenger' ) {
-      if ( avengerSize >= this.props.maxAvengers ) {
-        return
+    if ( this.props.maxSize > this.state.team.characters.length ) {
+      this.state.team.characters.push(character);
+
+      if ( this.props.maxSize === this.state.team.characters.length ) {
+        this.state.team.isValid = true
       }
     }
 
-    if ( character.soldier_type === 'Shield Agent' ) {
-      if ( avengerSize >= this.props.maxAvengers ) {
-        return
-      }
-    }
-    this.state.team.characters.push(character);
     this.setState(this.state);
   },
 
@@ -74,5 +66,5 @@ var TeamBuilder = React.createClass({
 });
 
 window.onload = function() {
-  React.render(<TeamBuilder maxSize={5} maxAvengers={2} maxShieldAgents={2} />, document.body);
+  React.render(<TeamBuilder maxSize={5} />, document.body);
 };
