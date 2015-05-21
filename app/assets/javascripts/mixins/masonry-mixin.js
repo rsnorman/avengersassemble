@@ -53,7 +53,9 @@ function MasonryMixin(reference, options) {
           var diff = this.diffDomChildren();
 
           if (diff.removed.length > 0) {
-              this.masonry.remove(diff.removed);
+              if (!!diff.removed.parentNode) {
+                this.masonry.remove(diff.removed);
+              }
               this.masonry.reloadItems();
           }
 

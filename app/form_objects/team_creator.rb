@@ -5,8 +5,8 @@ class TeamCreator
     @team = Team.new
   end
 
-  def assemble_team(character_ids = [691, 1307, 649, 309, 355])
-    @team.characters = Character.where(id: character_ids)
+  def assemble(team_attributes = { character_ids: [691, 1307, 649, 309, 355] })
+    @team.characters = Character.where(id: team_attributes[:character_ids])
 
     @team.characters.each do |character|
       Ratings::RATING_NAMES.each { |r| set_rating_value(character, r) }
