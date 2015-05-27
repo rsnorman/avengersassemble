@@ -1,5 +1,9 @@
 class Api::V1::TeamsController < ApplicationController
 
+  def index
+    @teams = RankedTeams.new.rankings
+  end
+
   def create
     @team = TeamCreator.new.assemble(params[:team])
   end

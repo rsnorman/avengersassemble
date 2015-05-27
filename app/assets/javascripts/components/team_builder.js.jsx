@@ -29,26 +29,20 @@ var TeamBuilder = React.createClass({
   },
 
   render: function() {
-    return <div className="row">
-        <div className="large-12 columns">
-
-          <ul className="button-group">
-            <li><a href="#" className="button">Home</a></li>
-            <li><a href="#" className="button">Teams</a></li>
-          </ul>
-
-          <NewTeam team={this.state.team}></NewTeam>
+    return (
+      <div>
+        <div className="row">
+          <div className="large-12 columns">
+            <NewTeam team={this.state.team}></NewTeam>
+          </div>
+        </div>
 
         <div className="row">
-
           <div className="large-12 columns">
             <div className="radius panel">
-
               <CharacterSearch onSearchSuccess={this.showCharacters} />
-
             </div>
           </div>
-
         </div>
 
         <div className="row">
@@ -57,14 +51,17 @@ var TeamBuilder = React.createClass({
               <Characters onCharacterSelect={this.addCharacterToTeam} characters={this.state.characters} />
             </div>
           </div>
-
         </div>
-
       </div>
-    </div>;
+    );
   }
 });
 
-window.onload = function() {
-  React.render(<TeamBuilder maxSize={5} />, document.body);
-};
+$(document).on('ready page:load', function() {
+  var teamBuilderEl;
+  teamBuilderEl = document.getElementById('team_builder');
+
+  if ( teamBuilderEl ) {
+    React.render(<TeamBuilder maxSize={5} />, teamBuilderEl);
+  }
+});
