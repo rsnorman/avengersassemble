@@ -43,7 +43,7 @@ class MarvelClient
   end
 
   def self.private_key
-    ENV['marvel_public_key'] || config['marvel']['private_key']
+    ENV['marvel_private_key'] || config['marvel']['private_key']
   end
 
   def self.config
