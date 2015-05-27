@@ -19,6 +19,13 @@
         <ul class="button-group">
           <li><a href="/" class="button">Home</a></li>
           <li><a href="/teams" class="button">Teams</a></li>
+          <li>
+            <% if current_user %>
+              <%= link_to "Sign out", signout_path, id: "sign_out", class: 'button' %>
+            <% else %>
+              <%= link_to "Sign in", "/auth/facebook", id: "sign_in", class: 'button' %>
+            <% end %>
+          </li>
         </ul>
       </div>
     </div>
