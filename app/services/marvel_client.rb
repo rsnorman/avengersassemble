@@ -19,7 +19,7 @@ class MarvelClient
 
     character.marvel_id = 1009351 if character.name.include?('Hulk/Bruce Banner (MAA)')
     other_character.marvel_id = 1009351 if other_character.name.include?('Hulk/Bruce Banner (MAA)')
-    
+
     count = comics(
               sharedAppearances: [character.marvel_id, other_character.marvel_id].join(','),
               limit: 1
