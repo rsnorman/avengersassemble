@@ -22,4 +22,5 @@
 //= require components
 //= require_tree .
 
+Turbolinks.enableProgressBar();
 $(function(){ $(document).foundation(); });
