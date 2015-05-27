@@ -32,7 +32,7 @@ class MarvelClient
       puts "Found #{count} shared comics"
       count
     else
-      raise MarvelClientError.new("Marvel API returned incorrectly formatted response: #{comic_data.inspect}")
+      raise MarvelClientError.new("Marvel API returned incorrectly formatted response: #{comic_data.inspect} <#{self.inspect}>")
     end
   end
 
