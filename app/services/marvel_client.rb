@@ -2,6 +2,8 @@ require 'yaml'
 
 class MarvelClient
 
+  class MarvelClientError < Exception; end;
+
   delegate :characters, to: :@client
   delegate :comics, to: :@client
 
@@ -20,12 +22,18 @@ class MarvelClient
     character.marvel_id = 1009351 if character.name.include?('Hulk/Bruce Banner (MAA)')
     other_character.marvel_id = 1009351 if other_character.name.include?('Hulk/Bruce Banner (MAA)')
 
-    count = comics(
+    comic_data = comics(
               sharedAppearances: [character.marvel_id, other_character.marvel_id].join(','),
               limit: 1
-            )['data']['total']
-    puts "Found #{count} shared comics"
-    count
+            )
+
+    if comic_data.has_key?('data')
+      count = comic_data['data']['total']
+      puts "Found #{count} shared comics"
+      count
+    else
+      raise MarvelClientError.new("Marvel API returned incorrectly formatted response: #{comic_data.inspect}")
+    end
   end
 
   private
