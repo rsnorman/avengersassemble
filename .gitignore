@@ -16,3 +16,4 @@
 !/log/.keep
 /tmp
 marvel_keys.yml
+.env
