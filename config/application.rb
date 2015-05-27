@@ -6,6 +6,13 @@ require 'rails/all'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
+if File.exists?('./.env')
+  File.open('./.env').read.split("\n").each do |line|
+    ENV[line.split('=').first] = line.split('=').last
+    puts "Set ENV variable #{line.split('=').first} to #{ENV[line.split('=').first]}"
+  end
+end
+
 module MarvelExplorer
   class Application < Rails::Application
     # Settings in config/environments/* take precedence over those specified here.
