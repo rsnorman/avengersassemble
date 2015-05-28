@@ -1,8 +1,8 @@
-class TeamCreator
-  def initialize(user = :none, camaraderie_calculator = SharedComicCamaraderie)
+class UserTeamCreator
+  def initialize(user, camaraderie_calculator = SharedComicCamaraderie)
     @user = user
     @camaraderie_calculator = camaraderie_calculator
-    @team = Team.new
+    @team = Team.new(user: @user)
   end
 
   def assemble(team_attributes = { character_ids: [691, 1307, 649, 309, 355] })
@@ -14,7 +14,7 @@ class TeamCreator
     end
 
     @team.total_camaraderie = @camaraderie_calculator.new(@team).calculate
-    @team.name = "Ryan Norman's Avengers!"
+    @team.name = "#{@user.name}'s Avengers!"
 
     @team.save
     @team

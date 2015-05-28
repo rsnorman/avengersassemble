@@ -5,7 +5,7 @@ class Api::V1::TeamsController < ApplicationController
   end
 
   def create
-    @team = TeamCreator.new.assemble(params[:team])
+    @team = UserTeamCreator.new(current_user).assemble(params[:team])
   end
 
   private
