@@ -3,9 +3,7 @@ var TeamBuilder = React.createClass({
     return {
       characters: [],
       team: {
-        characters: [],
-        description: 'This is the best team evarrrrr!!!',
-        name: 'Ryan Norman\'s Avengers'
+        characters: []
       }
     };
   },
@@ -28,12 +26,16 @@ var TeamBuilder = React.createClass({
     this.setState(this.state);
   },
 
+  teamAssembled: function(team) {
+    console.log('Team Created Successfully', team);
+  },
+
   render: function() {
     return (
       <div>
         <div className="row">
           <div className="large-12 columns">
-            <NewTeam team={this.state.team}></NewTeam>
+            <NewTeam team={this.state.team} onAssembleTeamSuccess={this.teamAssembled}></NewTeam>
           </div>
         </div>
 

@@ -4,7 +4,7 @@ var NewTeam = React.createClass({
     e.preventDefault();
 
     $.ajax({
-      url: 'api/v1/teams',
+      url: '/api/v1/teams',
       type: 'POST',
       dataType: 'json',
       data: {
@@ -13,8 +13,9 @@ var NewTeam = React.createClass({
         }
       },
       success: function(team) {
-        console.log(team);
-        // this.props.onAssembleTeamSuccess(team);
+        if ( this.props.onAssembleTeamSuccess ) {
+          this.props.onAssembleTeamSuccess(team);
+        }
       }.bind(this)
     });
   },
@@ -38,8 +39,7 @@ var NewTeam = React.createClass({
         </div>
         <div className="row">
           <div className="large-9 columns">
-            <h3>{this.props.team.name}</h3>
-            <p>{this.props.team.description}</p>
+            <h3>Assemble Your Avengers</h3>
           </div>
           <div className="large-3 columns">
             <input type="submit" disabled={!this.props.team.isValid} className="expand button" value="Assemble Team" />
