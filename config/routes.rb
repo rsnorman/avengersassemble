@@ -1,8 +1,8 @@
 Rails.application.routes.draw do
 
-  root 'teams#new'
+  root 'teams#index'
 
-  resources :teams, only: :index
+  resources :teams, only: [:new, :index]
 
   resources :sessions, only: :new
 
