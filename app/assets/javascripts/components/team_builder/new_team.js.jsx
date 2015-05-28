@@ -18,6 +18,7 @@ var NewTeam = React.createClass({
         }
       }.bind(this)
     });
+
   },
 
   render: function() {
@@ -40,6 +41,7 @@ var NewTeam = React.createClass({
         <div className="row">
           <div className="large-9 columns">
             <h3>Assemble Your Avengers</h3>
+            <h6>Total Experience: {this.props.team.experience}</h6>
           </div>
           <div className="large-3 columns">
             <input type="submit" disabled={!this.props.team.isValid} className="expand button" value="Assemble Team" />

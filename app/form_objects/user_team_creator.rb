@@ -1,4 +1,6 @@
 class UserTeamCreator
+  ALLOWED_CUMULATIVE_EXPERIENCE = 2500
+
   def initialize(user, camaraderie_calculator = SharedComicCamaraderie)
     @user = user
     @camaraderie_calculator = camaraderie_calculator
