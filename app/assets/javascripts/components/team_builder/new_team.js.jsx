@@ -36,12 +36,15 @@ var NewTeam = React.createClass({
     return (
       <form id="new_team" onSubmit={this.assembleTeam}>
         <div id="new_team" className="row">
-          {this.props.team.characters.map(createItem)}
+          <div className="large-12 columns">
+            {this.props.team.characters.map(createItem)}
+          </div>
         </div>
         <div className="row">
           <div className="large-9 columns">
             <h3>Assemble Your Avengers</h3>
             <h6>Total Experience: {this.props.team.experience}</h6>
+            <ExperienceBar totalProgress={this.props.allowedExperience} currentProgress={this.props.team.experience}></ExperienceBar>
           </div>
           <div className="large-3 columns">
             <input type="submit" disabled={!this.props.team.isValid} className="expand button" value="Assemble Team" />

@@ -47,7 +47,7 @@ var TeamBuilder = React.createClass({
       <div>
         <div className="row">
           <div className="large-12 columns">
-            <NewTeam team={this.state.team} onAssembleTeamSuccess={this.teamAssembled}></NewTeam>
+            <NewTeam team={this.state.team} onAssembleTeamSuccess={this.teamAssembled} allowedExperience={this.props.maxExperience}></NewTeam>
           </div>
         </div>
 
