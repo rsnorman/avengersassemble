@@ -3,7 +3,8 @@ var TeamBuilder = React.createClass({
     return {
       characters: [],
       team: {
-        characters: []
+        characters: [],
+        experience: 0
       }
     };
   },
@@ -16,11 +17,22 @@ var TeamBuilder = React.createClass({
 
   addCharacterToTeam: function(character) {
     if ( this.props.maxSize > this.state.team.characters.length ) {
-      this.state.team.characters.push(character);
 
-      if ( this.props.maxSize === this.state.team.characters.length ) {
-        this.state.team.isValid = true
+      if ( this.props.maxExperience > this.state.team.experience + character.experience ) {
+
+        this.state.team.characters.push(character);
+        this.state.team.experience += character.experience
+
+        if ( this.props.maxSize === this.state.team.characters.length ) {
+          this.state.team.isValid = true
+        }
+
+      } else {
+        alert('Too powerful of a team');
       }
+
+    } else {
+      alert('Too many team members');
     }
 
     this.setState(this.state);
@@ -35,7 +47,7 @@ var TeamBuilder = React.createClass({
       <div>
         <div className="row">
           <div className="large-12 columns">
-            <NewTeam team={this.state.team} onAssembleTeamSuccess={this.teamAssembled}></NewTeam>
+            <NewTeam team={this.state.team} onAssembleTeamSuccess={this.teamAssembled} allowedExperience={this.props.maxExperience}></NewTeam>
           </div>
         </div>
 
@@ -64,6 +76,6 @@ $(document).on('ready page:load', function() {
   teamBuilderEl = document.getElementById('team_builder');
 
   if ( teamBuilderEl ) {
-    React.render(<TeamBuilder maxSize={5} />, teamBuilderEl);
+    React.render(<TeamBuilder maxSize={5} maxExperience={<%= UserTeamCreator::ALLOWED_CUMULATIVE_EXPERIENCE %>} />, teamBuilderEl);
   }
 });
