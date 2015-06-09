@@ -1,46 +1,51 @@
 var Notifier = React.createClass({
-  close: function() {
-    $(this).parent().fadeOut(200, function() {
-      this.setState({
-        message: null,
-        type: null,
-        visible: false
-      });
-    }.bind(this));
-  },
 
   getInitialState: function() {
     return {
-      message: 'Oops! Something went wrong!',
+      message: null,
       type: null,
       visible: false
     };
   },
 
   componentDidMount: function() {
-    setTimeout(function() {
+
+    PubSub.subscribe( 'notification', function(eventName, message) {
+
       this.setState({
-        message: 'Oops! Something went wrong!',
+        message: message.text,
+        type: message.type,
         visible: true
       });
-    }.bind(this), 1000);
+
+    }.bind(this) );
+  },
+
+  close: function() {
+    this.setState({
+      message: null,
+      type: null,
+      visible: false
+    });
   },
 
   render: function() {
     var classes, animatedClasses;
+
+    classes = this.state.type;
+
     if ( this.state.visible ) {
-      classes = 'visible'
-      animatedClasses = 'animated flipInX'
-    };
+      classes += ' visible';
+      animatedClasses = 'animated flipInX';
+    }
 
 
     return (
       <div id="notifications" className={classes}>
         <div id="notifications-top-center" className={animatedClasses}>
-          <span className="iconb" data-icon="&#xe20e;"></span>
           {this.state.message}
-          <div id="notifications-top-center-close" onclick={this.close()}>
-            <span className="iconb" data-icon="&#xe20e;"></span>
+          <div id="notifications-top-center-close" onClick={this.close}>
+            <span className="fi-x"></span>
           </div>
         </div>
       </div>
