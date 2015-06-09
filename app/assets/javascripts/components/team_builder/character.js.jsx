@@ -1,6 +1,8 @@
 var Character = React.createClass({
 
-  selectCharacter: function() {
+  selectCharacter: function(event) {
+    event.preventDefault();
+
     if (this.props.onCharacterSelect) {
       this.props.onCharacterSelect(this.props.character);
     }
@@ -9,7 +11,7 @@ var Character = React.createClass({
   render: function() {
     return (
       <div className="character-result">
-        <a onClick={this.selectCharacter}>
+        <a href="#" onClick={this.selectCharacter}>
           <i className="fi-plus"></i>
         </a>
         <img src={this.props.character.thumbnail_url} />

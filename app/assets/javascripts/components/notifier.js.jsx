@@ -34,7 +34,9 @@ var Notifier;
 
     },
 
-    close: function() {
+    close: function(event) {
+      event.preventDefault();
+
       if (removeTimer) {
         clearTimeout(removeTimer);
       }
@@ -76,9 +78,9 @@ var Notifier;
         <div id="notifications" className={classes}>
           <div id="notifications-top-center" className={animatedClasses}>
             {this.state.message}
-            <div id="notifications-top-center-close" onClick={this.close}>
-              <span className="fi-x"></span>
-            </div>
+            <a id="notifications-top-center-close" href="#" onClick={this.close}>
+              <i className="fi-x"></i>
+            </a>
           </div>
         </div>
       );
