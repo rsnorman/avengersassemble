@@ -1,57 +1,88 @@
-var Notifier = React.createClass({
+var Notifier;
+(function() {
+  var removeTimer;
 
-  getInitialState: function() {
-    return {
-      message: null,
-      type: null,
-      visible: false
-    };
-  },
+  Notifier = React.createClass({
 
-  componentDidMount: function() {
+    getInitialState: function() {
+      return {
+        message: null,
+        type: null,
+        visible: false
+      };
+    },
 
-    PubSub.subscribe( 'notification', function(eventName, message) {
+    componentDidMount: function() {
 
+      PubSub.subscribe( 'notification', function(eventName, message) {
+
+        this.setState({
+          message: message.text,
+          type: message.type,
+          visible: true,
+          remove: false
+        });
+
+        removeTimer = setTimeout(function() {
+          this.setState({
+            remove: true
+          });
+
+        }.bind(this), 5000)
+
+      }.bind(this) );
+
+    },
+
+    close: function() {
       this.setState({
-        message: message.text,
-        type: message.type,
-        visible: true
+        message: null,
+        type: null,
+        visible: false
       });
+    },
 
-    }.bind(this) );
-  },
+    render: function() {
+      var classes, animatedClasses;
 
-  close: function() {
-    this.setState({
-      message: null,
-      type: null,
-      visible: false
-    });
-  },
+      classes = this.state.type;
 
-  render: function() {
-    var classes, animatedClasses;
+      if ( this.state.visible && !this.state.remove ) {
 
-    classes = this.state.type;
+        if (removeTimer) {
+          clearTimeout(removeTimer);
+        }
 
-    if ( this.state.visible ) {
-      classes += ' visible';
-      animatedClasses = 'animated flipInX';
-    }
+        classes += ' visible';
+        animatedClasses = 'animated flipInX';
 
+      } else if ( this.state.remove ) {
 
-    return (
-      <div id="notifications" className={classes}>
-        <div id="notifications-top-center" className={animatedClasses}>
-          {this.state.message}
-          <div id="notifications-top-center-close" onClick={this.close}>
-            <span className="fi-x"></span>
+        classes += ' visible';
+        animatedClasses = 'animated flipOutX';
+
+        setTimeout(function() {
+          this.setState({
+            visible: false,
+            remove: false
+          });
+        }.bind(this), 750);
+
+      }
+
+      return (
+        <div id="notifications" className={classes}>
+          <div id="notifications-top-center" className={animatedClasses}>
+            {this.state.message}
+            <div id="notifications-top-center-close" onClick={this.close}>
+              <span className="fi-x"></span>
+            </div>
           </div>
         </div>
-      </div>
-    );
-  }
-});
+      );
+    }
+  });
+})()
 
 $(document).on('ready page:load', function() {
   var notificationsEl;
