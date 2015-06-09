@@ -35,10 +35,12 @@ var Notifier;
     },
 
     close: function() {
+      if (removeTimer) {
+        clearTimeout(removeTimer);
+      }
+
       this.setState({
-        message: null,
-        type: null,
-        visible: false
+        remove: true
       });
     },
 
