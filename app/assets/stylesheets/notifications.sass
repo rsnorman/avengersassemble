@@ -1,0 +1,43 @@
+#notifications
+  top: 0
+  left: 0
+  float: left
+  width: 100%
+  overflow: hidden
+  height: 50px
+  position: fixed
+  z-index: 1
+  display: none
+
+#notifications.visible
+  display: block
+
+#notifications-top-center
+  position: relative
+  left: 0px
+  top: 0px
+  width: 100%
+  background-color: rgba(255,255,255,0.9)
+  height: 50px
+  text-align: center
+  line-height: 50px
+  color: #404040
+  font-size: 18px
+  font-weight: 600
+
+#notifications-top-center-close
+  background-color: rgba(255,0,0,0.6)
+  float: right
+  height: 50px
+  width: 50px
+  font-size: 30px
+  color: rgba(255,255,255,1)
+  font-weight: 400
+  -webkit-transition: all 0.5s
+  -moz-transition: all 0.5s
+  -o-transition: all 0.5s
+  transition: all 0.5s
+
+#notifications-top-center-close:hover
+  cursor: pointer
+  background-color: rgba(255,0,0,1)

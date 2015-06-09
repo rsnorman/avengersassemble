@@ -10,9 +10,20 @@
   float: left;
 
   a {
+    font-size: 2.0em;
+    color: #ffffff;
+    padding: 5px;
     position: absolute;
-    right: -5px;
-    top: -5px;
+    right: -25px;
+    top: -20px;
+    width: 50px;
+    text-shadow: 1px 1px 2px black;
+    transition: color .5s;
+
+    &:hover{
+      text-decoration: none;
+      color: darken(#ffffff, 10%);
+    }
   }
 
   img {

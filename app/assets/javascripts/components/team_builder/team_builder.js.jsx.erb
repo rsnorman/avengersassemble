@@ -23,23 +23,37 @@ var TeamBuilder = React.createClass({
         this.state.team.characters.push(character);
         this.state.team.experience += character.experience
 
+        PubSub.publish( 'notification', {
+          text: 'Added ' + character.name + ' to team',
+          type: 'success'
+        } );
+
         if ( this.props.maxSize === this.state.team.characters.length ) {
           this.state.team.isValid = true
         }
 
       } else {
-        alert('Too powerful of a team');
+        PubSub.publish( 'notification', {
+          text: 'Too powerful of a team',
+          type: 'error'
+        } );
       }
 
     } else {
-      alert('Too many team members');
+      PubSub.publish( 'notification', {
+        text: 'Too many team members',
+        type: 'error'
+      } );
     }
 
     this.setState(this.state);
   },
 
   teamAssembled: function(team) {
-    console.log('Team Created Successfully', team);
+    PubSub.publish( 'notification', {
+      text: 'Team create successfully',
+      type: 'success'
+    } );
   },
 
   render: function() {
