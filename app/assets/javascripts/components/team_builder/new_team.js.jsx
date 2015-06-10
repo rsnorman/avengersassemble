@@ -3,6 +3,10 @@ var NewTeam = React.createClass({
   assembleTeam: function(e) {
     e.preventDefault();
 
+    if ( this.props.onAssembleStart ) {
+      this.props.onAssembleStart();
+    }
+
     $.ajax({
       url: '/api/v1/teams',
       type: 'POST',

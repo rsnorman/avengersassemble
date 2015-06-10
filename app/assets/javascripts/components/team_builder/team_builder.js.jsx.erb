@@ -1,12 +1,20 @@
 var TeamBuilder = React.createClass({
+
   getInitialState: function() {
-    return {
-      characters: [],
-      team: {
+    if ( !localStorage.team ) {
+      return {
         characters: [],
-        experience: 0
-      }
-    };
+        team: {
+          characters: [],
+          experience: 0
+        }
+      };
+    } else {
+      return {
+        characters:[],
+        team: JSON.parse(localStorage.team)
+      };
+    }
   },
 
   showCharacters: function(characters) {
@@ -21,7 +29,7 @@ var TeamBuilder = React.createClass({
       if ( this.props.maxExperience > this.state.team.experience + character.experience ) {
 
         this.state.team.characters.push(character);
-        this.state.team.experience += character.experience
+        this.state.team.experience += character.experience;
 
         PubSub.publish( 'notification', {
           text: 'Added ' + character.name + ' to team',
@@ -32,6 +40,8 @@ var TeamBuilder = React.createClass({
           this.state.team.isValid = true
         }
 
+        localStorage.team = JSON.stringify(this.state.team);
+
       } else {
         PubSub.publish( 'notification', {
           text: 'Too powerful of a team',
@@ -40,20 +50,29 @@ var TeamBuilder = React.createClass({
       }
 
     } else {
-      PubSub.publish( 'notification', {
+      PubSub.publish('notification', {
         text: 'Too many team members',
         type: 'error'
-      } );
+      });
     }
 
     this.setState(this.state);
   },
 
+  teamAssembling: function() {
+    this.setState({
+      creatingTeam: true
+    });
+  },
+
   teamAssembled: function(team) {
-    PubSub.publish( 'notification', {
+    this.setState({
+      creatingTeam: false
+    });
+    PubSub.publish('notification', {
       text: 'Team create successfully',
       type: 'success'
-    } );
+    });
   },
 
   render: function() {
@@ -61,7 +80,7 @@ var TeamBuilder = React.createClass({
       <div>
         <div className="row">
           <div className="large-12 columns">
-            <NewTeam team={this.state.team} onAssembleTeamSuccess={this.teamAssembled} allowedExperience={this.props.maxExperience}></NewTeam>
+            <NewTeam team={this.state.team} onAssembleStart={this.teamAssembling} onAssembleTeamSuccess={this.teamAssembled} allowedExperience={this.props.maxExperience}></NewTeam>
           </div>
         </div>
 
@@ -80,6 +99,7 @@ var TeamBuilder = React.createClass({
             </div>
           </div>
         </div>
+        <TeamCreatorFeedback visible={this.state.creatingTeam} />
       </div>
     );
   }
