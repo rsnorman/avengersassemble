@@ -1,9 +1,8 @@
 class UserTeamCreator
   ALLOWED_CUMULATIVE_EXPERIENCE = 2500
 
-  def initialize(user, camaraderie_calculator = SharedComicCamaraderie)
+  def initialize(user)
     @user = user
-    @camaraderie_calculator = camaraderie_calculator
     @team = Team.new(user: @user)
   end
 
@@ -15,7 +14,7 @@ class UserTeamCreator
       @team.total_experience += character.experience
     end
 
-    @team.total_camaraderie = @camaraderie_calculator.new(@team).calculate
+    @team.total_camaraderie = team_attributes[:total_camaraderie]
     @team.name = "#{@user.name}'s Avengers!"
 
     @team.save

@@ -12,7 +12,11 @@ var TeamBuilder = React.createClass({
     } else {
       return {
         characters:[],
-        team: JSON.parse(localStorage.team)
+        //team: JSON.parse(localStorage.team)
+        team: {
+          characters: [],
+          experience: 0
+        }
       };
     }
   },
@@ -24,23 +28,26 @@ var TeamBuilder = React.createClass({
   },
 
   addCharacterToTeam: function(character) {
+    var team;
+    team = JSON.parse(JSON.stringify(this.state.team));
+
     if ( this.props.maxSize > this.state.team.characters.length ) {
 
       if ( this.props.maxExperience > this.state.team.experience + character.experience ) {
 
-        this.state.team.characters.push(character);
-        this.state.team.experience += character.experience;
+        team.characters.push(character);
+        team.experience += character.experience;
 
         PubSub.publish( 'notification', {
           text: 'Added ' + character.name + ' to team',
           type: 'success'
         } );
 
-        if ( this.props.maxSize === this.state.team.characters.length ) {
-          this.state.team.isValid = true
+        if ( this.props.maxSize === team.characters.length ) {
+          team.isValid = true
         }
 
-        localStorage.team = JSON.stringify(this.state.team);
+        localStorage.team = JSON.stringify(team);
 
       } else {
         PubSub.publish( 'notification', {
@@ -56,7 +63,9 @@ var TeamBuilder = React.createClass({
       });
     }
 
-    this.setState(this.state);
+    this.setState({
+      team: team
+    });
   },
 
   teamAssembling: function() {
@@ -102,14 +111,5 @@ var TeamBuilder = React.createClass({
         <TeamCreatorFeedback visible={this.state.creatingTeam} />
       </div>
     );
-  }
-});
-
-$(document).on('ready page:load', function() {
-  var teamBuilderEl;
-  teamBuilderEl = document.getElementById('team_builder');
-
-  if ( teamBuilderEl ) {
-    React.render(<TeamBuilder maxSize={5} maxExperience={<%= UserTeamCreator::ALLOWED_CUMULATIVE_EXPERIENCE %>} />, teamBuilderEl);
   }
 });
