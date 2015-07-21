@@ -1,5 +1,5 @@
 class Ratings
-  
+
   RATING_NAMES = %i{
     fighting strength energy intelligence durability speed
   }.freeze
