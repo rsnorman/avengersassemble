@@ -1,4 +1,4 @@
-json.(@team, :name, :description, :total_experience, :total_camaraderie,
+json.(@team, :id, :name, :description, :total_experience, :total_camaraderie,
       :total_strength, :total_intelligence, :total_energy, :total_fighting,
       :total_speed)
 

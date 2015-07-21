@@ -17,6 +17,7 @@
 
 //= require react
 //= require react_ujs
+//= require continuity
 //= require_tree ./lib
 //= require_tree ./mixins
 //= require components
