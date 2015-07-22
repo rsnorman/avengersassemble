@@ -15,7 +15,8 @@ class OriginalCharacterImporter
 
       unless current_character.nil?
         next "Skip character: #{new_name}" if new_name =~ /\s\(.*\)/
-        if current_character.experience.to_i >= character_data['comics']['available']
+        total_comics = character_data['comics']['available']
+        if current_character.experience.to_i >= total_comics
           next "Skip character: #{new_name}"
         end
       end

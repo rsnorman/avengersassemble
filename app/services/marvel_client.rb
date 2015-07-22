@@ -15,15 +15,12 @@ class MarvelClient
   end
 
   def shared_comics_count(character, other_character)
-    puts "Finding shared comics between: #{character.name} and #{other_character.name}"
-    character.marvel_id = 1_009_368 if character.name.include?('Iron Man')
-    other_character.marvel_id = 1_009_368 if other_character.name.include?('Iron Man')
-
-    character.marvel_id = 1_009_351 if character.name.include?('Hulk/Bruce Banner (MAA)')
-    other_character.marvel_id = 1_009_351 if other_character.name.include?('Hulk/Bruce Banner (MAA)')
+    puts "Finding shared comics between: #{character.name}" \
+     "and #{other_character.name}"
 
     comic_data = comics(
-      sharedAppearances: [character.marvel_id, other_character.marvel_id].join(','),
+      sharedAppearances: [character.marvel_id,
+                          other_character.marvel_id].join(','),
       limit: 1
     )
 
@@ -32,7 +29,10 @@ class MarvelClient
       puts "Found #{count} shared comics"
       count
     else
-      fail MarvelClientError.new("Marvel API returned incorrectly formatted response: #{comic_data.inspect} <#{inspect}>")
+      fail MarvelClientError.new(
+        'Marvel API returned incorrectly formatted response:' \
+        "#{comic_data.inspect} <#{inspect}>"
+      )
     end
   end
 

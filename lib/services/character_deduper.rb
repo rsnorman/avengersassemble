@@ -4,7 +4,6 @@ class CharacterDeduper
   end
 
   def dedupe
-    original_characters = []
     @characters.group_by(&:wiki_id).each_pair do |_wiki_id, characters|
       original_character = get_original_character(characters)
 
@@ -37,9 +36,17 @@ class CharacterDeduper
       if good_characters.size == 1
         original_character = good_characters.first
       else
-        original_character ||= characters.detect { |c| !c.description.empty? && !c.ratings.missing? && !c.thumbnail_image.missing? }
-        original_character ||= characters.detect { |c| !c.description.empty? && !c.ratings.missing? }
-        original_character ||= characters.detect { |c| !c.description.empty? }
+        original_character ||= characters.detect do |c|
+          !c.description.empty? &&
+          !c.ratings.missing? &&
+          !c.thumbnail_image.missing?
+        end
+        original_character ||= characters.detect do |c|
+          !c.description.empty? && !c.ratings.missing?
+        end
+        original_character ||= characters.detect do |c|
+          !c.description.empty?
+        end
       end
 
       original_character = characters.first if original_character.nil?

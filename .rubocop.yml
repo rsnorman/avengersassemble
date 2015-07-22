@@ -8,6 +8,7 @@ Style/EmptyLinesAroundClassBody:
 
 AllCops:
   Exclude:
+    - 'bin/**/*'
     - 'db/**/*'
     - 'config/**/*'
     - 'script/**/*'
