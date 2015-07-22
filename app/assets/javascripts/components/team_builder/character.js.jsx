@@ -26,3 +26,5 @@ var Character = React.createClass({
   }
 
 });
+
+module.exports = Character;

@@ -43,3 +43,5 @@ var CharacterSearch = React.createClass({
       </form>;
   }
 });
+
+module.exports = CharacterSearch;

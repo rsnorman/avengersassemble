@@ -1,0 +1,33 @@
+{
+  "name": "marvel_explorer",
+  "version": "1.0.0",
+  "description": "Create your own Marvel Avenger team",
+  "main": "index.js",
+  "dependencies": {
+    "node-libs-browser": "^0.5.2",
+    "webpack": "^1.10.1"
+  },
+  "devDependencies": {
+    "jsx-loader": "^0.13.2",
+    "webpack": "^1.10.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rsnorman/avengersassemble.git"
+  },
+  "keywords": [
+    "comics",
+    "avengers",
+    "marvel",
+    "react"
+  ],
+  "author": "Ryan Norman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rsnorman/avengersassemble/issues"
+  },
+  "homepage": "https://github.com/rsnorman/avengersassemble"
+}

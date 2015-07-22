@@ -59,11 +59,4 @@ var TeamRankings = React.createClass({
   }
 });
 
-$(document).on('ready page:load', function() {
-  var teamRankingsEl;
-  teamRankingsEl = document.getElementById('team_rankings');
-
-  if ( teamRankingsEl ) {
-    React.render(<TeamRankings />, teamRankingsEl);
-  }
-});
+module.exports = TeamRankings

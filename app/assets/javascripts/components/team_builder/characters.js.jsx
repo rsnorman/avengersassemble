@@ -1,3 +1,5 @@
+var Character = require('./character.js.jsx');
+
 var Characters = React.createClass({
 
   mixins: [
@@ -27,3 +29,5 @@ var Characters = React.createClass({
   }
 
 });
+
+module.exports = Characters;

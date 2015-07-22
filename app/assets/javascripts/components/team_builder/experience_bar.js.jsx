@@ -14,3 +14,5 @@ var ExperienceBar = React.createClass({
   }
 
 });
+
+module.exports = ExperienceBar;
