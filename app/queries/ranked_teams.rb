@@ -14,7 +14,14 @@ class RankedTeams
   end
 
   def rankings
-    sql = <<-EOF
+    Team.find_by_sql(ranking_sql)
+  end
+
+  private
+
+  # rubocop:disable Metrics/MethodLength
+  def ranking_sql
+    <<-EOF
       SELECT *,
       (
          log((total_camaraderie * 10) | 1)   * #{CAMARADERIE_WEIGHT}  +
@@ -30,7 +37,7 @@ class RankedTeams
       WHERE teams.id IN (#{@teams.pluck(:id).join(',')})
       ORDER BY score DESC
     EOF
-    Team.find_by_sql(sql)
   end
+  # rubocop:enable Metrics/MethodLength
 
 end

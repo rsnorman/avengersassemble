@@ -6,6 +6,9 @@ Documentation:
 Style/EmptyLinesAroundClassBody:
   Enabled: false
 
+Metrics/AbcSize:
+  Max: 20
+
 AllCops:
   Exclude:
     - 'bin/**/*'

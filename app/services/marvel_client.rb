@@ -15,28 +15,35 @@ class MarvelClient
   end
 
   def shared_comics_count(character, other_character)
-    puts "Finding shared comics between: #{character.name}" \
-     "and #{other_character.name}"
+    shared_comic_data = get_shared_comics(character, other_character)
 
-    comic_data = comics(
-      sharedAppearances: [character.marvel_id,
-                          other_character.marvel_id].join(','),
-      limit: 1
-    )
-
-    if comic_data.key?('data')
-      count = comic_data['data']['total']
-      puts "Found #{count} shared comics"
-      count
+    if shared_comic_data.key?('data')
+      shared_comic_data['data']['total'].tap do |count|
+        puts "Found #{count} shared comics"
+      end
     else
-      fail MarvelClientError.new(
-        'Marvel API returned incorrectly formatted response:' \
-        "#{comic_data.inspect} <#{inspect}>"
-      )
+      fail MarvelClientError.new(marvel_client_error_message)
     end
   end
 
   private
+
+  def marvel_client_error_message(comic_data)
+    'Marvel API returned incorrectly formatted response:' \
+    "#{comic_data.inspect} <#{inspect}>"
+  end
+
+  def get_shared_comics(character, other_character)
+    puts "Finding shared comics between: #{character.name}" \
+     "and #{other_character.name}"
+
+    character_ids = [character.marvel_id, other_character.marvel_id].join(',')
+
+    comics(
+      sharedAppearances: character_ids,
+      limit: 1
+    )
+  end
 
   def self.public_key
     ENV['marvel_public_key'] || config['marvel']['public_key']
