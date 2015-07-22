@@ -40,6 +40,12 @@ var TeamRankings = React.createClass({
               {team.characters.map(createCharacter.bind(this))}
               <div className="large-2 medium-2 small-2"></div>
             </div>
+            <div className="row">
+              <div className="large-12">
+                <strong>Score:</strong>
+                {Math.round(team.score)}
+              </div>
+            </div>
           </div>
         </div>
       );

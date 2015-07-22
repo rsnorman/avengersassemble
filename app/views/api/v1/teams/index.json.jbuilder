@@ -1,7 +1,7 @@
 json.results @teams do |team|
   json.(team, :id, :name, :description, :total_experience, :total_camaraderie,
         :total_strength, :total_intelligence, :total_energy, :total_fighting,
-        :total_speed)
+        :total_speed, :score)
 
   json.characters team.characters do |character|
     json.id character.id
