@@ -13,12 +13,12 @@ class CharacterImporter
   end
 
   def import_character(character_data)
-    puts "\n\Importing #{character_data["name"]}…"
+    puts "\n\Importing #{character_data['name']}…"
 
     Character.create(character_data)
 
   rescue
-    puts "Failed to load character: #{character_data["name"]}"
+    puts "Failed to load character: #{character_data['name']}"
   end
 
 end

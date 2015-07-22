@@ -12,14 +12,14 @@ class SoldierType
 
   def self.from_experience(experience)
     type = if experience.to_i < mode_experience
-              SOLDIER_TYPE
+             SOLDIER_TYPE
            elsif experience < average_experience
-              SHIELD_AGENT_TYPE
+             SHIELD_AGENT_TYPE
            else
-              AVENGER_TYPE
+             AVENGER_TYPE
            end
 
-    self.new(type)
+    new(type)
   end
 
   def initialize(type)
@@ -35,11 +35,11 @@ class SoldierType
     @mode_experience ||= begin
       middle_index = (Character.experienced.count / 2).to_i
       Character.experienced
-               .order(:experience)
-               .limit(1)
-               .offset(middle_index)
-               .pluck(:experience)
-               .first
+      .order(:experience)
+      .limit(1)
+      .offset(middle_index)
+      .pluck(:experience)
+      .first
     end
   end
 

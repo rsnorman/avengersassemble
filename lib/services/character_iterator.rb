@@ -1,8 +1,8 @@
 class CharacterIterator
 
-  def initialize( iterator = CharacterApiIterator,
+  def initialize(iterator = CharacterApiIterator,
                   wiki     = CharacterWiki,
-                  client   = MarvelClient )
+                  client   = MarvelClient)
     @iterator = iterator.new(client.new)
     @wiki     = wiki
   end
@@ -21,7 +21,7 @@ class CharacterIterator
         description: api_character['description'],
         marvel_id: api_character['id'],
         is_original: hero_name == api_character['name'],
-        thumbnail_url: concat_image_url(api_character["thumbnail"])
+        thumbnail_url: concat_image_url(api_character['thumbnail'])
       }.merge(wiki_attributes))
     end
   rescue Exception => e
@@ -33,7 +33,7 @@ class CharacterIterator
 
   def concat_image_url(image_url_pieces)
     return ThumbnailImage::MISSING_IMAGE_PATH if image_url_pieces.nil?
-    "#{image_url_pieces["path"]}.#{image_url_pieces["extension"]}"
+    "#{image_url_pieces['path']}.#{image_url_pieces['extension']}"
   end
 
 end

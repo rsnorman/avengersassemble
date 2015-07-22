@@ -15,7 +15,7 @@ class CharacterValidator
 
   private
 
-  def is_invalid?(character)
+  def is_invalid?(_character)
     false
   end
 

@@ -7,16 +7,16 @@ class WikiPage
   REAL_NAME_POS      = 1
 
   def initialize(wiki_url)
-    raise ArgumentError.new('Wiki URL cannot be nil') if wiki_url.nil?
+    fail ArgumentError.new('Wiki URL cannot be nil') if wiki_url.nil?
 
     @wiki_url = wiki_url
   end
 
   def visit
-    wiki_response = HTTParty.get(URI::escape(@wiki_url))
+    wiki_response = HTTParty.get(URI.escape(@wiki_url))
     @html_page    = Nokogiri::HTML(wiki_response.body)
     self
-  # rescue
+    # rescue
     # puts "Bad url: #{@wiki_url}"
   end
 
@@ -41,7 +41,7 @@ class WikiPage
     get_page_element do
       @wiki_id ||= begin
         wiki_link = @html_page.css(WIKI_LINK_SELECTOR).first
-        wiki_link["href"].split('character_id=').last.to_i if wiki_link
+        wiki_link['href'].split('character_id=').last.to_i if wiki_link
       end
     end
   end
@@ -52,7 +52,7 @@ class WikiPage
     return nil if @html_page.nil?
     block.call
   rescue
-    puts "Failed grabbing wiki page element"
+    puts 'Failed grabbing wiki page element'
     nil
   end
 

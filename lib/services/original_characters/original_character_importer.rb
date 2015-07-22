@@ -1,7 +1,7 @@
 class OriginalCharacterImporter
-  def initialize( new_character_iterator = NewCharacterIterator.new,
+  def initialize(new_character_iterator = NewCharacterIterator.new,
                   character_importer = CharacterImporter.new,
-                  wiki = CharacterWiki )
+                  wiki = CharacterWiki)
     @new_character_iterator = new_character_iterator
     @character_importer = character_importer
     @wiki = wiki
@@ -22,8 +22,8 @@ class OriginalCharacterImporter
 
       ActiveRecord::Base.transaction do
         unless current_character.nil?
-          current_character.update_attributes( name: "#{new_name} (Duplicate)",
-                                               is_original: false )
+          current_character.update_attributes(name: "#{new_name} (Duplicate)",
+                                              is_original: false)
         end
 
         wiki_attributes = @wiki.new(new_name).attributes
@@ -35,7 +35,7 @@ class OriginalCharacterImporter
           marvel_id: character_data['id'],
           experience: character_data['comics']['available'],
           is_original: true,
-          thumbnail_url: concat_image_url(character_data["thumbnail"])
+          thumbnail_url: concat_image_url(character_data['thumbnail'])
         }.merge(wiki_attributes))
       end
     end
@@ -45,6 +45,6 @@ class OriginalCharacterImporter
 
   def concat_image_url(image_url_pieces)
     return ThumbnailImage::MISSING_IMAGE_PATH if image_url_pieces.nil?
-    "#{image_url_pieces["path"]}.#{image_url_pieces["extension"]}"
+    "#{image_url_pieces['path']}.#{image_url_pieces['extension']}"
   end
 end

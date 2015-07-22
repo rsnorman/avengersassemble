@@ -1,6 +1,6 @@
 class ThumbnailImage
 
-  MISSING_IMAGE_PATH = "image_not_available.jpg".freeze
+  MISSING_IMAGE_PATH = 'image_not_available.jpg'.freeze
 
   def initialize(url)
     @url = url

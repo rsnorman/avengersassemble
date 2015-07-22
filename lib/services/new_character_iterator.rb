@@ -1,6 +1,6 @@
 class NewCharacterIterator
 
-  def initialize( client = MarvelClient.new, iterator = CharacterApiIterator )
+  def initialize(client = MarvelClient.new, iterator = CharacterApiIterator)
     @iterator = iterator.new(client)
   end
 

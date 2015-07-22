@@ -1,6 +1,6 @@
-json.(@team, :id, :name, :description, :total_experience, :total_camaraderie,
-      :total_strength, :total_intelligence, :total_energy, :total_fighting,
-      :total_speed)
+json.call(@team, :id, :name, :description, :total_experience,
+          :total_camaraderie, :total_strength, :total_intelligence,
+          :total_energy, :total_fighting, :total_speed)
 
 json.characters @team.characters do |character|
   json.id character.id

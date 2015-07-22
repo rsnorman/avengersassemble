@@ -8,9 +8,7 @@ class ApplicationController < ActionController::Base
   private
 
   def authenticate_user
-    if current_user.nil?
-      redirect_to new_session_path
-    end
+    redirect_to new_session_path if current_user.nil?
   end
 
   def marvel_client
