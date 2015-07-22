@@ -6,7 +6,7 @@ class ModelAttributes
 
   def attribute_names
     @model.columns.collect(&:name)
-                  .sort { |x,y| x <=> y }
+      .sort { |x, y| x <=> y }
   end
 
 end

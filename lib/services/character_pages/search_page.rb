@@ -8,17 +8,17 @@ class SearchPage
   end
 
   def visit
-    response = HTTParty.get(URL.gsub('NAME', CGI::escape(@character_name)))
+    response = HTTParty.get(URL.gsub('NAME', CGI.escape(@character_name)))
     @html_doc = Nokogiri::HTML(response.body)
     self
   rescue
     puts "Bad search param: #{@character_name}"
-    raise URL.gsub('NAME', CGI::escape(@character_name))
+    raise URL.gsub('NAME', CGI.escape(@character_name))
   end
 
   def bio_url
     return nil if @html_doc.nil?
-    @html_doc.css(BIO_SELECTOR, text: @character_name).first["href"] rescue nil
+    @html_doc.css(BIO_SELECTOR, text: @character_name).first['href'] rescue nil
   end
 
 end

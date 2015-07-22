@@ -8,9 +8,13 @@ class OriginalCharacterHydrator
     while count < @characters.size
       character = @characters[count]
       dupe_character = @characters[count + 1]
-      puts [character.name, dupe_character.name, character.experience, dupe_character.experience]
+      puts [character.name,
+            dupe_character.name,
+            character.experience,
+            dupe_character.experience]
 
-      if character.experience.to_i >= dupe_character.experience.to_i && character.thumbnail_image.missing?
+      if character.experience.to_i >= dupe_character.experience.to_i &&
+         character.thumbnail_image.missing?
         character.update_attribute(:thumbnail_url, dupe_character.thumbnail_url)
       end
 

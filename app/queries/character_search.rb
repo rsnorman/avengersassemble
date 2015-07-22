@@ -1,5 +1,5 @@
 class CharacterSearch
-  
+
   NAME_CONDITIONS = <<-EOF
     lower(characters.name) LIKE ? OR
     lower(characters.real_name) LIKE ?

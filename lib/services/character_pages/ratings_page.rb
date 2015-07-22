@@ -18,7 +18,7 @@ class RatingsPage
     rating_elements = @xml_page.xpath(STAT_XPATH)
 
     rating_elements.each do |rating|
-      ratings_data["#{rating["type"]}_rating".to_sym] = rating["value"].to_i
+      ratings_data["#{rating['type']}_rating".to_sym] = rating['value'].to_i
     end
     ratings_data
   end

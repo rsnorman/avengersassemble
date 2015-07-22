@@ -1,0 +1,17 @@
+inherit_from: .rubocop_todo.yml
+
+Documentation:
+  Enabled: false
+
+Style/EmptyLinesAroundClassBody:
+  Enabled: false
+
+Metrics/AbcSize:
+  Max: 20
+
+AllCops:
+  Exclude:
+    - 'bin/**/*'
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'script/**/*'

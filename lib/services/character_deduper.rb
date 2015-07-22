@@ -4,8 +4,7 @@ class CharacterDeduper
   end
 
   def dedupe
-    original_characters = []
-    @characters.group_by(&:wiki_id).each_pair do |wiki_id, characters|
+    @characters.group_by(&:wiki_id).each_pair do |_wiki_id, characters|
       original_character = get_original_character(characters)
 
       byebug if original_character.nil?
@@ -16,9 +15,7 @@ class CharacterDeduper
       Character
         .where(id: dupe_characters.collect(&:id))
         .update_all(original_character_id: original_character.id)
-
     end
-
   end
 
   private
@@ -26,7 +23,7 @@ class CharacterDeduper
   def get_original_character(characters)
     return characters.first if characters.size == 1
 
-    original_character = characters.detect { |c| c.is_original }
+    original_character = characters.detect(&:is_original)
 
     if original_character.nil?
       parens_characters     = characters_with_parentheses(characters)
@@ -39,9 +36,17 @@ class CharacterDeduper
       if good_characters.size == 1
         original_character = good_characters.first
       else
-        original_character ||= characters.detect { |c| !c.description.empty? && !c.ratings.missing? && !c.thumbnail_image.missing? }
-        original_character ||= characters.detect { |c| !c.description.empty? && !c.ratings.missing? }
-        original_character ||= characters.detect { |c| !c.description.empty? }
+        original_character ||= characters.detect do |c|
+          !c.description.empty? &&
+          !c.ratings.missing? &&
+          !c.thumbnail_image.missing?
+        end
+        original_character ||= characters.detect do |c|
+          !c.description.empty? && !c.ratings.missing?
+        end
+        original_character ||= characters.detect do |c|
+          !c.description.empty?
+        end
       end
 
       original_character = characters.first if original_character.nil?

@@ -8,22 +8,27 @@ class CharacterApiIterator
   end
 
   def each(&block)
-    characters = []
-    limit = PAGE_SIZE
-    offset = START_OFFSET
     count = PAGE_SIZE
-    character_data = @client.characters(limit: limit, offset: offset).data
+    character_data = get_character_data
 
-    while character_data["total"] > offset + count do
+    while character_data['total'] > offset + count
       puts "Got character data from API at offset: #{offset}"
-      character_data["results"].each do |character|
-        puts "Yield character #{character['name']}"
-        block.call(character)
-      end
+      character_data['results'].each { |c| iterate_character(c, &block) }
 
-      offset = character_data["offset"] + limit
-      count = character_data["count"]
-      character_data = @client.characters(limit: limit, offset: offset).data
+      offset = character_data['offset'] + PAGE_SIZE
+      count = character_data['count']
+      character_data = get_character_data(offset)
     end
+  end
+
+  private
+
+  def iterate_character(character, &block)
+    puts "Yield character #{character['name']}"
+    block.call(character)
+  end
+
+  def get_character_data(offset = START_OFFSET)
+    @client.characters(limit: PAGE_SIZE, offset: offset).data
   end
 end

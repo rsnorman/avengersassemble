@@ -6,7 +6,6 @@ class BioPage
     @character_bio_url = character_bio_url
   end
 
-
   def visit
     response = HTTParty.get("http://marvel.com#{@character_bio_url}")
     @html_doc = Nokogiri::HTML(response.body)
@@ -15,7 +14,7 @@ class BioPage
 
   def wiki_url
     wiki_link = @html_doc.css(WIKI_SELECTOR).first
-    wiki_link["href"] unless wiki_link.nil?
+    wiki_link['href'] unless wiki_link.nil?
   end
 
 end

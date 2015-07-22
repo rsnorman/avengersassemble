@@ -1,15 +1,15 @@
 class Ratings
 
-  RATING_NAMES = %i{
+  RATING_NAMES = %i(
     fighting strength energy intelligence durability speed
-  }.freeze
+  ).freeze
 
   attr_reader *RATING_NAMES
 
   def self.from_character(character)
     ratings = RATING_NAMES.collect do |rating_name|
-                character.public_send("#{rating_name}_rating")
-              end
+      character.public_send("#{rating_name}_rating")
+    end
 
     Ratings.new(*ratings)
   end
