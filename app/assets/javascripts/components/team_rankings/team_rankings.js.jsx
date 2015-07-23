@@ -1,6 +1,20 @@
-var React = require('react');
+var React  = require('react');
+var mui    = require('material-ui');
+
+var ThemeManager = new mui.Styles.ThemeManager();
+
+var AppBar   = mui.AppBar;
+var List     = mui.List;
+var ListItem = mui.ListItem;
 
 var TeamRankings = React.createClass({
+
+  getChildContext: function() {
+    return {
+      muiTheme: ThemeManager.getCurrentTheme()
+    };
+  },
+
   getInitialState: function() {
     return {
       isLoading: true,
@@ -35,7 +49,7 @@ var TeamRankings = React.createClass({
 
     var createTeam = function(team, index) {
       return (
-        <div className="ranking-team row" key={team.id}>
+        <ListItem className="ranking-team row" key={team.id}>
           <div className="large-12 columns">
             <h5>{team.name}</h5>
             <div className="row">
@@ -49,16 +63,23 @@ var TeamRankings = React.createClass({
               </div>
             </div>
           </div>
-        </div>
+        </ListItem>
       );
     };
 
     return (
       <div>
-        {this.state.teams.map(createTeam.bind(this))}
+        <AppBar title="Avengers Leaderboard" iconClassNameRight="muidocs-icon-navigation-expand-more" />
+        <List>
+          {this.state.teams.map(createTeam.bind(this))}
+        </List>
       </div>
     );
   }
 });
+
+TeamRankings.childContextTypes = {
+  muiTheme: React.PropTypes.object
+};
 
 module.exports = TeamRankings

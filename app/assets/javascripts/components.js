@@ -3,6 +3,14 @@ var Notifier     = require('./components/notifier.js.jsx');
 var TeamBuilder  = require('./components/team_builder/team_builder.js.jsx');
 var TeamRankings = require('./components/team_rankings/team_rankings.js.jsx');
 
+var injectTapEventPlugin = require("react-tap-event-plugin");
+
+//Needed for onTouchTap
+//Can go away when react 1.0 release
+//Check this repo:
+//https://github.com/zilverline/react-tap-event-plugin
+injectTapEventPlugin();
+
 
 $(document).on('ready page:load', function() {
   var notificationsEl;
