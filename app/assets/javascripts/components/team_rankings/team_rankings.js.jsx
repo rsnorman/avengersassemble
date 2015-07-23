@@ -6,6 +6,8 @@ var ThemeManager = new mui.Styles.ThemeManager();
 var AppBar   = mui.AppBar;
 var List     = mui.List;
 var ListItem = mui.ListItem;
+var Avatar   = mui.Avatar;
+var FontIcon = mui.FontIcon;
 
 var TeamRankings = React.createClass({
 
@@ -38,29 +40,20 @@ var TeamRankings = React.createClass({
   render: function() {
     var createCharacter = function(character, index) {
       return (
-        <div className="ranking-character large-2 medium-2 small-2 columns" key={character.id}>
-          <img src={character.thumbnail_url} />
-          <div className="panel">
-            <strong>{character.name}</strong>
-          </div>
-        </div>
+        <Avatar src={character.thumbnail_url} size={60} key={character.id} />
       );
     };
 
     var createTeam = function(team, index) {
       return (
         <ListItem className="ranking-team row" key={team.id}>
-          <div className="large-12 columns">
-            <h5>{team.name}</h5>
-            <div className="row">
+          <div className="leader-icon">
+            <Avatar icon={<i className="material-icons md-48">face</i>} size={80}/>
+          </div>
+          <div className="team-details">
+            <div className="team-name">{team.name}</div>
+            <div className="team-characters">
               {team.characters.map(createCharacter.bind(this))}
-              <div className="large-2 medium-2 small-2"></div>
-            </div>
-            <div className="row">
-              <div className="large-12">
-                <strong>Score:</strong>
-                {Math.round(team.score)}
-              </div>
             </div>
           </div>
         </ListItem>
@@ -69,7 +62,7 @@ var TeamRankings = React.createClass({
 
     return (
       <div>
-        <AppBar title="Avengers Leaderboard" iconClassNameRight="muidocs-icon-navigation-expand-more" />
+        <AppBar title="Avengers Leaderboard" />
         <List>
           {this.state.teams.map(createTeam.bind(this))}
         </List>
