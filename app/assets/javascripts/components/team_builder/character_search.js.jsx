@@ -1,3 +1,4 @@
+var React           = require('react');
 var CharacterSearch = React.createClass({
   getInitialState: function() {
     return {

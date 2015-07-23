@@ -1,3 +1,5 @@
+var React = require('react');
+
 var Notifier, removeTimer;
 
 Notifier = React.createClass({

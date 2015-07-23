@@ -15,8 +15,6 @@
 //= require foundation
 //= require turbolinks
 
-//= require react
-//= require react_ujs
 //= require_tree ./lib
 //= require_tree ./mixins
 //= require main.bundle

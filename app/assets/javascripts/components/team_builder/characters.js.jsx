@@ -1,3 +1,4 @@
+var React     = require('react');
 var Character = require('./character.js.jsx');
 
 var Characters = React.createClass({

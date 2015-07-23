@@ -1,3 +1,4 @@
+var React     = require('react');
 var Character = React.createClass({
 
   selectCharacter: function(event) {

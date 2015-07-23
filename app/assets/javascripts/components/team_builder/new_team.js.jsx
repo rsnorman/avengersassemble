@@ -1,3 +1,4 @@
+var React         = require('react');
 var ExperienceBar = require('./experience_bar.js.jsx');
 
 var NewTeam;

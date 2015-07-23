@@ -1,3 +1,4 @@
+var React        = require('react');
 var Notifier     = require('./components/notifier.js.jsx');
 var TeamBuilder  = require('./components/team_builder/team_builder.js.jsx');
 var TeamRankings = require('./components/team_rankings/team_rankings.js.jsx');
