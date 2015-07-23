@@ -53,7 +53,7 @@
 
 	var Notifier     = __webpack_require__(2);
 	var TeamBuilder  = __webpack_require__(3);
-	var TeamRankings = __webpack_require__(4);
+	var TeamRankings = __webpack_require__(11);
 
 
 	$(document).on('ready page:load', function() {
@@ -183,10 +183,10 @@
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var CharacterSearch     = __webpack_require__(7);
-	var Characters          = __webpack_require__(8);
-	var NewTeam             = __webpack_require__(9);
-	var TeamCreatorFeedback = __webpack_require__(10);
+	var CharacterSearch     = __webpack_require__(4);
+	var Characters          = __webpack_require__(5);
+	var NewTeam             = __webpack_require__(7);
+	var TeamCreator = __webpack_require__(9);
 
 	var TeamBuilder, feedbackMessages;
 	feedbackMessages = [];
@@ -317,134 +317,6 @@
 /* 4 */
 /***/ function(module, exports) {
 
-	var TeamRankings = React.createClass({displayName: "TeamRankings",
-	  getInitialState: function() {
-	    return {
-	      isLoading: true,
-	      teams: []
-	    };
-	  },
-
-	  componentDidMount: function() {
-	    $.ajax({
-	      url: '/api/v1/teams',
-	      dataType: 'json',
-	      success: function(data) {
-	        this.setState({
-	          isLoading: false,
-	          teams: data.results
-	        });
-	      }.bind(this)
-	    });
-	  },
-
-	  render: function() {
-	    var createCharacter = function(character, index) {
-	      return (
-	        React.createElement("div", {className: "ranking-character large-2 medium-2 small-2 columns", key: character.id}, 
-	          React.createElement("img", {src: character.thumbnail_url}), 
-	          React.createElement("div", {className: "panel"}, 
-	            React.createElement("strong", null, character.name)
-	          )
-	        )
-	      );
-	    };
-
-	    var createTeam = function(team, index) {
-	      return (
-	        React.createElement("div", {className: "ranking-team row", key: team.id}, 
-	          React.createElement("div", {className: "large-12 columns"}, 
-	            React.createElement("h5", null, team.name), 
-	            React.createElement("div", {className: "row"}, 
-	              team.characters.map(createCharacter.bind(this)), 
-	              React.createElement("div", {className: "large-2 medium-2 small-2"})
-	            ), 
-	            React.createElement("div", {className: "row"}, 
-	              React.createElement("div", {className: "large-12"}, 
-	                React.createElement("strong", null, "Score:"), 
-	                Math.round(team.score)
-	              )
-	            )
-	          )
-	        )
-	      );
-	    };
-
-	    return (
-	      React.createElement("div", null, 
-	        this.state.teams.map(createTeam.bind(this))
-	      )
-	    );
-	  }
-	});
-
-	module.exports = TeamRankings
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	var Character = React.createClass({displayName: "Character",
-
-	  selectCharacter: function(event) {
-	    event.preventDefault();
-
-	    if (this.props.onCharacterSelect) {
-	      this.props.onCharacterSelect(this.props.character);
-	    }
-	  },
-
-	  render: function() {
-	    return (
-	      React.createElement("div", {className: "character-result"}, 
-	        React.createElement("a", {href: "#", onClick: this.selectCharacter}, 
-	          React.createElement("i", {className: "fi-plus"})
-	        ), 
-	        React.createElement("img", {src: this.props.character.thumbnail_url}), 
-	        React.createElement("div", {className: "panel"}, 
-	          React.createElement("h4", null, this.props.character.name), 
-	          React.createElement("h6", null, this.props.character.soldier_type), 
-	          React.createElement("em", null, this.props.character.real_name), 
-	          React.createElement("p", null, this.props.character.description)
-	        )
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = Character;
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	var ExperienceBar = React.createClass({displayName: "ExperienceBar",
-
-	  getPercent: function() {
-	    return this.props.currentProgress / this.props.totalProgress * 100;
-	  },
-
-	  render: function() {
-	    return (
-	      React.createElement("div", {className: "experience-progress-bar-container"}, 
-	        React.createElement("div", {className: "experience-progress-bar", style: {width: this.getPercent() + '%'}}
-	        )
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = ExperienceBar;
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
 	var CharacterSearch = React.createClass({displayName: "CharacterSearch",
 	  getInitialState: function() {
 	    return {
@@ -495,10 +367,10 @@
 
 
 /***/ },
-/* 8 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Character = __webpack_require__(5);
+	var Character = __webpack_require__(6);
 
 	var Characters = React.createClass({displayName: "Characters",
 
@@ -534,10 +406,46 @@
 
 
 /***/ },
-/* 9 */
+/* 6 */
+/***/ function(module, exports) {
+
+	var Character = React.createClass({displayName: "Character",
+
+	  selectCharacter: function(event) {
+	    event.preventDefault();
+
+	    if (this.props.onCharacterSelect) {
+	      this.props.onCharacterSelect(this.props.character);
+	    }
+	  },
+
+	  render: function() {
+	    return (
+	      React.createElement("div", {className: "character-result"}, 
+	        React.createElement("a", {href: "#", onClick: this.selectCharacter}, 
+	          React.createElement("i", {className: "fi-plus"})
+	        ), 
+	        React.createElement("img", {src: this.props.character.thumbnail_url}), 
+	        React.createElement("div", {className: "panel"}, 
+	          React.createElement("h4", null, this.props.character.name), 
+	          React.createElement("h6", null, this.props.character.soldier_type), 
+	          React.createElement("em", null, this.props.character.real_name), 
+	          React.createElement("p", null, this.props.character.description)
+	        )
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = Character;
+
+
+/***/ },
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var ExperienceBar = __webpack_require__(6);
+	var ExperienceBar = __webpack_require__(8);
 
 	var NewTeam;
 
@@ -589,10 +497,36 @@
 
 
 /***/ },
-/* 10 */
+/* 8 */
 /***/ function(module, exports) {
 
-	var TeamCreatorFeedback, continuityTeamBuilder, matchedCharacters;
+	var ExperienceBar = React.createClass({displayName: "ExperienceBar",
+
+	  getPercent: function() {
+	    return this.props.currentProgress / this.props.totalProgress * 100;
+	  },
+
+	  render: function() {
+	    return (
+	      React.createElement("div", {className: "experience-progress-bar-container"}, 
+	        React.createElement("div", {className: "experience-progress-bar", style: {width: this.getPercent() + '%'}}
+	        )
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = ExperienceBar;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var Continuity = __webpack_require__(10);
+
+	var TeamCreator, continuityTeamBuilder, matchedCharacters;
 
 	matchedCharacters = {};
 
@@ -746,7 +680,483 @@
 	  }
 	});
 
-	module.exports = TeamCreatorFeedback;
+	module.exports = TeamCreator;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	/*!
+	 * Continuity
+	 * Copyright(c) 2015 Ryan Scott Norman
+	 * MIT Licensed
+	 */
+
+	'use strict';
+
+	/**
+	 * Creates an object that iterates over a collection and passing values
+	 * into asynchronous functions that resolve or reject promises. Each function
+	 * must wait until the previous one has finished before starting.
+	 *
+	 * To create a Continuity object:
+	 *
+	 *       new Continuity([1, 2], function(value, resolve, reject) {
+	 *
+	 *         setTimeout(function() {
+	 *           if ( isNaN(value) ) {
+	 *             reject('Cannot operate on ' + value + ' because it\'s not a number');
+	 *           } else {
+	 *             resolve(value + 1);
+	 *           }
+	 *         }, 1000);
+	 *
+	 *       });
+	 *
+	 * The `then` method will return all the values resolved by the promises:
+	 *
+	 *       new Continuity([1, 2], function(value, resolve) {
+	 *
+	 *         setTimeout(function() {
+	 *           resolve(value + 1);
+	 *         }, 1000);
+	 *
+	 *       }).then(function(values) {
+	 *
+	 *         assert(values == [2, 3]);
+	 *
+	 *       });
+	 *
+	 * The `progress` method will return the value resolved by the current
+	 * executing promise along with the original value, all the returned
+	 * values and progress:
+	 *
+	 *       new Continuity([1, 2], function(value, resolve) {
+	 *
+	 *         setTimeout(function() {
+	 *           resolve(value + 1);
+	 *         }, 1000);
+	 *
+	 *       }).progress(function(value, originalValue, values, progress) {
+	 *
+	 *         // First iteration
+	 *         if ( progress == 1 ) {
+	 *           assert(value == 2);
+	 *           assert(originalValue == 1);
+	 *           assert(values == [2]);
+	 *           assert(progress == 1);
+	 *         }
+	 *
+	 *         // Second iteration
+	 *         else {
+	 *           assert(value == 3);
+	 *           assert(originalValue == 2);
+	 *           assert(values == [2, 3]);
+	 *           assert(progress == 2);
+	 *         }
+	 *
+	 *       });
+	 *
+	 * The `catch` method behaves like a Promise in that it returns the object that
+	 * that caused the promise to reject, effectively stopping the iterator.
+	 *
+	 *       new Continuity([1, 2], function(value, resolve, reject) {
+	 *
+	 *         setTimeout(function() {
+	 *           reject('Dislike this value: ' + value);
+	 *         }, 1000);
+	 *
+	 *       }).catch(function(error) {
+	 *
+	 *         assert(error == 'Dislike this value: 1');
+	 *
+	 *       });
+	 *
+	 * @param {Array} collection that will be used to call function
+	 * @param {Function} asynchronous function that will be called for each value
+	 *                   in the collection
+	 * @return {Continuity} for thenable methods and progress callback
+	 * @public
+	 */
+	var Continuity = function(originalCollection, iterationFn) {
+	  var continuityPromise,
+	      continuityResolve,
+	      continuityReject,
+	      progressCallbacks,
+	      valueQueue,
+	      resolvedValues,
+	      isRunningPromise,
+	      errorValue,
+	      _continuity;
+
+	  // Store scope
+	  _continuity = this;
+
+	  // Empty array of progress callbacks
+	  progressCallbacks = [];
+
+	  // Initialize empty array of values
+	  resolvedValues = [];
+
+	  // Clone collection to create queue of values to call iteration function
+	  valueQueue = Array.prototype.slice.call(originalCollection);
+
+
+	  /**
+	   * Returns whether or not there are any values left in the queue
+	   *
+	   * @return {Bool} true if valueQueue length is greater than zero,
+	   *                false otherwise
+	   * @private
+	   */
+	  function isFinishedIterating() {
+	    return valueQueue.length == 0 && !isRunningPromise;
+	  }
+
+	  /**
+	   * Pushes new value into values array and fires all progress callbacks
+	   *
+	   * @param {Any} The value that is resolved from asynchronous function
+	   * @private
+	   */
+	  function onSuccessIteration(resolvedValue) {
+	    isRunningPromise = false;
+
+	    resolvedValues.push(resolvedValue); // push newest value
+
+	    // fire all progress callbacks on each iteration
+	    progressCallbacks.map(function(callback) {
+	      callback(
+	        resolvedValue,
+	        originalCollection[resolvedValues.length -1],
+	        resolvedValues,
+	        resolvedValues.length
+	      );
+	    });
+	  }
+
+	  /**
+	   * Recursive function that queues up functions that resolve or reject promises
+	   * with values in collection
+	   *
+	   * @private
+	   */
+	  function collectionIterator() {
+	    var iterationPromise;
+
+	    isRunningPromise = true;
+
+	    // Create iteration promise to pass resolver and rejecter into function. The
+	    // iteration function is called with the first element of the collection.
+	    iterationPromise = new Promise(function(iterationResolve, iterationReject) {
+	      iterationFn(valueQueue.shift(), iterationResolve, iterationReject)
+	    });
+
+	    // Resolved iteration
+	    iterationPromise.then(function(resolvedValue) {
+	      onSuccessIteration(resolvedValue);
+
+	      if ( !isFinishedIterating() ) {
+	        collectionIterator();
+	      } else {
+	        if ( !!continuityResolve ) {
+	          continuityResolve(resolvedValues);
+	        }
+	      }
+
+	    });
+
+	    // Rejected iteration
+	    iterationPromise.catch(function(_errorValue) {
+	      errorValue = _errorValue;
+	      isRunningPromise = false;
+
+	      if ( !!continuityReject ) {
+	        continuityReject(errorValue);
+	      }
+	    });
+
+	  }
+
+	  /**
+	   * Create promise to resolve once all other promises are resolved.
+	   * Store resolve and reject functions so we can chain with a Promise-like
+	   * object.
+	   */
+	  function createContinuityPromise() {
+	    continuityPromise = new Promise(function(resolve, reject) {
+	      continuityResolve = resolve;
+	      continuityReject = reject;
+	    });
+	  }
+
+
+	  /**
+	   * @method then
+	   *
+	   * Adds resolve and reject callbacks that behave exactly like Promise
+	   * `then` method
+	   *
+	   * Without reject callback:
+	   *
+	   *       new Continuity([1, 2], function(value, resolve) {
+	   *
+	   *         setTimeout(function() {
+	   *           resolve(value + 1);
+	   *         }, 1000);
+	   *
+	   *       }).then(function(values) {
+	   *
+	   *         assert(values == [2, 3]);
+	   *
+	   *       });
+	   *
+	   * With reject callback:
+	   *
+	   *       new Continuity([1, 2, 'George'], function(value, resolve, reject) {
+	   *
+	   *         setTimeout(function() {
+	   *           if ( isNaN(value) ) {
+	   *             reject('Cannot operate on ' + value + ' because it\'s not a number');
+	   *           } else {
+	   *             resolve(value + 1);
+	   *           }
+	   *         }, 1000);
+	   *
+	   *       }).then(function(values) {
+	   *
+	   *         assert(values == [2, 3]);
+	   *
+	   *       }, function(error) {
+	   *
+	   *         console.warn("There was an error!", error);
+	   *
+	   *       });
+	   *
+	   * @param {Function} asynchronous function that will be called with
+	   *                   resolved value
+	   * @param {Function} asynchronous function that will be called with
+	   *                   error value
+	   * @return {Continuity} for thenable methods and progress callback
+	   * @public
+	   */
+	  this.then = function(resolveCallback, rejectCallback) {
+	    if ( !continuityPromise ) {
+	      createContinuityPromise();
+	    }
+
+	    continuityPromise.then(resolveCallback, rejectCallback);
+
+	    if ( isFinishedIterating() ) {
+	      continuityResolve(resolvedValues);
+	    }
+
+	    return _continuity;
+	  };
+
+	  /**
+	   * @method catch
+	   *
+	   * Adds reject callback that behave exactly like Promise `catch` method
+	   *
+	   *       new Continuity([1, 2], function(value, resolve, reject) {
+	   *
+	   *         setTimeout(function() {
+	   *           if ( isNaN(value) ) {
+	   *             reject('Cannot operate on ' + value + ' because it\'s not a number');
+	   *           } else {
+	   *             resolve(value + 1);
+	   *           }
+	   *         }, 1000);
+	   *
+	   *       }).catch(function(error) {
+	   *
+	   *         console.warn("There was an error!", error);
+	   *
+	   *       });
+	   *
+	   * @param {Function} asynchronous function that will be called with
+	   *                   error value
+	   * @return {Continuity} for thenable methods and progress callback
+	   * @public
+	   */
+	  this.catch = function(callback) {
+	    if ( !continuityPromise ) {
+	      createContinuityPromise();
+	    }
+	    continuityPromise.catch(callback);
+
+	    if ( !!errorValue ) {
+	      continuityReject(errorValue);
+	    }
+
+	    return _continuity;
+	  };
+
+	  /**
+	   * @method progress
+	   *
+	   * Adds progress callback that is called for each iteration of collection.
+	   * The callback will be called with resolved value, original value, all
+	   * resolved values, and the current progress.
+	   *
+	   *       new Continuity([1, 2], function(value, resolve) {
+	   *
+	   *         setTimeout(function() {
+	   *           resolve(value + 1);
+	   *         }, 1000);
+	   *
+	   *       }).progress(function(value, originalValue, values, progress) {
+	   *
+	   *         // First iteration
+	   *         if ( progress == 1 ) {
+	   *           assert(value == 2);
+	   *           assert(originalValue == 1);
+	   *           assert(values == [2]);
+	   *           assert(progress == 1);
+	   *         }
+	   *
+	   *         // Second iteration
+	   *         else {
+	   *           assert(value == 3);
+	   *           assert(originalValue == 2);
+	   *           assert(values == [2, 3]);
+	   *           assert(progress == 2);
+	   *         }
+	   *
+	   *       });
+	   *
+	   * @param {Function} asynchronous function that will be called with resolved
+	   *                   value, original value, all resolved values, and the
+	   *                   current progress
+	   * @return {Continuity} for thenable methods and progress callback
+	   * @public
+	   */
+	  this.progress = function(callback) {
+	    resolvedValues.map(function(resolvedValue, index) {
+	      callback(
+	        resolvedValue,
+	        originalCollection[index],
+	        resolvedValues.slice(0, index + 1),
+	        index + 1
+	      );
+	    });
+
+	    progressCallbacks.push(callback);
+	    return _continuity;
+	  };
+
+	  /**
+	   * @method queue
+	   *
+	   * Queues value that will trigger another asynchronous function.
+	   * Cannot queue another value if then or catch callback have been
+	   * attached since promise can only be resolved once.
+	   *
+	   * @param {Any} value that will trigger another asynchronous function
+	   * @public
+	   */
+	  this.queue = function(value) {
+	    var hasResolvedAllValues;
+
+	    if ( !!continuityPromise ) {
+	      throw new Error('All values resolved, cannot push another value');
+	    }
+
+	    hasResolvedAllValues = isFinishedIterating();
+
+	    valueQueue.push(value);
+	    originalCollection.push(value);
+
+	    if ( hasResolvedAllValues ) {
+	      collectionIterator();
+	    }
+
+	    return _continuity;
+	  };
+
+
+	  // Start iterating through collection
+	  if ( valueQueue.length > 0 ) {
+	    collectionIterator();
+	  }
+
+	};
+
+	/**
+	 * Module exports
+	 * @public
+	 */
+	module.exports = Continuity;
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	var TeamRankings = React.createClass({displayName: "TeamRankings",
+	  getInitialState: function() {
+	    return {
+	      isLoading: true,
+	      teams: []
+	    };
+	  },
+
+	  componentDidMount: function() {
+	    $.ajax({
+	      url: '/api/v1/teams',
+	      dataType: 'json',
+	      success: function(data) {
+	        this.setState({
+	          isLoading: false,
+	          teams: data.results
+	        });
+	      }.bind(this)
+	    });
+	  },
+
+	  render: function() {
+	    var createCharacter = function(character, index) {
+	      return (
+	        React.createElement("div", {className: "ranking-character large-2 medium-2 small-2 columns", key: character.id}, 
+	          React.createElement("img", {src: character.thumbnail_url}), 
+	          React.createElement("div", {className: "panel"}, 
+	            React.createElement("strong", null, character.name)
+	          )
+	        )
+	      );
+	    };
+
+	    var createTeam = function(team, index) {
+	      return (
+	        React.createElement("div", {className: "ranking-team row", key: team.id}, 
+	          React.createElement("div", {className: "large-12 columns"}, 
+	            React.createElement("h5", null, team.name), 
+	            React.createElement("div", {className: "row"}, 
+	              team.characters.map(createCharacter.bind(this)), 
+	              React.createElement("div", {className: "large-2 medium-2 small-2"})
+	            ), 
+	            React.createElement("div", {className: "row"}, 
+	              React.createElement("div", {className: "large-12"}, 
+	                React.createElement("strong", null, "Score:"), 
+	                Math.round(team.score)
+	              )
+	            )
+	          )
+	        )
+	      );
+	    };
+
+	    return (
+	      React.createElement("div", null, 
+	        this.state.teams.map(createTeam.bind(this))
+	      )
+	    );
+	  }
+	});
+
+	module.exports = TeamRankings
 
 
 /***/ }

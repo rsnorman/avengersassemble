@@ -1,7 +1,7 @@
 var CharacterSearch     = require('./character_search.js.jsx');
 var Characters          = require('./characters.js.jsx');
 var NewTeam             = require('./new_team.js.jsx');
-var TeamCreatorFeedback = require('./team_creator_feedback.js.jsx');
+var TeamCreator = require('./team_creator.js.jsx');
 
 var TeamBuilder, feedbackMessages;
 feedbackMessages = [];
