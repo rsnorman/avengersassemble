@@ -21498,7 +21498,25 @@
 	var Avatar         = mui.Avatar;
 	var FontIcon       = mui.FontIcon;
 	var Paper          = mui.Paper;
-	var LinearProgress = mui.LinearProgress
+	var LinearProgress = mui.LinearProgress;
+	var Colors         = mui.Styles.Colors;
+
+	var redDarkTheme = {
+	  getComponentThemes: function getComponentThemes(palette) {
+	    var componentThemes;
+	    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
+	    return componentThemes;
+	  },
+	  getPalette: function getPalette() {
+	    var palette;
+	    palette = ThemeManager.types.DARK.getPalette();
+	    palette.primary1Color = Colors.red500;
+	    palette.primary3Color = Colors.red50;
+	    return palette;
+	  }
+	};
+
+	ThemeManager.setTheme(redDarkTheme);
 
 	var TeamRankings = React.createClass({displayName: "TeamRankings",
 
@@ -21534,15 +21552,15 @@
 
 	    var createCharacter = function(character, index) {
 	      return (
-	        React.createElement(Avatar, {src: character.thumbnail_url, size: 40, key: character.id})
+	        React.createElement(Avatar, {className: "team-character", src: character.thumbnail_url, size: 40, key: character.id})
 	      );
 	    };
 
 	    var createTeam = function(team, index) {
 	      scorePercent = Math.round(team.score / topTeam.score * 100);
 	      return (
-	        React.createElement(Paper, {className: "ranking-team", zDepth: 1}, 
-	          React.createElement(ListItem, {className: "ranking-list-item", key: team.id}, 
+	        React.createElement(Paper, {className: "ranking-team", zDepth: 1, key: team.id}, 
+	          React.createElement(ListItem, {className: "ranking-list-item"}, 
 	            React.createElement("div", {className: "leader-icon"}, 
 	              React.createElement(Avatar, {icon: React.createElement("i", {className: "material-icons md-48"}, "face"), size: 80})
 	            ), 
@@ -21561,7 +21579,7 @@
 	    return (
 	      React.createElement("div", null, 
 	        React.createElement(AppBar, {title: "Leaderboard"}), 
-	        React.createElement(List, null, 
+	        React.createElement(List, {id: "ranking_teams"}, 
 	          this.state.teams.map(createTeam.bind(this))
 	        )
 	      )

@@ -8,7 +8,25 @@ var ListItem       = mui.ListItem;
 var Avatar         = mui.Avatar;
 var FontIcon       = mui.FontIcon;
 var Paper          = mui.Paper;
-var LinearProgress = mui.LinearProgress
+var LinearProgress = mui.LinearProgress;
+var Colors         = mui.Styles.Colors;
+
+var redDarkTheme = {
+  getComponentThemes: function getComponentThemes(palette) {
+    var componentThemes;
+    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
+    return componentThemes;
+  },
+  getPalette: function getPalette() {
+    var palette;
+    palette = ThemeManager.types.DARK.getPalette();
+    palette.primary1Color = Colors.red500;
+    palette.primary3Color = Colors.red50;
+    return palette;
+  }
+};
+
+ThemeManager.setTheme(redDarkTheme);
 
 var TeamRankings = React.createClass({
 
@@ -44,15 +62,15 @@ var TeamRankings = React.createClass({
 
     var createCharacter = function(character, index) {
       return (
-        <Avatar src={character.thumbnail_url} size={40} key={character.id} />
+        <Avatar className="team-character" src={character.thumbnail_url} size={40} key={character.id} />
       );
     };
 
     var createTeam = function(team, index) {
       scorePercent = Math.round(team.score / topTeam.score * 100);
       return (
-        <Paper className="ranking-team" zDepth={1}>
-          <ListItem className="ranking-list-item" key={team.id}>
+        <Paper className="ranking-team" zDepth={1} key={team.id}>
+          <ListItem className="ranking-list-item">
             <div className="leader-icon">
               <Avatar icon={<i className="material-icons md-48">face</i>} size={80}/>
             </div>
@@ -71,7 +89,7 @@ var TeamRankings = React.createClass({
     return (
       <div>
         <AppBar title="Leaderboard" />
-        <List>
+        <List id="ranking_teams">
           {this.state.teams.map(createTeam.bind(this))}
         </List>
       </div>
