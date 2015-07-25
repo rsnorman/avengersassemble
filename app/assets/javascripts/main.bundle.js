@@ -21529,6 +21529,9 @@
 	  },
 
 	  render: function() {
+	    var topTeam, scorePercent;
+	    topTeam = this.state.teams[0];
+
 	    var createCharacter = function(character, index) {
 	      return (
 	        React.createElement(Avatar, {src: character.thumbnail_url, size: 40, key: character.id})
@@ -21536,6 +21539,7 @@
 	    };
 
 	    var createTeam = function(team, index) {
+	      scorePercent = Math.round(team.score / topTeam.score * 100);
 	      return (
 	        React.createElement(Paper, {className: "ranking-team", zDepth: 1}, 
 	          React.createElement(ListItem, {className: "ranking-list-item", key: team.id}, 
@@ -21544,7 +21548,7 @@
 	            ), 
 	            React.createElement("div", {className: "team-details"}, 
 	              React.createElement("div", {className: "team-name"}, team.name), 
-	              React.createElement(LinearProgress, {mode: "determinate", value: 75}), 
+	              React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
 	              React.createElement("div", {className: "team-characters"}, 
 	                team.characters.map(createCharacter.bind(this))
 	              )

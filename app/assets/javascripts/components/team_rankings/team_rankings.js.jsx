@@ -39,6 +39,9 @@ var TeamRankings = React.createClass({
   },
 
   render: function() {
+    var topTeam, scorePercent;
+    topTeam = this.state.teams[0];
+
     var createCharacter = function(character, index) {
       return (
         <Avatar src={character.thumbnail_url} size={40} key={character.id} />
@@ -46,6 +49,7 @@ var TeamRankings = React.createClass({
     };
 
     var createTeam = function(team, index) {
+      scorePercent = Math.round(team.score / topTeam.score * 100);
       return (
         <Paper className="ranking-team" zDepth={1}>
           <ListItem className="ranking-list-item" key={team.id}>
@@ -54,7 +58,7 @@ var TeamRankings = React.createClass({
             </div>
             <div className="team-details">
               <div className="team-name">{team.name}</div>
-              <LinearProgress mode="determinate" value={75} />
+              <LinearProgress mode="determinate" value={scorePercent} />
               <div className="team-characters">
                 {team.characters.map(createCharacter.bind(this))}
               </div>
