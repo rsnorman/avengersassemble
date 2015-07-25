@@ -21491,13 +21491,14 @@
 	var React  = __webpack_require__(2);
 	var mui    = __webpack_require__(168);
 
-	var ThemeManager = new mui.Styles.ThemeManager();
-
-	var AppBar   = mui.AppBar;
-	var List     = mui.List;
-	var ListItem = mui.ListItem;
-	var Avatar   = mui.Avatar;
-	var FontIcon = mui.FontIcon;
+	var ThemeManager   = new mui.Styles.ThemeManager();
+	var AppBar         = mui.AppBar;
+	var List           = mui.List;
+	var ListItem       = mui.ListItem;
+	var Avatar         = mui.Avatar;
+	var FontIcon       = mui.FontIcon;
+	var Paper          = mui.Paper;
+	var LinearProgress = mui.LinearProgress
 
 	var TeamRankings = React.createClass({displayName: "TeamRankings",
 
@@ -21530,20 +21531,23 @@
 	  render: function() {
 	    var createCharacter = function(character, index) {
 	      return (
-	        React.createElement(Avatar, {src: character.thumbnail_url, size: 60, key: character.id})
+	        React.createElement(Avatar, {src: character.thumbnail_url, size: 40, key: character.id})
 	      );
 	    };
 
 	    var createTeam = function(team, index) {
 	      return (
-	        React.createElement(ListItem, {className: "ranking-team row", key: team.id}, 
-	          React.createElement("div", {className: "leader-icon"}, 
-	            React.createElement(Avatar, {icon: React.createElement("i", {className: "material-icons md-48"}, "face"), size: 80})
-	          ), 
-	          React.createElement("div", {className: "team-details"}, 
-	            React.createElement("div", {className: "team-name"}, team.name), 
-	            React.createElement("div", {className: "team-characters"}, 
-	              team.characters.map(createCharacter.bind(this))
+	        React.createElement(Paper, {className: "ranking-team", zDepth: 1}, 
+	          React.createElement(ListItem, {className: "ranking-list-item", key: team.id}, 
+	            React.createElement("div", {className: "leader-icon"}, 
+	              React.createElement(Avatar, {icon: React.createElement("i", {className: "material-icons md-48"}, "face"), size: 80})
+	            ), 
+	            React.createElement("div", {className: "team-details"}, 
+	              React.createElement("div", {className: "team-name"}, team.name), 
+	              React.createElement(LinearProgress, {mode: "determinate", value: 75}), 
+	              React.createElement("div", {className: "team-characters"}, 
+	                team.characters.map(createCharacter.bind(this))
+	              )
 	            )
 	          )
 	        )
@@ -21552,7 +21556,7 @@
 
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(AppBar, {title: "Avengers Leaderboard"}), 
+	        React.createElement(AppBar, {title: "Leaderboard"}), 
 	        React.createElement(List, null, 
 	          this.state.teams.map(createTeam.bind(this))
 	        )
