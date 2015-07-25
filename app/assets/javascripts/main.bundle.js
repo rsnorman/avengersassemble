@@ -21500,6 +21500,8 @@
 	var Paper          = mui.Paper;
 	var LinearProgress = mui.LinearProgress;
 	var Colors         = mui.Styles.Colors;
+	var LeftNav        = mui.LeftNav;
+	var MenuItem       = mui.MenuItem;
 
 	var redDarkTheme = {
 	  getComponentThemes: function getComponentThemes(palette) {
@@ -21529,7 +21531,8 @@
 	  getInitialState: function() {
 	    return {
 	      isLoading: true,
-	      teams: []
+	      teams: [],
+	      menuVisible: false
 	    };
 	  },
 
@@ -21546,6 +21549,10 @@
 	    });
 	  },
 
+	  openMenu: function openMenu(e) {
+	    this.refs.leftNav.open();
+	  },
+
 	  render: function() {
 	    var topTeam, scorePercent;
 	    topTeam = this.state.teams[0];
@@ -21558,11 +21565,12 @@
 
 	    var createTeam = function(team, index) {
 	      scorePercent = Math.round(team.score / topTeam.score * 100);
+	      console.log(team.leader.image);
 	      return (
 	        React.createElement(Paper, {className: "ranking-team", zDepth: 1, key: team.id}, 
 	          React.createElement(ListItem, {className: "ranking-list-item"}, 
 	            React.createElement("div", {className: "leader-icon"}, 
-	              React.createElement(Avatar, {icon: React.createElement("i", {className: "material-icons md-48"}, "face"), size: 80})
+	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 80})
 	            ), 
 	            React.createElement("div", {className: "team-details"}, 
 	              React.createElement("div", {className: "team-name"}, team.name), 
@@ -21576,9 +21584,28 @@
 	      );
 	    };
 
+	    var menuItems = [
+	      {
+	        type: MenuItem.Types.LINK,
+	        payload: '/teams',
+	        text: 'Leaderboard'
+	      },
+	      {
+	        type: MenuItem.Types.LINK,
+	        payload: '/teams/new',
+	        text: 'Assemble Team'
+	      },
+	      {
+	        type: MenuItem.Types.LINK,
+	        payload: '/auth/facebook',
+	        text: 'Sign In'
+	      }
+	    ];
+
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(AppBar, {title: "Leaderboard"}), 
+	        React.createElement(AppBar, {title: "Leaderboard", onLeftIconButtonTouchTap: this.openMenu}), 
+	        React.createElement(LeftNav, {ref: "leftNav", docked: false, menuItems: menuItems}), 
 	        React.createElement(List, {id: "ranking_teams"}, 
 	          this.state.teams.map(createTeam.bind(this))
 	        )

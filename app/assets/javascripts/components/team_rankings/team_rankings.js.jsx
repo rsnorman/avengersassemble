@@ -10,6 +10,8 @@ var FontIcon       = mui.FontIcon;
 var Paper          = mui.Paper;
 var LinearProgress = mui.LinearProgress;
 var Colors         = mui.Styles.Colors;
+var LeftNav        = mui.LeftNav;
+var MenuItem       = mui.MenuItem;
 
 var redDarkTheme = {
   getComponentThemes: function getComponentThemes(palette) {
@@ -39,7 +41,8 @@ var TeamRankings = React.createClass({
   getInitialState: function() {
     return {
       isLoading: true,
-      teams: []
+      teams: [],
+      menuVisible: false
     };
   },
 
@@ -56,6 +59,10 @@ var TeamRankings = React.createClass({
     });
   },
 
+  openMenu: function openMenu(e) {
+    this.refs.leftNav.open();
+  },
+
   render: function() {
     var topTeam, scorePercent;
     topTeam = this.state.teams[0];
@@ -68,11 +75,12 @@ var TeamRankings = React.createClass({
 
     var createTeam = function(team, index) {
       scorePercent = Math.round(team.score / topTeam.score * 100);
+      console.log(team.leader.image);
       return (
         <Paper className="ranking-team" zDepth={1} key={team.id}>
           <ListItem className="ranking-list-item">
             <div className="leader-icon">
-              <Avatar icon={<i className="material-icons md-48">face</i>} size={80}/>
+              <Avatar src={team.leader.image + '?type=large'} size={80}/>
             </div>
             <div className="team-details">
               <div className="team-name">{team.name}</div>
@@ -86,9 +94,28 @@ var TeamRankings = React.createClass({
       );
     };
 
+    var menuItems = [
+      {
+        type: MenuItem.Types.LINK,
+        payload: '/teams',
+        text: 'Leaderboard'
+      },
+      {
+        type: MenuItem.Types.LINK,
+        payload: '/teams/new',
+        text: 'Assemble Team'
+      },
+      {
+        type: MenuItem.Types.LINK,
+        payload: '/auth/facebook',
+        text: 'Sign In'
+      }
+    ];
+
     return (
       <div>
-        <AppBar title="Leaderboard" />
+        <AppBar title="Leaderboard" onLeftIconButtonTouchTap={this.openMenu} />
+        <LeftNav ref="leftNav" docked={false} menuItems={menuItems} />
         <List id="ranking_teams">
           {this.state.teams.map(createTeam.bind(this))}
         </List>
