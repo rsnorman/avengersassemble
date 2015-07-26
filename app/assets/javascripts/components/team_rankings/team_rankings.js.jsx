@@ -12,8 +12,7 @@ var TeamRankings = React.createClass({
   getInitialState: function() {
     return {
       isLoading: true,
-      teams: [],
-      menuVisible: false
+      teams: []
     };
   },
 

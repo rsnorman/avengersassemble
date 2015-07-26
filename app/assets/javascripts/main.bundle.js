@@ -21502,8 +21502,7 @@
 	  getInitialState: function() {
 	    return {
 	      isLoading: true,
-	      teams: [],
-	      menuVisible: false
+	      teams: []
 	    };
 	  },
 
@@ -41268,12 +41267,11 @@
 /* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React  = __webpack_require__(2);
-	var mui    = __webpack_require__(168);
-
-	var AppBar         = mui.AppBar;
-	var LeftNav        = mui.LeftNav;
-	var MenuItem       = mui.MenuItem;
+	var React    = __webpack_require__(2);
+	var mui      = __webpack_require__(168);
+	var AppBar   = mui.AppBar;
+	var LeftNav  = mui.LeftNav;
+	var MenuItem = mui.MenuItem;
 
 
 	var Menu = React.createClass({displayName: "Menu",

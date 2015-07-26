@@ -1,9 +1,8 @@
-var React  = require('react');
-var mui    = require('material-ui');
-
-var AppBar         = mui.AppBar;
-var LeftNav        = mui.LeftNav;
-var MenuItem       = mui.MenuItem;
+var React    = require('react');
+var mui      = require('material-ui');
+var AppBar   = mui.AppBar;
+var LeftNav  = mui.LeftNav;
+var MenuItem = mui.MenuItem;
 
 
 var Menu = React.createClass({
