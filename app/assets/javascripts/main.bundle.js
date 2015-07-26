@@ -21488,17 +21488,11 @@
 /* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React  = __webpack_require__(2);
-	var mui    = __webpack_require__(168);
-
-	var List           = mui.List;
-	var ListItem       = mui.ListItem;
-	var Avatar         = mui.Avatar;
-	var FontIcon       = mui.FontIcon;
-	var Paper          = mui.Paper;
-	var LinearProgress = mui.LinearProgress;
-
+	var React        = __webpack_require__(2);
+	var mui          = __webpack_require__(168);
+	var List         = mui.List;
 	var Menu         = __webpack_require__(320);
+	var Team         = __webpack_require__(322);
 	var MarvelTheme  = __webpack_require__(321);
 
 	var TeamRankings = React.createClass({displayName: "TeamRankings",
@@ -21526,39 +21520,13 @@
 	    });
 	  },
 
-	  openMenu: function openMenu(e) {
-	    this.refs.leftNav.open();
-	  },
-
 	  render: function() {
-	    var topTeam, scorePercent;
-	    topTeam = this.state.teams[0];
+	    var topTeamScore;
 
-	    var createCharacter = function(character, index) {
-	      return (
-	        React.createElement(Avatar, {className: "team-character", src: character.thumbnail_url, size: 40, key: character.id})
-	      );
-	    };
-
-	    var createTeam = function(team, index) {
-	      scorePercent = Math.round(team.score / topTeam.score * 100);
-	      return (
-	        React.createElement(Paper, {className: "ranking-team", zDepth: 1, key: team.id}, 
-	          React.createElement(ListItem, {className: "ranking-list-item"}, 
-	            React.createElement("div", {className: "leader-icon"}, 
-	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 80})
-	            ), 
-	            React.createElement("div", {className: "team-details"}, 
-	              React.createElement("div", {className: "team-name"}, team.name), 
-	              React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
-	              React.createElement("div", {className: "team-characters"}, 
-	                team.characters.map(createCharacter.bind(this))
-	              )
-	            )
-	          )
-	        )
-	      );
-	    };
+	    function createTeam(team) {
+	      topTeamScore = topTeamScore || this.state.teams[0].score;
+	      return React.createElement(Team, {team: team, maxScore: topTeamScore, key: team.id})
+	    }
 
 	    return (
 	      React.createElement("div", null, 
@@ -41384,6 +41352,88 @@
 	};
 
 	module.exports = MarvelTheme;
+
+
+/***/ },
+/* 322 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(2);
+	var mui    = __webpack_require__(168);
+
+	var List           = mui.List;
+	var ListItem       = mui.ListItem;
+	var FontIcon       = mui.FontIcon;
+	var Paper          = mui.Paper;
+	var LinearProgress = mui.LinearProgress;
+	var Avatar         = mui.Avatar;
+	var Character      = __webpack_require__(323);
+
+
+	var Team = React.createClass({displayName: "Team",
+
+	  propTypes: {
+	    team: React.PropTypes.object.isRequired,
+	    maxScore: React.PropTypes.number.isRequired
+	  },
+
+	  render: function() {
+	    var scorePercent, team;
+	    team = this.props.team;
+	    scorePercent = Math.round(team.score / this.props.maxScore * 100);
+
+	    function createCharacter(character, index) {
+	      return React.createElement(Character, {character: character, key: index})
+	    };
+
+	    return (
+	      React.createElement(Paper, {className: "ranking-team", zDepth: 1}, 
+	        React.createElement(ListItem, {className: "ranking-list-item"}, 
+	          React.createElement("div", {className: "leader-icon"}, 
+	            React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 80})
+	          ), 
+	          React.createElement("div", {className: "team-details"}, 
+	            React.createElement("div", {className: "team-name"}, team.name), 
+	            React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
+	            React.createElement("div", {className: "team-characters"}, 
+	              team.characters.map(createCharacter.bind(this))
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Team;
+
+
+/***/ },
+/* 323 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(2);
+	var mui    = __webpack_require__(168);
+	var Avatar = mui.Avatar;
+
+
+	var Character = React.createClass({displayName: "Character",
+
+	  propTypes: {
+	    character: React.PropTypes.object.isRequired
+	  },
+
+	  render: function() {
+	    var character;
+	    character = this.props.character;
+
+	    return (
+	      React.createElement(Avatar, {className: "team-character", src: character.thumbnail_url, size: 40, key: character.id})
+	    );
+	  }
+	});
+
+	module.exports = Character;
 
 
 /***/ }

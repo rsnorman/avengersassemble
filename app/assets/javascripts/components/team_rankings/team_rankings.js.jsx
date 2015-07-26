@@ -1,14 +1,8 @@
-var React  = require('react');
-var mui    = require('material-ui');
-
-var List           = mui.List;
-var ListItem       = mui.ListItem;
-var Avatar         = mui.Avatar;
-var FontIcon       = mui.FontIcon;
-var Paper          = mui.Paper;
-var LinearProgress = mui.LinearProgress;
-
+var React        = require('react');
+var mui          = require('material-ui');
+var List         = mui.List;
 var Menu         = require('../menu.js.jsx');
+var Team         = require('./team.js.jsx');
 var MarvelTheme  = require('../../mixins/marvel-theme.js');
 
 var TeamRankings = React.createClass({
@@ -36,39 +30,13 @@ var TeamRankings = React.createClass({
     });
   },
 
-  openMenu: function openMenu(e) {
-    this.refs.leftNav.open();
-  },
-
   render: function() {
-    var topTeam, scorePercent;
-    topTeam = this.state.teams[0];
+    var topTeamScore;
 
-    var createCharacter = function(character, index) {
-      return (
-        <Avatar className="team-character" src={character.thumbnail_url} size={40} key={character.id} />
-      );
-    };
-
-    var createTeam = function(team, index) {
-      scorePercent = Math.round(team.score / topTeam.score * 100);
-      return (
-        <Paper className="ranking-team" zDepth={1} key={team.id}>
-          <ListItem className="ranking-list-item">
-            <div className="leader-icon">
-              <Avatar src={team.leader.image + '?type=large'} size={80}/>
-            </div>
-            <div className="team-details">
-              <div className="team-name">{team.name}</div>
-              <LinearProgress mode="determinate" value={scorePercent} />
-              <div className="team-characters">
-                {team.characters.map(createCharacter.bind(this))}
-              </div>
-            </div>
-          </ListItem>
-        </Paper>
-      );
-    };
+    function createTeam(team) {
+      topTeamScore = topTeamScore || this.state.teams[0].score;
+      return <Team team={team} maxScore={topTeamScore} key={team.id} />
+    }
 
     return (
       <div>
