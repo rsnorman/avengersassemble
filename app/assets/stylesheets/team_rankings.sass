@@ -1,32 +1,41 @@
 #ranking_teams
-  float: left
   width: 100%
 
-.ranking-team
-  float: left
-  margin-bottom: 10px
-  width: 100%
+  .ranking-team
+    margin-bottom: 10px
 
-.ranking-list-item
-  float: left
-  width: 100%
-  padding-bottom: 10px
+  .ranking-list-item
+    padding-bottom: 10px
 
-.leader-icon
-  float: left
-  margin-right: 10px
+  .ranking-team
+    display: -webkit-flex
+    -webkit-flex-direction: row
+    display: flex
+    flex-direction: row
 
-.team-details
-  float: left
+  .leader-icon
+    margin-right: 10px
 
-.team-name
-  margin-bottom: 10px
+  .team-details
+    -webit-flex: 1 1 auto
+    flex: 1 1 auto
 
-.team-characters
-  margin-top: 10px
+  .team-name
+    margin-bottom: 10px
 
-.team-character
-  margin-right: 2px
+  .team-characters
+    display: -webkit-flex
+    -webkit-flex-direction: row
+    display: flex
+    flex-direction: row
+    margin-top: 10px
 
-  &:last-child
-    margin-right: 0
+  .team-characters > div
+    -webit-flex: 1 1 auto
+    flex: 1 1 auto
+
+  .team-character
+    margin-right: 2px
+
+    &:last-child
+      margin-right: 0

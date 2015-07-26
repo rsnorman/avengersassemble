@@ -14,7 +14,9 @@ var Character = React.createClass({
     character = this.props.character;
 
     return (
-      <Avatar className="team-character" src={character.thumbnail_url} size={40} key={character.id} />
+      <div className="team-character">
+        <Avatar src={character.thumbnail_url} size={40} key={character.id} />
+      </div>
     );
   }
 });

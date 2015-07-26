@@ -41384,19 +41384,21 @@
 
 	    function createCharacter(character, index) {
 	      return React.createElement(Character, {character: character, key: index})
-	    };
+	    }
 
 	    return (
-	      React.createElement(Paper, {className: "ranking-team", zDepth: 1}, 
-	        React.createElement(ListItem, {className: "ranking-list-item"}, 
-	          React.createElement("div", {className: "leader-icon"}, 
-	            React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 80})
-	          ), 
-	          React.createElement("div", {className: "team-details"}, 
-	            React.createElement("div", {className: "team-name"}, team.name), 
-	            React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
-	            React.createElement("div", {className: "team-characters"}, 
-	              team.characters.map(createCharacter.bind(this))
+	      React.createElement(Paper, {zDepth: 1}, 
+	        React.createElement(ListItem, null, 
+	          React.createElement("div", {className: "ranking-team"}, 
+	            React.createElement("div", {className: "leader-icon"}, 
+	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 80})
+	            ), 
+	            React.createElement("div", {className: "team-details"}, 
+	              React.createElement("div", {className: "team-name"}, team.name), 
+	              React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
+	              React.createElement("div", {className: "team-characters"}, 
+	                team.characters.map(createCharacter.bind(this))
+	              )
 	            )
 	          )
 	        )
@@ -41428,7 +41430,9 @@
 	    character = this.props.character;
 
 	    return (
-	      React.createElement(Avatar, {className: "team-character", src: character.thumbnail_url, size: 40, key: character.id})
+	      React.createElement("div", {className: "team-character"}, 
+	        React.createElement(Avatar, {src: character.thumbnail_url, size: 40, key: character.id})
+	      )
 	    );
 	  }
 	});

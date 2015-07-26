@@ -24,19 +24,21 @@ var Team = React.createClass({
 
     function createCharacter(character, index) {
       return <Character character={character} key={index} />
-    };
+    }
 
     return (
-      <Paper className="ranking-team" zDepth={1}>
-        <ListItem className="ranking-list-item">
-          <div className="leader-icon">
-            <Avatar src={team.leader.image + '?type=large'} size={80}/>
-          </div>
-          <div className="team-details">
-            <div className="team-name">{team.name}</div>
-            <LinearProgress mode="determinate" value={scorePercent} />
-            <div className="team-characters">
-              {team.characters.map(createCharacter.bind(this))}
+      <Paper zDepth={1}>
+        <ListItem>
+          <div className="ranking-team">
+            <div className="leader-icon">
+              <Avatar src={team.leader.image + '?type=large'} size={80}/>
+            </div>
+            <div className="team-details">
+              <div className="team-name">{team.name}</div>
+              <LinearProgress mode="determinate" value={scorePercent} />
+              <div className="team-characters">
+                {team.characters.map(createCharacter.bind(this))}
+              </div>
             </div>
           </div>
         </ListItem>
