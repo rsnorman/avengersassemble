@@ -3,10 +3,16 @@ var CharacterSearch = require('./character_search.js.jsx');
 var Characters      = require('./characters.js.jsx');
 var NewTeam         = require('./new_team.js.jsx');
 var TeamCreator     = require('./team_creator.js.jsx');
+var MarvelTheme     = require('../../mixins/marvel-theme.js');
+var Menu            = require('../menu.js.jsx');
+var mui             = require('material-ui');
+
 
 var TeamBuilder, feedbackMessages;
 feedbackMessages = [];
 TeamBuilder = React.createClass({
+
+  mixins: [MarvelTheme],
 
   getInitialState: function() {
     if ( !localStorage.team ) {
@@ -20,11 +26,11 @@ TeamBuilder = React.createClass({
     } else {
       return {
         characters:[],
-        //team: JSON.parse(localStorage.team)
-        team: {
-          characters: [],
-          experience: 0
-        },
+        team: JSON.parse(localStorage.team)
+        //team: {
+          //characters: [],
+          //experience: 0
+        //},
       };
     }
   },
@@ -99,19 +105,9 @@ TeamBuilder = React.createClass({
   render: function() {
     return (
       <div>
-        <div className="row">
-          <div className="large-12 columns">
-            <NewTeam team={this.state.team} onAssembleTeam={this.startAssemblingTeam} allowedExperience={this.props.maxExperience} />
-          </div>
-        </div>
+        <Menu />
 
-        <div className="row">
-          <div className="large-12 columns">
-            <div className="radius panel">
-              <CharacterSearch onSearchSuccess={this.showCharacters} />
-            </div>
-          </div>
-        </div>
+        <CharacterSearch onSearchSuccess={this.showCharacters} />
 
         <div className="row">
           <div className="row">

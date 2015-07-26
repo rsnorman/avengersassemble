@@ -4,15 +4,15 @@
   "description": "Create your own Marvel Avenger team",
   "main": "index.js",
   "dependencies": {
+    "debounce": "^1.0.0",
+    "material-ui": "^0.10.1",
     "node-libs-browser": "^0.5.2",
-    "webpack": "^1.10.1"
+    "promise-continuity": "^0.1.3",
+    "react": "^0.13.3",
+    "react-tap-event-plugin": "^0.1.7"
   },
   "devDependencies": {
     "jsx-loader": "^0.13.2",
-    "material-ui": "^0.10.1",
-    "promise-continuity": "^0.1.3",
-    "react": "^0.13.3",
-    "react-tap-event-plugin": "^0.1.7",
     "webpack": "^1.10.1"
   },
   "scripts": {

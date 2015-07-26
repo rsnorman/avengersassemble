@@ -1,4 +1,11 @@
-var React     = require('react');
+var React = require('react');
+var mui   = require('material-ui');
+var ListItem = mui.ListItem;
+var Paper    = mui.Paper;
+var Avatar   = mui.Avatar;
+var Button = mui.Button;
+
+
 var Character = React.createClass({
 
   selectCharacter: function(event) {
@@ -11,18 +18,20 @@ var Character = React.createClass({
 
   render: function() {
     return (
-      <div className="character-result">
-        <a href="#" onClick={this.selectCharacter}>
-          <i className="fi-plus"></i>
-        </a>
-        <img src={this.props.character.thumbnail_url} />
-        <div className="panel">
-          <h4>{this.props.character.name}</h4>
-          <h6>{this.props.character.soldier_type}</h6>
-          <em>{this.props.character.real_name}</em>
-          <p>{this.props.character.description}</p>
-        </div>
-      </div>
+      <Paper zDepth={1} className="character-result">
+        <ListItem>
+          <div className="character">
+            <Avatar src={this.props.character.thumbnail_url} size={60} />
+            <div className="character-details">
+              <Button tooltip="Add">
+                +
+              </Button>
+              <h4>{this.props.character.name}</h4>
+              <em>{this.props.character.real_name}</em>
+            </div>
+          </div>
+        </ListItem>
+      </Paper>
     );
   }
 
