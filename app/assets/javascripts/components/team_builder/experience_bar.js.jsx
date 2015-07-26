@@ -1,3 +1,4 @@
+var React         = require('react');
 var ExperienceBar = React.createClass({
 
   getPercent: function() {
@@ -14,3 +15,5 @@ var ExperienceBar = React.createClass({
   }
 
 });
+
+module.exports = ExperienceBar;

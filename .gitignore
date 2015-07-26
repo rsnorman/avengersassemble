@@ -19,3 +19,5 @@ marvel_keys.yml
 .env
 .DS_Store
 rubocop.html
+node_modules
+npm-debug.log

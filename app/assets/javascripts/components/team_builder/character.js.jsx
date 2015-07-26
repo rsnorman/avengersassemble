@@ -1,3 +1,4 @@
+var React     = require('react');
 var Character = React.createClass({
 
   selectCharacter: function(event) {
@@ -26,3 +27,5 @@ var Character = React.createClass({
   }
 
 });
+
+module.exports = Character;

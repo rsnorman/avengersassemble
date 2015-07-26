@@ -7,26 +7,14 @@
     <title><%= content_for?(:title) ? yield(:title) : "Marvel Character Explorer" %></title>
 
     <%= stylesheet_link_tag    "application" %>
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <%= javascript_include_tag "vendor/modernizr" %>
     <%= javascript_include_tag "application", 'data-turbolinks-track' => true %>
     <%= csrf_meta_tags %>
   </head>
 
   <body>
-    <div class="row">
-      <div class="large-12 columns">
-
-        <ul class="button-group">
-          <li><a href="/teams" class="button">Teams</a></li>
-          <li><a href="/teams/new" class="button">Assemble Team</a></li>
-          <li>
-            <% unless current_user %>
-              <%= link_to "Sign in", "/auth/facebook", id: "sign_in", class: 'button' %>
-            <% end %>
-          </li>
-        </ul>
-      </div>
-    </div>
     <%= yield %>
   </body>
   <% if Rails.env.production? %>

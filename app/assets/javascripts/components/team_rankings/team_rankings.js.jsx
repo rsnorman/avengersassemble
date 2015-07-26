@@ -1,4 +1,14 @@
+var React        = require('react');
+var mui          = require('material-ui');
+var List         = mui.List;
+var Menu         = require('../menu.js.jsx');
+var Team         = require('./team.js.jsx');
+var MarvelTheme  = require('../../mixins/marvel-theme.js');
+
 var TeamRankings = React.createClass({
+
+  mixins: [MarvelTheme],
+
   getInitialState: function() {
     return {
       isLoading: true,
@@ -20,50 +30,22 @@ var TeamRankings = React.createClass({
   },
 
   render: function() {
-    var createCharacter = function(character, index) {
-      return (
-        <div className="ranking-character large-2 medium-2 small-2 columns" key={character.id}>
-          <img src={character.thumbnail_url} />
-          <div className="panel">
-            <strong>{character.name}</strong>
-          </div>
-        </div>
-      );
-    };
+    var topTeamScore;
 
-    var createTeam = function(team, index) {
-      return (
-        <div className="ranking-team row" key={team.id}>
-          <div className="large-12 columns">
-            <h5>{team.name}</h5>
-            <div className="row">
-              {team.characters.map(createCharacter.bind(this))}
-              <div className="large-2 medium-2 small-2"></div>
-            </div>
-            <div className="row">
-              <div className="large-12">
-                <strong>Score:</strong>
-                {Math.round(team.score)}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    };
+    function createTeam(team) {
+      topTeamScore = topTeamScore || this.state.teams[0].score;
+      return <Team team={team} maxScore={topTeamScore} key={team.id} />
+    }
 
     return (
       <div>
-        {this.state.teams.map(createTeam.bind(this))}
+        <Menu />
+        <List id="ranking_teams">
+          {this.state.teams.map(createTeam.bind(this))}
+        </List>
       </div>
     );
   }
 });
 
-$(document).on('ready page:load', function() {
-  var teamRankingsEl;
-  teamRankingsEl = document.getElementById('team_rankings');
-
-  if ( teamRankingsEl ) {
-    React.render(<TeamRankings />, teamRankingsEl);
-  }
-});
+module.exports = TeamRankings;

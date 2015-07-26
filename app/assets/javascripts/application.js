@@ -15,13 +15,9 @@
 //= require foundation
 //= require turbolinks
 
-//= require react
-//= require react_ujs
-//= require continuity
 //= require_tree ./lib
-//= require_tree ./mixins
-//= require components
-//= require_tree .
+//= require ./mixins/masonry-mixin
+//= require main.bundle
 
 Turbolinks.enableProgressBar();
 $(function(){ $(document).foundation(); });

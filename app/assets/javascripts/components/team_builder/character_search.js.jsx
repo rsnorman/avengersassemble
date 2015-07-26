@@ -1,3 +1,4 @@
+var React           = require('react');
 var CharacterSearch = React.createClass({
   getInitialState: function() {
     return {
@@ -43,3 +44,5 @@ var CharacterSearch = React.createClass({
       </form>;
   }
 });
+
+module.exports = CharacterSearch;
