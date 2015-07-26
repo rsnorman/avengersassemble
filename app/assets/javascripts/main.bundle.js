@@ -21491,42 +21491,19 @@
 	var React  = __webpack_require__(2);
 	var mui    = __webpack_require__(168);
 
-	var ThemeManager   = new mui.Styles.ThemeManager();
-	var AppBar         = mui.AppBar;
 	var List           = mui.List;
 	var ListItem       = mui.ListItem;
 	var Avatar         = mui.Avatar;
 	var FontIcon       = mui.FontIcon;
 	var Paper          = mui.Paper;
 	var LinearProgress = mui.LinearProgress;
-	var Colors         = mui.Styles.Colors;
-	var LeftNav        = mui.LeftNav;
-	var MenuItem       = mui.MenuItem;
 
-	var redDarkTheme = {
-	  getComponentThemes: function getComponentThemes(palette) {
-	    var componentThemes;
-	    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
-	    return componentThemes;
-	  },
-	  getPalette: function getPalette() {
-	    var palette;
-	    palette = ThemeManager.types.DARK.getPalette();
-	    palette.primary1Color = Colors.red500;
-	    palette.primary3Color = Colors.red50;
-	    return palette;
-	  }
-	};
-
-	ThemeManager.setTheme(redDarkTheme);
+	var Menu         = __webpack_require__(320);
+	var MarvelTheme  = __webpack_require__(321);
 
 	var TeamRankings = React.createClass({displayName: "TeamRankings",
 
-	  getChildContext: function() {
-	    return {
-	      muiTheme: ThemeManager.getCurrentTheme()
-	    };
-	  },
+	  mixins: [MarvelTheme],
 
 	  getInitialState: function() {
 	    return {
@@ -21565,7 +21542,6 @@
 
 	    var createTeam = function(team, index) {
 	      scorePercent = Math.round(team.score / topTeam.score * 100);
-	      console.log(team.leader.image);
 	      return (
 	        React.createElement(Paper, {className: "ranking-team", zDepth: 1, key: team.id}, 
 	          React.createElement(ListItem, {className: "ranking-list-item"}, 
@@ -21584,28 +21560,9 @@
 	      );
 	    };
 
-	    var menuItems = [
-	      {
-	        type: MenuItem.Types.LINK,
-	        payload: '/teams',
-	        text: 'Leaderboard'
-	      },
-	      {
-	        type: MenuItem.Types.LINK,
-	        payload: '/teams/new',
-	        text: 'Assemble Team'
-	      },
-	      {
-	        type: MenuItem.Types.LINK,
-	        payload: '/auth/facebook',
-	        text: 'Sign In'
-	      }
-	    ];
-
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(AppBar, {title: "Leaderboard", onLeftIconButtonTouchTap: this.openMenu}), 
-	        React.createElement(LeftNav, {ref: "leftNav", docked: false, menuItems: menuItems}), 
+	        React.createElement(Menu, null), 
 	        React.createElement(List, {id: "ranking_teams"}, 
 	          this.state.teams.map(createTeam.bind(this))
 	        )
@@ -21614,11 +21571,7 @@
 	  }
 	});
 
-	TeamRankings.childContextTypes = {
-	  muiTheme: React.PropTypes.object
-	};
-
-	module.exports = TeamRankings
+	module.exports = TeamRankings;
 
 
 /***/ },
@@ -41340,6 +41293,97 @@
 	};
 
 	module.exports = TouchEventUtils;
+
+
+/***/ },
+/* 319 */,
+/* 320 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(2);
+	var mui    = __webpack_require__(168);
+
+	var AppBar         = mui.AppBar;
+	var LeftNav        = mui.LeftNav;
+	var MenuItem       = mui.MenuItem;
+
+
+	var Menu = React.createClass({displayName: "Menu",
+
+	  openMenu: function openMenu(e) {
+	    this.refs.leftNav.open();
+	  },
+
+	  render: function() {
+	    var menuItems = [
+	      {
+	        type: MenuItem.Types.LINK,
+	        payload: '/teams',
+	        text: 'Leaderboard'
+	      },
+	      {
+	        type: MenuItem.Types.LINK,
+	        payload: '/teams/new',
+	        text: 'Assemble Team'
+	      },
+	      {
+	        type: MenuItem.Types.LINK,
+	        payload: '/auth/facebook',
+	        text: 'Sign In'
+	      }
+	    ];
+
+	    return (
+	      React.createElement("div", null, 
+	        React.createElement(AppBar, {title: "Leaderboard", onLeftIconButtonTouchTap: this.openMenu}), 
+	        React.createElement(LeftNav, {ref: "leftNav", docked: false, menuItems: menuItems})
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Menu;
+
+
+/***/ },
+/* 321 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var mui    = __webpack_require__(168);
+	var React  = __webpack_require__(2);
+
+	var ThemeManager = new mui.Styles.ThemeManager();
+	var Colors       = mui.Styles.Colors;
+
+	var redDarkTheme = {
+	  getComponentThemes: function getComponentThemes(palette) {
+	    var componentThemes;
+	    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
+	    return componentThemes;
+	  },
+	  getPalette: function getPalette() {
+	    var palette;
+	    palette = ThemeManager.types.DARK.getPalette();
+	    palette.primary1Color = Colors.red500;
+	    palette.primary3Color = Colors.red50;
+	    return palette;
+	  }
+	};
+
+	ThemeManager.setTheme(redDarkTheme);
+
+	var MarvelTheme = {
+	  getChildContext: function() {
+	    return {
+	      muiTheme: ThemeManager.getCurrentTheme()
+	    };
+	  },
+	  childContextTypes: {
+	    muiTheme: React.PropTypes.object
+	  }
+	};
+
+	module.exports = MarvelTheme;
 
 
 /***/ }

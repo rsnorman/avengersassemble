@@ -16,7 +16,7 @@
 //= require turbolinks
 
 //= require_tree ./lib
-//= require_tree ./mixins
+//= require ./mixins/masonry-mixin
 //= require main.bundle
 
 Turbolinks.enableProgressBar();

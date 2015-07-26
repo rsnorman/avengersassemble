@@ -1,42 +1,19 @@
 var React  = require('react');
 var mui    = require('material-ui');
 
-var ThemeManager   = new mui.Styles.ThemeManager();
-var AppBar         = mui.AppBar;
 var List           = mui.List;
 var ListItem       = mui.ListItem;
 var Avatar         = mui.Avatar;
 var FontIcon       = mui.FontIcon;
 var Paper          = mui.Paper;
 var LinearProgress = mui.LinearProgress;
-var Colors         = mui.Styles.Colors;
-var LeftNav        = mui.LeftNav;
-var MenuItem       = mui.MenuItem;
 
-var redDarkTheme = {
-  getComponentThemes: function getComponentThemes(palette) {
-    var componentThemes;
-    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
-    return componentThemes;
-  },
-  getPalette: function getPalette() {
-    var palette;
-    palette = ThemeManager.types.DARK.getPalette();
-    palette.primary1Color = Colors.red500;
-    palette.primary3Color = Colors.red50;
-    return palette;
-  }
-};
-
-ThemeManager.setTheme(redDarkTheme);
+var Menu         = require('../menu.js.jsx');
+var MarvelTheme  = require('../../mixins/marvel-theme.js');
 
 var TeamRankings = React.createClass({
 
-  getChildContext: function() {
-    return {
-      muiTheme: ThemeManager.getCurrentTheme()
-    };
-  },
+  mixins: [MarvelTheme],
 
   getInitialState: function() {
     return {
@@ -75,7 +52,6 @@ var TeamRankings = React.createClass({
 
     var createTeam = function(team, index) {
       scorePercent = Math.round(team.score / topTeam.score * 100);
-      console.log(team.leader.image);
       return (
         <Paper className="ranking-team" zDepth={1} key={team.id}>
           <ListItem className="ranking-list-item">
@@ -94,28 +70,9 @@ var TeamRankings = React.createClass({
       );
     };
 
-    var menuItems = [
-      {
-        type: MenuItem.Types.LINK,
-        payload: '/teams',
-        text: 'Leaderboard'
-      },
-      {
-        type: MenuItem.Types.LINK,
-        payload: '/teams/new',
-        text: 'Assemble Team'
-      },
-      {
-        type: MenuItem.Types.LINK,
-        payload: '/auth/facebook',
-        text: 'Sign In'
-      }
-    ];
-
     return (
       <div>
-        <AppBar title="Leaderboard" onLeftIconButtonTouchTap={this.openMenu} />
-        <LeftNav ref="leftNav" docked={false} menuItems={menuItems} />
+        <Menu />
         <List id="ranking_teams">
           {this.state.teams.map(createTeam.bind(this))}
         </List>
@@ -124,8 +81,4 @@ var TeamRankings = React.createClass({
   }
 });
 
-TeamRankings.childContextTypes = {
-  muiTheme: React.PropTypes.object
-};
-
-module.exports = TeamRankings
+module.exports = TeamRankings;
