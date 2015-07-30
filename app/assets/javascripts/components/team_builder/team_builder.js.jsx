@@ -26,11 +26,11 @@ TeamBuilder = React.createClass({
     } else {
       return {
         characters:[],
-        team: JSON.parse(localStorage.team)
-        //team: {
-          //characters: [],
-          //experience: 0
-        //},
+        //team: JSON.parse(localStorage.team)
+        team: {
+          characters: [],
+          experience: 0
+        },
       };
     }
   },
@@ -105,17 +105,10 @@ TeamBuilder = React.createClass({
   render: function() {
     return (
       <div>
-        <Menu />
-
+        <Menu title="Assemble Team" />
+        <NewTeam team={this.state.team} allowedExperience={2500} />
         <CharacterSearch onSearchSuccess={this.showCharacters} />
-
-        <div className="row">
-          <div className="row">
-            <div className="large-12 columns">
-              <Characters onCharacterSelect={this.addCharacterToTeam} characters={this.state.characters} />
-            </div>
-          </div>
-        </div>
+        <Characters onCharacterSelect={this.addCharacterToTeam} characters={this.state.characters} />
         <TeamCreatorFeedback start={this.state.creatingTeam} onCreate={this.goToLeaderboard} team={this.state.team} />
       </div>
     );

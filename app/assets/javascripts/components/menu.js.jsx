@@ -7,6 +7,10 @@ var MenuItem = mui.MenuItem;
 
 var Menu = React.createClass({
 
+  propTypes: {
+    title: React.PropTypes.string.isRequired
+  },
+
   openMenu: function openMenu(e) {
     this.refs.leftNav.open();
   },
@@ -32,7 +36,7 @@ var Menu = React.createClass({
 
     return (
       <div>
-        <AppBar title="Leaderboard" onLeftIconButtonTouchTap={this.openMenu} />
+        <AppBar title={this.props.title} onLeftIconButtonTouchTap={this.openMenu} />
         <LeftNav ref="leftNav" docked={false} menuItems={menuItems} />
       </div>
     );

@@ -19,13 +19,10 @@ var Character = React.createClass({
   render: function() {
     return (
       <Paper zDepth={1} className="character-result">
-        <ListItem>
+        <ListItem onClick={this.selectCharacter}>
           <div className="character">
             <Avatar src={this.props.character.thumbnail_url} size={60} />
             <div className="character-details">
-              <Button tooltip="Add">
-                +
-              </Button>
               <h4>{this.props.character.name}</h4>
               <em>{this.props.character.real_name}</em>
             </div>

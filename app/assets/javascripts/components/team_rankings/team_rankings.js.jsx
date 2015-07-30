@@ -39,7 +39,7 @@ var TeamRankings = React.createClass({
 
     return (
       <div>
-        <Menu />
+        <Menu title="Leaderboard" />
         <List id="ranking_teams">
           {this.state.teams.map(createTeam.bind(this))}
         </List>
