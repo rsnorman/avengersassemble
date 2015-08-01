@@ -1,11 +1,11 @@
-var React           = require('react');
-var CharacterSearch = require('./character_search.js.jsx');
-var Characters      = require('./characters.js.jsx');
-var NewTeam         = require('./new_team.js.jsx');
-var TeamCreator     = require('./team_creator.js.jsx');
-var MarvelTheme     = require('../../mixins/marvel-theme.js');
-var Menu            = require('../menu.js.jsx');
-var mui             = require('material-ui');
+var React            = require('react');
+var CharacterSearch  = require('./character_search.js.jsx');
+var CharacterResults = require('./character_results.js.jsx');
+var NewTeam          = require('./new_team.js.jsx');
+var TeamCreator      = require('./team_creator.js.jsx');
+var MarvelTheme      = require('../../mixins/marvel-theme.js');
+var Menu             = require('../menu.js.jsx');
+var mui              = require('material-ui');
 
 
 var TeamBuilder, feedbackMessages;
@@ -98,6 +98,19 @@ TeamBuilder = React.createClass({
     });
   },
 
+  removeCharacter: function(removeCharacter) {
+    var team;
+    team = JSON.parse(JSON.stringify(this.state.team));
+    team.characters = team.characters.filter(function(character) {
+      console.log(character);
+      return character.id !== removeCharacter.id;
+    });
+
+    this.setState({
+      team: team
+    });
+  },
+
   goToLeaderboard: function(team) {
     window.location = '/teams?active=' + team.id;
   },
@@ -106,9 +119,13 @@ TeamBuilder = React.createClass({
     return (
       <div>
         <Menu title="Assemble Team" />
-        <NewTeam team={this.state.team} allowedExperience={2500} />
+        <NewTeam
+          team={this.state.team}
+          allowedExperience={2500}
+          maxTeamSize={5}
+          onRemoveCharacter={this.removeCharacter} />
         <CharacterSearch onSearchSuccess={this.showCharacters} />
-        <Characters onCharacterSelect={this.addCharacterToTeam} characters={this.state.characters} />
+        <CharacterResults onCharacterSelect={this.addCharacterToTeam} characters={this.state.characters} />
         <TeamCreatorFeedback start={this.state.creatingTeam} onCreate={this.goToLeaderboard} team={this.state.team} />
       </div>
     );

@@ -1,9 +1,9 @@
-var React     = require('react');
-var Character = require('./character.js.jsx');
-var mui       = require('material-ui');
-var List      = mui.List;
+var React           = require('react');
+var CharacterResult = require('./character_result.js.jsx');
+var mui             = require('material-ui');
+var List            = mui.List;
 
-var Characters = React.createClass({
+var CharacterResults = React.createClass({
 
   selectCharacter: function(character) {
     if (this.props.onCharacterSelect) {
@@ -14,7 +14,7 @@ var Characters = React.createClass({
   render: function() {
     var createItem = function(character, index) {
       return (
-        <Character key={character.id} character={character}
+        <CharacterResult key={character.id} character={character}
           onCharacterSelect={this.selectCharacter} />
       );
     };
@@ -28,4 +28,4 @@ var Characters = React.createClass({
 
 });
 
-module.exports = Characters;
+module.exports = CharacterResults;

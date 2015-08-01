@@ -1,5 +1,5 @@
 var React          = require('react');
-var ExperienceBar  = require('./experience_bar.js.jsx');
+var CharacterSlot  = require('./character_slot.js.jsx');
 var mui            = require('material-ui');
 var Avatar         = mui.Avatar;
 var Paper          = mui.Paper;
@@ -15,7 +15,7 @@ function getCharacterSlots(characters, maxTeamSize) {
   }
 
   while ( characterSlots.length < maxTeamSize ) {
-    characterSlots.push({empty: true});
+    characterSlots.push(false);
   }
 
   return characterSlots;
@@ -26,7 +26,8 @@ NewTeam = React.createClass({
   propTypes: {
     team: React.PropTypes.object.isRequired,
     allowedExperience: React.PropTypes.number.isRequired,
-    maxTeamSize: React.PropTypes.number
+    maxTeamSize: React.PropTypes.number,
+    onRemoveCharacter: React.PropTypes.func
   },
 
   getDefaultProps: function() {
@@ -42,30 +43,25 @@ NewTeam = React.createClass({
     }
   },
 
+  removeCharacter: function(character) {
+    if ( !!this.props.onRemoveCharacter ) {
+      this.props.onRemoveCharacter(character);
+    }
+  },
+
   render: function() {
     var totalPercentExperience;
     totalPercentExperience = Math.round(
       this.props.team.experience / this.props.allowedExperience * 100
     );
 
-    function createEmptyIcon() {
-      return <i className="material-icons md-dark">flash_on</i>;
-    }
-
     function createItem(character, index) {
-      if ( !character.empty ) {
-        return (
-          <div key={index}>
-            <Avatar src={character.thumbnail_url} />
-          </div>
-        );
-      } else {
-        return (
-          <div key={index}>
-            <Avatar icon={createEmptyIcon()} />
-          </div>
-        );
-      }
+      return (
+        <CharacterSlot
+          character={character}
+          key={index}
+          onRemove={this.removeCharacter} />
+      );
     };
 
     return (
@@ -75,7 +71,7 @@ NewTeam = React.createClass({
             getCharacterSlots(
               this.props.team.characters,
               this.props.maxTeamSize
-            ).map(createItem)
+            ).map(createItem.bind(this))
           }
         </div>
         <LinearProgress mode="determinate" value={totalPercentExperience} />

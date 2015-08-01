@@ -20569,14 +20569,14 @@
 /* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React           = __webpack_require__(2);
-	var CharacterSearch = __webpack_require__(162);
-	var Characters      = __webpack_require__(312);
-	var NewTeam         = __webpack_require__(314);
-	var TeamCreator     = __webpack_require__(160);
-	var MarvelTheme     = __webpack_require__(316);
-	var Menu            = __webpack_require__(317);
-	var mui             = __webpack_require__(165);
+	var React            = __webpack_require__(2);
+	var CharacterSearch  = __webpack_require__(162);
+	var CharacterResults = __webpack_require__(325);
+	var NewTeam          = __webpack_require__(314);
+	var TeamCreator      = __webpack_require__(160);
+	var MarvelTheme      = __webpack_require__(316);
+	var Menu             = __webpack_require__(317);
+	var mui              = __webpack_require__(165);
 
 
 	var TeamBuilder, feedbackMessages;
@@ -20669,6 +20669,19 @@
 	    });
 	  },
 
+	  removeCharacter: function(removeCharacter) {
+	    var team;
+	    team = JSON.parse(JSON.stringify(this.state.team));
+	    team.characters = team.characters.filter(function(character) {
+	      console.log(character);
+	      return character.id !== removeCharacter.id;
+	    });
+
+	    this.setState({
+	      team: team
+	    });
+	  },
+
 	  goToLeaderboard: function(team) {
 	    window.location = '/teams?active=' + team.id;
 	  },
@@ -20677,9 +20690,13 @@
 	    return (
 	      React.createElement("div", null, 
 	        React.createElement(Menu, {title: "Assemble Team"}), 
-	        React.createElement(NewTeam, {team: this.state.team, allowedExperience: 2500}), 
+	        React.createElement(NewTeam, {
+	          team: this.state.team, 
+	          allowedExperience: 2500, 
+	          maxTeamSize: 5, 
+	          onRemoveCharacter: this.removeCharacter}), 
 	        React.createElement(CharacterSearch, {onSearchSuccess: this.showCharacters}), 
-	        React.createElement(Characters, {onCharacterSelect: this.addCharacterToTeam, characters: this.state.characters}), 
+	        React.createElement(CharacterResults, {onCharacterSelect: this.addCharacterToTeam, characters: this.state.characters}), 
 	        React.createElement(TeamCreatorFeedback, {start: this.state.creatingTeam, onCreate: this.goToLeaderboard, team: this.state.team})
 	      )
 	    );
@@ -40557,103 +40574,13 @@
 	};
 
 /***/ },
-/* 312 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React     = __webpack_require__(2);
-	var Character = __webpack_require__(313);
-	var mui       = __webpack_require__(165);
-	var List      = mui.List;
-
-	var Characters = React.createClass({displayName: "Characters",
-
-	  selectCharacter: function(character) {
-	    if (this.props.onCharacterSelect) {
-	      this.props.onCharacterSelect(character);
-	    }
-	  },
-
-	  render: function() {
-	    var createItem = function(character, index) {
-	      return (
-	        React.createElement(Character, {key: character.id, character: character, 
-	          onCharacterSelect: this.selectCharacter})
-	      );
-	    };
-
-	    return (
-	      React.createElement(List, {id: "character_results"}, 
-	        this.props.characters.map(createItem.bind(this))
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = Characters;
-
-
-/***/ },
-/* 313 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React      = __webpack_require__(2);
-	var mui        = __webpack_require__(165);
-	var ListItem   = mui.ListItem;
-	var Paper      = mui.Paper;
-	var Avatar     = mui.Avatar;
-	var IconButton = mui.IconButton;
-
-
-	var Character = React.createClass({displayName: "Character",
-
-	  selectCharacter: function(event) {
-	    event.preventDefault();
-
-	    if (this.props.onCharacterSelect) {
-	      this.props.onCharacterSelect(this.props.character);
-	    }
-	  },
-
-	  render: function() {
-	    return (
-	      React.createElement(Paper, {zDepth: 1, className: "character-result"}, 
-	        React.createElement(ListItem, {
-	          leftAvatar: 
-	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
-	          
-	          rightIconButton: 
-	            React.createElement(IconButton, null, 
-	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
-	            ), 
-	          
-	          primaryText: this.props.character.name, 
-	          secondaryText: 
-	            React.createElement("p", null, 
-	              React.createElement("span", null, 
-	                this.props.character.real_name
-	              ), 
-	              React.createElement("br", null), 
-	              this.props.character.description
-	            ), 
-	          
-	          secondaryTextLines: 2, 
-	          onClick: this.selectCharacter})
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = Character;
-
-
-/***/ },
+/* 312 */,
+/* 313 */,
 /* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React          = __webpack_require__(2);
-	var ExperienceBar  = __webpack_require__(315);
+	var CharacterSlot  = __webpack_require__(327);
 	var mui            = __webpack_require__(165);
 	var Avatar         = mui.Avatar;
 	var Paper          = mui.Paper;
@@ -40669,7 +40596,7 @@
 	  }
 
 	  while ( characterSlots.length < maxTeamSize ) {
-	    characterSlots.push({empty: true});
+	    characterSlots.push(false);
 	  }
 
 	  return characterSlots;
@@ -40680,7 +40607,8 @@
 	  propTypes: {
 	    team: React.PropTypes.object.isRequired,
 	    allowedExperience: React.PropTypes.number.isRequired,
-	    maxTeamSize: React.PropTypes.number
+	    maxTeamSize: React.PropTypes.number,
+	    onRemoveCharacter: React.PropTypes.func
 	  },
 
 	  getDefaultProps: function() {
@@ -40696,30 +40624,25 @@
 	    }
 	  },
 
+	  removeCharacter: function(character) {
+	    if ( !!this.props.onRemoveCharacter ) {
+	      this.props.onRemoveCharacter(character);
+	    }
+	  },
+
 	  render: function() {
 	    var totalPercentExperience;
 	    totalPercentExperience = Math.round(
 	      this.props.team.experience / this.props.allowedExperience * 100
 	    );
 
-	    function createEmptyIcon() {
-	      return React.createElement("i", {className: "material-icons md-dark"}, "flash_on");
-	    }
-
 	    function createItem(character, index) {
-	      if ( !character.empty ) {
-	        return (
-	          React.createElement("div", {key: index}, 
-	            React.createElement(Avatar, {src: character.thumbnail_url})
-	          )
-	        );
-	      } else {
-	        return (
-	          React.createElement("div", {key: index}, 
-	            React.createElement(Avatar, {icon: createEmptyIcon()})
-	          )
-	        );
-	      }
+	      return (
+	        React.createElement(CharacterSlot, {
+	          character: character, 
+	          key: index, 
+	          onRemove: this.removeCharacter})
+	      );
 	    };
 
 	    return (
@@ -40729,7 +40652,7 @@
 	            getCharacterSlots(
 	              this.props.team.characters,
 	              this.props.maxTeamSize
-	            ).map(createItem)
+	            ).map(createItem.bind(this))
 	          
 	        ), 
 	        React.createElement(LinearProgress, {mode: "determinate", value: totalPercentExperience})
@@ -40743,31 +40666,7 @@
 
 
 /***/ },
-/* 315 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React         = __webpack_require__(2);
-	var ExperienceBar = React.createClass({displayName: "ExperienceBar",
-
-	  getPercent: function() {
-	    return this.props.currentProgress / this.props.totalProgress * 100;
-	  },
-
-	  render: function() {
-	    return (
-	      React.createElement("div", {className: "experience-progress-bar-container"}, 
-	        React.createElement("div", {className: "experience-progress-bar", style: {width: this.getPercent() + '%'}}
-	        )
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = ExperienceBar;
-
-
-/***/ },
+/* 315 */,
 /* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -41551,6 +41450,156 @@
 	};
 
 	module.exports = TouchEventUtils;
+
+
+/***/ },
+/* 325 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React           = __webpack_require__(2);
+	var CharacterResult = __webpack_require__(326);
+	var mui             = __webpack_require__(165);
+	var List            = mui.List;
+
+	var CharacterResults = React.createClass({displayName: "CharacterResults",
+
+	  selectCharacter: function(character) {
+	    if (this.props.onCharacterSelect) {
+	      this.props.onCharacterSelect(character);
+	    }
+	  },
+
+	  render: function() {
+	    var createItem = function(character, index) {
+	      return (
+	        React.createElement(CharacterResult, {key: character.id, character: character, 
+	          onCharacterSelect: this.selectCharacter})
+	      );
+	    };
+
+	    return (
+	      React.createElement(List, {id: "character_results"}, 
+	        this.props.characters.map(createItem.bind(this))
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = CharacterResults;
+
+
+/***/ },
+/* 326 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React      = __webpack_require__(2);
+	var mui        = __webpack_require__(165);
+	var ListItem   = mui.ListItem;
+	var Paper      = mui.Paper;
+	var Avatar     = mui.Avatar;
+	var IconButton = mui.IconButton;
+
+
+	var Character = React.createClass({displayName: "Character",
+
+	  selectCharacter: function(event) {
+	    event.preventDefault();
+
+	    if (this.props.onCharacterSelect) {
+	      this.props.onCharacterSelect(this.props.character);
+	    }
+	  },
+
+	  render: function() {
+	    return (
+	      React.createElement(Paper, {zDepth: 1, className: "character-result"}, 
+	        React.createElement(ListItem, {
+	          leftAvatar: 
+	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
+	          
+	          rightIconButton: 
+	            React.createElement(IconButton, null, 
+	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
+	            ), 
+	          
+	          primaryText: this.props.character.name, 
+	          secondaryText: 
+	            React.createElement("p", null, 
+	              React.createElement("span", null, 
+	                this.props.character.real_name
+	              ), 
+	              React.createElement("br", null), 
+	              this.props.character.description
+	            ), 
+	          
+	          secondaryTextLines: 2, 
+	          onClick: this.selectCharacter})
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = Character;
+
+
+/***/ },
+/* 327 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(2);
+	var mui    = __webpack_require__(165);
+	var Avatar = mui.Avatar;
+
+	var CharacterSlot;
+
+	CharacterSlot = React.createClass({displayName: "CharacterSlot",
+
+	  propTypes: {
+	    character: React.PropTypes.any,
+	    onRemove: React.PropTypes.func
+	  },
+
+	  removeCharacter: function() {
+	    if ( !!this.props.onRemove ) {
+	      this.props.onRemove(this.props.character);
+	    }
+	  },
+
+	  render: function() {
+	    var character;
+	    character = this.props.character;
+	    if ( !!character ) {
+	      return (
+	        React.createElement("div", {className: "team-character"}, 
+	          React.createElement("div", {className: "character-avatar"}, 
+	            React.createElement(Avatar, {src: character.thumbnail_url}), 
+	            React.createElement("a", {href: "javascript:;", className: "remove-character", onClick: this.removeCharacter}, 
+	              React.createElement(Avatar, {icon: 
+	                React.createElement("i", {className: "material-icons md-dark"}, 
+	                  "clear"
+	                )
+	              })
+	            )
+	          )
+	        )
+	      );
+	    } else {
+	      return (
+	        React.createElement("div", {className: "team-character"}, 
+	          React.createElement(Avatar, {
+	            icon: 
+	              React.createElement("i", {className: "material-icons md-dark"}, "flash_on")
+	            })
+	        )
+	      );
+	    }
+	  }
+
+	});
+
+	module.exports = CharacterSlot;
 
 
 /***/ }
