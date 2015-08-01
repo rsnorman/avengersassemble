@@ -40597,12 +40597,12 @@
 /* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React = __webpack_require__(2);
-	var mui   = __webpack_require__(165);
-	var ListItem = mui.ListItem;
-	var Paper    = mui.Paper;
-	var Avatar   = mui.Avatar;
-	var Button = mui.Button;
+	var React      = __webpack_require__(2);
+	var mui        = __webpack_require__(165);
+	var ListItem   = mui.ListItem;
+	var Paper      = mui.Paper;
+	var Avatar     = mui.Avatar;
+	var IconButton = mui.IconButton;
 
 
 	var Character = React.createClass({displayName: "Character",
@@ -40618,15 +40618,27 @@
 	  render: function() {
 	    return (
 	      React.createElement(Paper, {zDepth: 1, className: "character-result"}, 
-	        React.createElement(ListItem, {onClick: this.selectCharacter}, 
-	          React.createElement("div", {className: "character"}, 
-	            React.createElement(Avatar, {src: this.props.character.thumbnail_url, size: 60}), 
-	            React.createElement("div", {className: "character-details"}, 
-	              React.createElement("h4", null, this.props.character.name), 
-	              React.createElement("em", null, this.props.character.real_name)
-	            )
-	          )
-	        )
+	        React.createElement(ListItem, {
+	          leftAvatar: 
+	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
+	          
+	          rightIconButton: 
+	            React.createElement(IconButton, null, 
+	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
+	            ), 
+	          
+	          primaryText: this.props.character.name, 
+	          secondaryText: 
+	            React.createElement("p", null, 
+	              React.createElement("span", null, 
+	                this.props.character.real_name
+	              ), 
+	              React.createElement("br", null), 
+	              this.props.character.description
+	            ), 
+	          
+	          secondaryTextLines: 2, 
+	          onClick: this.selectCharacter})
 	      )
 	    );
 	  }

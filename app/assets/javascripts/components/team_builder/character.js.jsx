@@ -1,9 +1,9 @@
-var React = require('react');
-var mui   = require('material-ui');
-var ListItem = mui.ListItem;
-var Paper    = mui.Paper;
-var Avatar   = mui.Avatar;
-var Button = mui.Button;
+var React      = require('react');
+var mui        = require('material-ui');
+var ListItem   = mui.ListItem;
+var Paper      = mui.Paper;
+var Avatar     = mui.Avatar;
+var IconButton = mui.IconButton;
 
 
 var Character = React.createClass({
@@ -19,15 +19,27 @@ var Character = React.createClass({
   render: function() {
     return (
       <Paper zDepth={1} className="character-result">
-        <ListItem onClick={this.selectCharacter}>
-          <div className="character">
-            <Avatar src={this.props.character.thumbnail_url} size={60} />
-            <div className="character-details">
-              <h4>{this.props.character.name}</h4>
-              <em>{this.props.character.real_name}</em>
-            </div>
-          </div>
-        </ListItem>
+        <ListItem
+          leftAvatar={
+            <Avatar src={this.props.character.thumbnail_url} />
+          }
+          rightIconButton={
+            <IconButton>
+              <i className="material-icons md-light">add_box</i>
+            </IconButton>
+          }
+          primaryText={this.props.character.name}
+          secondaryText={
+            <p>
+              <span>
+                {this.props.character.real_name}
+              </span>
+              <br/>
+              {this.props.character.description}
+            </p>
+          }
+          secondaryTextLines={2}
+          onClick={this.selectCharacter} />
       </Paper>
     );
   }
