@@ -40649,11 +40649,32 @@
 
 	var NewTeam;
 
+	function getCharacterSlots(characters, maxTeamSize) {
+	  var characterSlots, _i, _len
+	  characterSlots = [];
+	  for (_i = 0, _len = characters.length; _i < _len; _i++) {
+	    characterSlots.push(characters[_i]);
+	  }
+
+	  while ( characterSlots.length < maxTeamSize ) {
+	    characterSlots.push({empty: true});
+	  }
+
+	  return characterSlots;
+	}
+
 	NewTeam = React.createClass({displayName: "NewTeam",
 
 	  propTypes: {
 	    team: React.PropTypes.object.isRequired,
-	    allowedExperience: React.PropTypes.number.isRequired
+	    allowedExperience: React.PropTypes.number.isRequired,
+	    maxTeamSize: React.PropTypes.number
+	  },
+
+	  getDefaultProps: function() {
+	    return {
+	      maxTeamSize: 5
+	    };
 	  },
 
 	  assembleTeam: function(event) {
@@ -40669,18 +40690,35 @@
 	      this.props.team.experience / this.props.allowedExperience * 100
 	    );
 
+	    function createEmptyIcon() {
+	      return React.createElement("i", {className: "material-icons md-dark"}, "flash_on");
+	    }
+
 	    function createItem(character, index) {
-	      return (
-	        React.createElement("div", null, 
-	          React.createElement(Avatar, {src: character.thumbnail_url})
-	        )
-	      );
+	      if ( !character.empty ) {
+	        return (
+	          React.createElement("div", {key: index}, 
+	            React.createElement(Avatar, {src: character.thumbnail_url})
+	          )
+	        );
+	      } else {
+	        return (
+	          React.createElement("div", {key: index}, 
+	            React.createElement(Avatar, {icon: createEmptyIcon()})
+	          )
+	        );
+	      }
 	    };
 
 	    return (
 	      React.createElement(Paper, {id: "new_team", zIndex: 2}, 
 	        React.createElement("div", {id: "team_characters"}, 
-	          this.props.team.characters.map(createItem)
+	          
+	            getCharacterSlots(
+	              this.props.team.characters,
+	              this.props.maxTeamSize
+	            ).map(createItem)
+	          
 	        ), 
 	        React.createElement(LinearProgress, {mode: "determinate", value: totalPercentExperience})
 	      )
