@@ -8,7 +8,8 @@ var MenuItem = mui.MenuItem;
 var Menu = React.createClass({
 
   propTypes: {
-    title: React.PropTypes.string.isRequired
+    title: React.PropTypes.string.isRequired,
+    loggedIn: React.PropTypes.bool.isRequired
   },
 
   openMenu: function openMenu(e) {
@@ -26,13 +27,22 @@ var Menu = React.createClass({
         type: MenuItem.Types.LINK,
         payload: '/teams/new',
         text: 'Assemble Team'
-      },
-      {
+      }
+    ];
+
+    if ( !this.props.loggedIn ) {
+      menuItems.push({
         type: MenuItem.Types.LINK,
         payload: '/auth/facebook',
         text: 'Sign In'
-      }
-    ];
+      });
+    } else {
+      menuItems.push({
+        type: MenuItem.Types.LINK,
+        payload: '/signout',
+        text: 'Sign Out'
+      });
+    }
 
     return (
       <div>

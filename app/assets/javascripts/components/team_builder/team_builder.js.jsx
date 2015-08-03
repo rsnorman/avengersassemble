@@ -7,6 +7,7 @@ var MarvelTheme      = require('../../mixins/marvel-theme.js');
 var Menu             = require('../menu.js.jsx');
 var mui              = require('material-ui');
 var ActionButton     = mui.FloatingActionButton;
+var Dialog           = mui.Dialog;
 
 
 var TeamBuilder, feedbackMessages;
@@ -14,6 +15,16 @@ feedbackMessages = [];
 TeamBuilder = React.createClass({
 
   mixins: [MarvelTheme],
+
+  propTypes: {
+    maxExperience: React.PropTypes.number,
+    maxTeamSize: React.PropTypes.number,
+    loggedIn: React.PropTypes.bool
+  },
+
+  getDefaultProps: function() {
+    loggedIn: false
+  },
 
   getInitialState: function() {
     if ( !localStorage.team ) {
@@ -27,11 +38,11 @@ TeamBuilder = React.createClass({
     } else {
       return {
         characters:[],
-        //team: JSON.parse(localStorage.team)
         team: {
           characters: [],
           experience: 0
         },
+        team: JSON.parse(localStorage.team)
       };
     }
   },
@@ -84,9 +95,13 @@ TeamBuilder = React.createClass({
   },
 
   startAssemblingTeam: function() {
-    this.setState({
-      creatingTeam: true
-    });
+    if ( this.props.loggedIn ) {
+      this.setState({
+        creatingTeam: true
+      });
+    } else {
+      this.refs.modal.show();
+    }
   },
 
   teamAssembled: function(team) {
@@ -118,14 +133,27 @@ TeamBuilder = React.createClass({
     window.location = '/teams?active=' + team.id;
   },
 
+  signIn: function() {
+    window.location = '/auth/facebook';
+  },
+
+  hideModal: function() {
+    this.refs.modal.dismiss();
+  },
+
   render: function() {
+    var standardActions = [
+      { text: 'No Thanks' },
+      { text: 'Sure!', onTouchTap: this.signIn, ref: 'submit' }
+    ];
+
     return (
       <div>
-        <Menu title="Assemble Team" />
+        <Menu title="Assemble Team" loggedIn={this.props.loggedIn} />
         <NewTeam
           team={this.state.team}
-          allowedExperience={2500}
-          maxTeamSize={5}
+          allowedExperience={this.props.maxExperience}
+          maxTeamSize={this.props.maxTeamSize}
           onRemoveCharacter={this.removeCharacterFromTeam} />
         <CharacterSearch onSearchSuccess={this.showCharacters} />
         <CharacterResults
@@ -142,6 +170,14 @@ TeamBuilder = React.createClass({
             <i className="material-icons">build</i>
           </ActionButton>
         </div>
+        <Dialog
+          ref="modal"
+          title="Sign In"
+          actions={standardActions}
+          actionFocus="submit"
+          modal={this.state.modal}>
+          Please sign in using your Facebook account to assemble your team.
+        </Dialog>
       </div>
     );
   }

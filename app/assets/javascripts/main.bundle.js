@@ -77,7 +77,9 @@
 	  teamRankingsEl = document.getElementById('team_rankings');
 
 	  if ( teamRankingsEl ) {
-	    React.render(React.createElement(TeamRankings), teamRankingsEl);
+	    React.render(React.createElement(TeamRankings, {
+	      loggedIn: window.teamLeaderLoggedIn
+	    }), teamRankingsEl);
 	  }
 	});
 
@@ -88,7 +90,8 @@
 	  if ( teamBuilderEl ) {
 	    React.render(React.createElement(TeamBuilder, {
 	      maxSize: 5,
-	      maxExperience: 2500
+	      maxExperience: 2500,
+	      loggedIn: window.teamLeaderLoggedIn
 	    }), teamBuilderEl);
 	  }
 	});
@@ -20578,6 +20581,7 @@
 	var Menu             = __webpack_require__(317);
 	var mui              = __webpack_require__(165);
 	var ActionButton     = mui.FloatingActionButton;
+	var Dialog           = mui.Dialog;
 
 
 	var TeamBuilder, feedbackMessages;
@@ -20585,6 +20589,16 @@
 	TeamBuilder = React.createClass({displayName: "TeamBuilder",
 
 	  mixins: [MarvelTheme],
+
+	  propTypes: {
+	    maxExperience: React.PropTypes.number,
+	    maxTeamSize: React.PropTypes.number,
+	    loggedIn: React.PropTypes.bool
+	  },
+
+	  getDefaultProps: function() {
+	    loggedIn: false
+	  },
 
 	  getInitialState: function() {
 	    if ( !localStorage.team ) {
@@ -20598,11 +20612,11 @@
 	    } else {
 	      return {
 	        characters:[],
-	        //team: JSON.parse(localStorage.team)
 	        team: {
 	          characters: [],
 	          experience: 0
 	        },
+	        team: JSON.parse(localStorage.team)
 	      };
 	    }
 	  },
@@ -20655,9 +20669,13 @@
 	  },
 
 	  startAssemblingTeam: function() {
-	    this.setState({
-	      creatingTeam: true
-	    });
+	    if ( this.props.loggedIn ) {
+	      this.setState({
+	        creatingTeam: true
+	      });
+	    } else {
+	      this.refs.modal.show();
+	    }
 	  },
 
 	  teamAssembled: function(team) {
@@ -20689,14 +20707,27 @@
 	    window.location = '/teams?active=' + team.id;
 	  },
 
+	  signIn: function() {
+	    window.location = '/auth/facebook';
+	  },
+
+	  hideModal: function() {
+	    this.refs.modal.dismiss();
+	  },
+
 	  render: function() {
+	    var standardActions = [
+	      { text: 'No Thanks' },
+	      { text: 'Sure!', onTouchTap: this.signIn, ref: 'submit' }
+	    ];
+
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Assemble Team"}), 
+	        React.createElement(Menu, {title: "Assemble Team", loggedIn: this.props.loggedIn}), 
 	        React.createElement(NewTeam, {
 	          team: this.state.team, 
-	          allowedExperience: 2500, 
-	          maxTeamSize: 5, 
+	          allowedExperience: this.props.maxExperience, 
+	          maxTeamSize: this.props.maxTeamSize, 
 	          onRemoveCharacter: this.removeCharacterFromTeam}), 
 	        React.createElement(CharacterSearch, {onSearchSuccess: this.showCharacters}), 
 	        React.createElement(CharacterResults, {
@@ -20712,6 +20743,14 @@
 	            disabled: !this.state.team.isValid}, 
 	            React.createElement("i", {className: "material-icons"}, "build")
 	          )
+	        ), 
+	        React.createElement(Dialog, {
+	          ref: "modal", 
+	          title: "Sign In", 
+	          actions: standardActions, 
+	          actionFocus: "submit", 
+	          modal: this.state.modal}, 
+	          "Please sign in using your Facebook account to assemble your team."
 	        )
 	      )
 	    );
@@ -40884,7 +40923,8 @@
 	var Menu = React.createClass({displayName: "Menu",
 
 	  propTypes: {
-	    title: React.PropTypes.string.isRequired
+	    title: React.PropTypes.string.isRequired,
+	    loggedIn: React.PropTypes.bool.isRequired
 	  },
 
 	  openMenu: function openMenu(e) {
@@ -40902,13 +40942,22 @@
 	        type: MenuItem.Types.LINK,
 	        payload: '/teams/new',
 	        text: 'Assemble Team'
-	      },
-	      {
+	      }
+	    ];
+
+	    if ( !this.props.loggedIn ) {
+	      menuItems.push({
 	        type: MenuItem.Types.LINK,
 	        payload: '/auth/facebook',
 	        text: 'Sign In'
-	      }
-	    ];
+	      });
+	    } else {
+	      menuItems.push({
+	        type: MenuItem.Types.LINK,
+	        payload: '/signout',
+	        text: 'Sign Out'
+	      });
+	    }
 
 	    return (
 	      React.createElement("div", null, 
@@ -40936,6 +40985,10 @@
 	var TeamRankings = React.createClass({displayName: "TeamRankings",
 
 	  mixins: [MarvelTheme],
+
+	  propTypes: {
+	    loggedIn: React.PropTypes.bool.isRequired
+	  },
 
 	  getInitialState: function() {
 	    return {
@@ -40967,7 +41020,7 @@
 
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Leaderboard"}), 
+	        React.createElement(Menu, {title: "Leaderboard", loggedIn: this.props.loggedIn}), 
 	        React.createElement(List, {id: "ranking_teams"}, 
 	          this.state.teams.map(createTeam.bind(this))
 	        )

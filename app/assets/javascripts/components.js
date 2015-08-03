@@ -24,7 +24,9 @@ $(document).on('ready page:load', function() {
   teamRankingsEl = document.getElementById('team_rankings');
 
   if ( teamRankingsEl ) {
-    React.render(React.createElement(TeamRankings), teamRankingsEl);
+    React.render(React.createElement(TeamRankings, {
+      loggedIn: window.teamLeaderLoggedIn
+    }), teamRankingsEl);
   }
 });
 
@@ -35,7 +37,8 @@ $(document).on('ready page:load', function() {
   if ( teamBuilderEl ) {
     React.render(React.createElement(TeamBuilder, {
       maxSize: 5,
-      maxExperience: 2500
+      maxExperience: 2500,
+      loggedIn: window.teamLeaderLoggedIn
     }), teamBuilderEl);
   }
 });
