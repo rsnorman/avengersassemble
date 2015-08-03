@@ -20485,7 +20485,7 @@
 	  getInitialState: function() {
 	    return {
 	      message: null,
-	      type: null,
+	      type:    null,
 	      visible: false
 	    };
 	  },
@@ -20496,9 +20496,9 @@
 
 	      this.setState({
 	        message: message.text,
-	        type: message.type,
+	        type:    message.type,
 	        visible: true,
-	        remove: false
+	        remove:  false
 	      });
 
 	      removeTimer = setTimeout(function() {
@@ -20535,18 +20535,18 @@
 	        clearTimeout(removeTimer);
 	      }
 
-	      classes += ' visible';
+	      classes        += ' visible';
 	      animatedClasses = 'animated flipInX';
 
 	    } else if ( this.state.remove ) {
 
-	      classes += ' visible';
+	      classes        += ' visible';
 	      animatedClasses = 'animated flipOutX';
 
 	      setTimeout(function() {
 	        this.setState({
 	          visible: false,
-	          remove: false
+	          remove:  false
 	        });
 	      }.bind(this), 750);
 
@@ -20592,8 +20592,8 @@
 
 	  propTypes: {
 	    maxExperience: React.PropTypes.number,
-	    maxTeamSize: React.PropTypes.number,
-	    loggedIn: React.PropTypes.bool
+	    maxTeamSize:   React.PropTypes.number,
+	    loggedIn:      React.PropTypes.bool
 	  },
 
 	  getDefaultProps: function() {
@@ -20778,7 +20778,6 @@
 	var Continuity = __webpack_require__(161);
 
 	var TeamCreator, continuityTeamBuilder, matchedCharacters;
-
 	matchedCharacters = {};
 
 	continuityTeamBuilder = new Continuity([], function(characters, resolve, reject) {
@@ -21385,8 +21384,11 @@
 	  render: function() {
 	      return (
 	        React.createElement(Paper, {zDepth: 2}, 
-	          React.createElement(TextField, {className: "character-search-field", ref: "searchField", 
-	            hintText: "Search Marvel Characters", fullWidth: true, 
+	          React.createElement(TextField, {
+	            className: "character-search-field", 
+	            ref: "searchField", 
+	            hintText: "Search Marvel Characters", 
+	            fullWidth: true, 
 	            onChange: debounce(this.searchCharacters, 500)})
 	        )
 	      );
@@ -40657,7 +40659,9 @@
 	  render: function() {
 	    var createItem = function(character, index) {
 	      return (
-	        React.createElement(CharacterResult, {key: character.id, character: character, 
+	        React.createElement(CharacterResult, {
+	          key: character.id, 
+	          character: character, 
 	          onCharacterSelect: this.selectCharacter})
 	      );
 	    };
@@ -40759,9 +40763,9 @@
 	NewTeam = React.createClass({displayName: "NewTeam",
 
 	  propTypes: {
-	    team: React.PropTypes.object.isRequired,
+	    team:              React.PropTypes.object.isRequired,
 	    allowedExperience: React.PropTypes.number.isRequired,
-	    maxTeamSize: React.PropTypes.number,
+	    maxTeamSize:       React.PropTypes.number,
 	    onRemoveCharacter: React.PropTypes.func
 	  },
 
@@ -40773,6 +40777,7 @@
 
 	  assembleTeam: function(event) {
 	    event.preventDefault();
+
 	    if ( this.props.onAssembleTeam ) {
 	      this.props.onAssembleTeam();
 	    }
@@ -40813,7 +40818,6 @@
 	      )
 	    );
 	  }
-
 	});
 
 	module.exports = NewTeam;
@@ -40833,7 +40837,7 @@
 
 	  propTypes: {
 	    character: React.PropTypes.any,
-	    onRemove: React.PropTypes.func
+	    onRemove:  React.PropTypes.func
 	  },
 
 	  removeCharacter: function() {
@@ -40871,7 +40875,6 @@
 	      );
 	    }
 	  }
-
 	});
 
 	module.exports = CharacterSlot;
@@ -40893,11 +40896,13 @@
 	    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
 	    return componentThemes;
 	  },
+
 	  getPalette: function getPalette() {
 	    var palette;
 	    palette = ThemeManager.types.DARK.getPalette();
+
 	    palette.primary1Color = Colors.red500;
-	    palette.accent1Color = Colors.red500;
+	    palette.accent1Color  = Colors.red500;
 	    palette.primary3Color = Colors.red50;
 	    return palette;
 	  }
@@ -40933,7 +40938,7 @@
 	var Menu = React.createClass({displayName: "Menu",
 
 	  propTypes: {
-	    title: React.PropTypes.string.isRequired,
+	    title:    React.PropTypes.string.isRequired,
 	    loggedIn: React.PropTypes.bool.isRequired
 	  },
 
@@ -40971,8 +40976,13 @@
 
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(AppBar, {title: this.props.title, onLeftIconButtonTouchTap: this.openMenu}), 
-	        React.createElement(LeftNav, {ref: "leftNav", docked: false, menuItems: menuItems})
+	        React.createElement(AppBar, {
+	          title: this.props.title, 
+	          onLeftIconButtonTouchTap: this.openMenu}), 
+	        React.createElement(LeftNav, {
+	          ref: "leftNav", 
+	          docked: false, 
+	          menuItems: menuItems})
 	      )
 	    );
 	  }
@@ -41061,7 +41071,7 @@
 	var Team = React.createClass({displayName: "Team",
 
 	  propTypes: {
-	    team: React.PropTypes.object.isRequired,
+	    team:     React.PropTypes.object.isRequired,
 	    maxScore: React.PropTypes.number.isRequired
 	  },
 
@@ -41075,11 +41085,11 @@
 	    }
 
 	    return (
-	      React.createElement(Paper, {zDepth: 1}, 
+	      React.createElement(Paper, {zDepth: 1, className: "ranking-team-container"}, 
 	        React.createElement(ListItem, null, 
 	          React.createElement("div", {className: "ranking-team"}, 
 	            React.createElement("div", {className: "leader-icon"}, 
-	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 80})
+	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 60})
 	            ), 
 	            React.createElement("div", {className: "team-details"}, 
 	              React.createElement("div", {className: "team-name"}, team.name), 

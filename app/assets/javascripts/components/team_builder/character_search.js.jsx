@@ -37,8 +37,11 @@ var CharacterSearch = React.createClass({
   render: function() {
       return (
         <Paper zDepth={2}>
-          <TextField className="character-search-field" ref="searchField"
-            hintText="Search Marvel Characters" fullWidth={true}
+          <TextField
+            className="character-search-field"
+            ref="searchField"
+            hintText="Search Marvel Characters"
+            fullWidth={true}
             onChange={debounce(this.searchCharacters, 500)} />
         </Paper>
       );

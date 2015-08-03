@@ -8,7 +8,7 @@ CharacterSlot = React.createClass({
 
   propTypes: {
     character: React.PropTypes.any,
-    onRemove: React.PropTypes.func
+    onRemove:  React.PropTypes.func
   },
 
   removeCharacter: function() {
@@ -46,7 +46,6 @@ CharacterSlot = React.createClass({
       );
     }
   }
-
 });
 
 module.exports = CharacterSlot;

@@ -24,9 +24,9 @@ function getCharacterSlots(characters, maxTeamSize) {
 NewTeam = React.createClass({
 
   propTypes: {
-    team: React.PropTypes.object.isRequired,
+    team:              React.PropTypes.object.isRequired,
     allowedExperience: React.PropTypes.number.isRequired,
-    maxTeamSize: React.PropTypes.number,
+    maxTeamSize:       React.PropTypes.number,
     onRemoveCharacter: React.PropTypes.func
   },
 
@@ -38,6 +38,7 @@ NewTeam = React.createClass({
 
   assembleTeam: function(event) {
     event.preventDefault();
+
     if ( this.props.onAssembleTeam ) {
       this.props.onAssembleTeam();
     }
@@ -78,7 +79,6 @@ NewTeam = React.createClass({
       </Paper>
     );
   }
-
 });
 
 module.exports = NewTeam;

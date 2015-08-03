@@ -8,7 +8,7 @@ var MenuItem = mui.MenuItem;
 var Menu = React.createClass({
 
   propTypes: {
-    title: React.PropTypes.string.isRequired,
+    title:    React.PropTypes.string.isRequired,
     loggedIn: React.PropTypes.bool.isRequired
   },
 
@@ -46,8 +46,13 @@ var Menu = React.createClass({
 
     return (
       <div>
-        <AppBar title={this.props.title} onLeftIconButtonTouchTap={this.openMenu} />
-        <LeftNav ref="leftNav" docked={false} menuItems={menuItems} />
+        <AppBar
+          title={this.props.title}
+          onLeftIconButtonTouchTap={this.openMenu} />
+        <LeftNav
+          ref="leftNav"
+          docked={false}
+          menuItems={menuItems} />
       </div>
     );
   }

@@ -18,8 +18,8 @@ TeamBuilder = React.createClass({
 
   propTypes: {
     maxExperience: React.PropTypes.number,
-    maxTeamSize: React.PropTypes.number,
-    loggedIn: React.PropTypes.bool
+    maxTeamSize:   React.PropTypes.number,
+    loggedIn:      React.PropTypes.bool
   },
 
   getDefaultProps: function() {

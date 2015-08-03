@@ -14,7 +14,9 @@ var CharacterResults = React.createClass({
   render: function() {
     var createItem = function(character, index) {
       return (
-        <CharacterResult key={character.id} character={character}
+        <CharacterResult
+          key={character.id}
+          character={character}
           onCharacterSelect={this.selectCharacter} />
       );
     };
