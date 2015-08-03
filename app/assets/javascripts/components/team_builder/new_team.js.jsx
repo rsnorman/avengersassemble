@@ -1,50 +1,84 @@
-var React         = require('react');
-var ExperienceBar = require('./experience_bar.js.jsx');
+var React          = require('react');
+var CharacterSlot  = require('./character_slot.js.jsx');
+var mui            = require('material-ui');
+var Avatar         = mui.Avatar;
+var Paper          = mui.Paper;
+var LinearProgress = mui.LinearProgress;
 
 var NewTeam;
 
+function getCharacterSlots(characters, maxTeamSize) {
+  var characterSlots, _i, _len
+  characterSlots = [];
+  for (_i = 0, _len = characters.length; _i < _len; _i++) {
+    characterSlots.push(characters[_i]);
+  }
+
+  while ( characterSlots.length < maxTeamSize ) {
+    characterSlots.push(false);
+  }
+
+  return characterSlots;
+}
+
 NewTeam = React.createClass({
+
+  propTypes: {
+    team:              React.PropTypes.object.isRequired,
+    allowedExperience: React.PropTypes.number.isRequired,
+    maxTeamSize:       React.PropTypes.number,
+    onRemoveCharacter: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      maxTeamSize: 5
+    };
+  },
 
   assembleTeam: function(event) {
     event.preventDefault();
+
     if ( this.props.onAssembleTeam ) {
       this.props.onAssembleTeam();
     }
   },
 
+  removeCharacter: function(character) {
+    if ( !!this.props.onRemoveCharacter ) {
+      this.props.onRemoveCharacter(character);
+    }
+  },
+
   render: function() {
-    var createItem = function(character, index) {
+    var totalPercentExperience;
+    totalPercentExperience = Math.round(
+      this.props.team.experience / this.props.allowedExperience * 100
+    );
+
+    function createItem(character, index) {
       return (
-        <div key={character.id} className="team-character">
-          <img src={character.thumbnail_url} />
-          <div className="panel">
-            <h6>{character.name}</h6>
-          </div>
-        </div>
+        <CharacterSlot
+          character={character}
+          key={index}
+          onRemove={this.removeCharacter} />
       );
     };
 
     return (
-      <form id="new_team" onSubmit={this.assembleTeam}>
-        <div id="new_team" className="row">
-          <div className="large-12 columns">
-            {this.props.team.characters.map(createItem)}
-          </div>
+      <Paper id="new_team" zIndex={2}>
+        <div id="team_characters">
+          {
+            getCharacterSlots(
+              this.props.team.characters,
+              this.props.maxTeamSize
+            ).map(createItem.bind(this))
+          }
         </div>
-        <div className="row">
-          <div className="large-9 columns">
-            <h3>Assemble Your Avengers</h3>
-            <h6>Total Experience: {this.props.team.experience}</h6>
-            <ExperienceBar totalProgress={this.props.allowedExperience} currentProgress={this.props.team.experience}></ExperienceBar>
-          </div>
-          <div className="large-3 columns">
-            <input type="submit" disabled={!this.props.team.isValid} className="expand button" value="Assemble Team" />
-          </div>
-        </div>
-      </form>
+        <LinearProgress mode="determinate" value={totalPercentExperience} />
+      </Paper>
     );
   }
-
 });
 
 module.exports = NewTeam;

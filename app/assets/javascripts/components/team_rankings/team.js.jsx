@@ -13,7 +13,7 @@ var Character      = require('./character.js.jsx');
 var Team = React.createClass({
 
   propTypes: {
-    team: React.PropTypes.object.isRequired,
+    team:     React.PropTypes.object.isRequired,
     maxScore: React.PropTypes.number.isRequired
   },
 
@@ -27,11 +27,11 @@ var Team = React.createClass({
     }
 
     return (
-      <Paper zDepth={1}>
+      <Paper zDepth={1} className="ranking-team-container">
         <ListItem>
           <div className="ranking-team">
             <div className="leader-icon">
-              <Avatar src={team.leader.image + '?type=large'} size={80}/>
+              <Avatar src={team.leader.image + '?type=large'} size={60}/>
             </div>
             <div className="team-details">
               <div className="team-name">{team.name}</div>

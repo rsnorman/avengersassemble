@@ -1,19 +1,38 @@
-.team-character
-  width: 19%
-  float: left
-  margin-right: 1%
+.character-search-field
+  div
+    padding-left: 8px
 
-.experience-progress-bar-container
-  width: 100%
+#new_team
+  margin-bottom: 5px
+  margin-top: 5px
+
+#team_characters
+  padding: 10px
+  display: -webkit-flex
+  display: flex
+  -webkit-flex-direction: row
+  flex-direction: row
+
+  > div
+    -webkit-flex: 1 1 auto
+    flex: 1 1 auto
+    text-align: center
+
+    .remove-character
+      display: none
+
+    &:hover
+      .remove-character
+        display: block
+
+.character-avatar
+  display: inline-block
   position: relative
-  height: 8px
 
-.experience-progress-bar
-  background-color: #0076ff
-  height: 8px
-  left: 0
-  opacity: 0.99
+.remove-character
+  opacity: 0.7
+  font-size: 39px
   position: absolute
+  left: 0
   top: 0
-  transform: translate3d(0px, 0px, 0px)
-  transition: width 300ms ease-out 0s, opacity 150ms ease-in 0s
+  line-height: 0

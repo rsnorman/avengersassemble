@@ -7,7 +7,7 @@ Notifier = React.createClass({
   getInitialState: function() {
     return {
       message: null,
-      type: null,
+      type:    null,
       visible: false
     };
   },
@@ -18,9 +18,9 @@ Notifier = React.createClass({
 
       this.setState({
         message: message.text,
-        type: message.type,
+        type:    message.type,
         visible: true,
-        remove: false
+        remove:  false
       });
 
       removeTimer = setTimeout(function() {
@@ -57,18 +57,18 @@ Notifier = React.createClass({
         clearTimeout(removeTimer);
       }
 
-      classes += ' visible';
+      classes        += ' visible';
       animatedClasses = 'animated flipInX';
 
     } else if ( this.state.remove ) {
 
-      classes += ' visible';
+      classes        += ' visible';
       animatedClasses = 'animated flipOutX';
 
       setTimeout(function() {
         this.setState({
           visible: false,
-          remove: false
+          remove:  false
         });
       }.bind(this), 750);
 

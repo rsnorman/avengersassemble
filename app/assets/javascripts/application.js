@@ -16,8 +16,6 @@
 //= require turbolinks
 
 //= require_tree ./lib
-//= require ./mixins/masonry-mixin
 //= require main.bundle
 
 Turbolinks.enableProgressBar();
-$(function(){ $(document).foundation(); });

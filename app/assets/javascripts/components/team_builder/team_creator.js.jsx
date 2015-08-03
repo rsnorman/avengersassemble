@@ -2,7 +2,6 @@ var React      = require('react');
 var Continuity = require('promise-continuity');
 
 var TeamCreator, continuityTeamBuilder, matchedCharacters;
-
 matchedCharacters = {};
 
 continuityTeamBuilder = new Continuity([], function(characters, resolve, reject) {

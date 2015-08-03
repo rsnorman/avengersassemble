@@ -1,4 +1,11 @@
-var React           = require('react');
+var React     = require('react');
+var debounce  = require('debounce');
+var mui       = require('material-ui');
+var Paper     = mui.Paper;
+var TextField = mui.TextField;
+
+var MIN_QUERY_LENGTH = 3;
+
 var CharacterSearch = React.createClass({
   getInitialState: function() {
     return {
@@ -6,21 +13,20 @@ var CharacterSearch = React.createClass({
     };
   },
 
-  onChange: function(e) {
-    this.setState({
-      text: e.target.value
-    });
-  },
+  searchCharacters: function searchCharacters() {
+    var characterQuery;
+    characterQuery = this.refs.searchField.getValue();
 
-  searchCharacters: function(e) {
-    e.preventDefault();
+    if ( characterQuery.length < MIN_QUERY_LENGTH ) {
+      return;
+    }
 
     $.ajax({
       url: '/api/v1/characters',
       type: 'GET',
       dataType: 'json',
       data: {
-        query: this.state.text
+        query: this.refs.searchField.getValue()
       },
       success: function(matchingCharacters) {
         this.props.onSearchSuccess(matchingCharacters);
@@ -29,19 +35,16 @@ var CharacterSearch = React.createClass({
   },
 
   render: function() {
-      return <form onSubmit={this.searchCharacters}>
-        <div className="row collapse">
-
-          <div className="large-10 medium-9 small-12 columns">
-            <input type="search" onChange={this.onChange} value={this.state.text} placeholder="Search Marvel Characters"/>
-          </div>
-
-          <div className="large-2 medium-3 small-12 columns">
-            <input type="submit" className="postfix button expand" value="Search" />
-          </div>
-
-        </div>
-      </form>;
+      return (
+        <Paper zDepth={2}>
+          <TextField
+            className="character-search-field"
+            ref="searchField"
+            hintText="Search Marvel Characters"
+            fullWidth={true}
+            onChange={debounce(this.searchCharacters, 500)} />
+        </Paper>
+      );
   }
 });
 

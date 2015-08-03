@@ -13,17 +13,28 @@
  *= require animate
  *= require_tree .
  *= require_self
- *= require foundation_and_overrides
- *= require character_result
- *= require new_team
 
  */
 
- body, h1, h2, h3, h4, h5, h6 {
-   font-family: 'Roboto', sans-serif;
- }
+body {
+  background-color: #424242;
+  /*margin-top: 0;*/
+  /*margin-left: 0;*/
+  /*margin-right: 0;*/
+  /*margin-bottom: 25px;*/
+}
+
+body, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Roboto', sans-serif;
+}
 
 .material-icons.md-18 { font-size: 18px; }
 .material-icons.md-24 { font-size: 24px; }
 .material-icons.md-36 { font-size: 36px; }
 .material-icons.md-48 { font-size: 48px; }
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+// Rules for using icons as white on a dark background.
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }

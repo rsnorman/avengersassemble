@@ -9,6 +9,10 @@ var TeamRankings = React.createClass({
 
   mixins: [MarvelTheme],
 
+  propTypes: {
+    loggedIn: React.PropTypes.bool.isRequired
+  },
+
   getInitialState: function() {
     return {
       isLoading: true,
@@ -39,7 +43,7 @@ var TeamRankings = React.createClass({
 
     return (
       <div>
-        <Menu />
+        <Menu title="Leaderboard" loggedIn={this.props.loggedIn} />
         <List id="ranking_teams">
           {this.state.teams.map(createTeam.bind(this))}
         </List>
