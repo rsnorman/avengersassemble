@@ -57,37 +57,46 @@ TeamBuilder = React.createClass({
     var team;
     team = JSON.parse(JSON.stringify(this.state.team));
 
-    if ( this.props.maxSize > this.state.team.characters.length ) {
-
-      if ( this.props.maxExperience > this.state.team.experience + character.experience ) {
-
-        team.characters.push(character);
-        team.experience += character.experience;
-
-        PubSub.publish( 'notification', {
-          text: 'Added ' + character.name + ' to team',
-          type: 'success'
-        } );
-
-        if ( this.props.maxSize === team.characters.length ) {
-          team.isValid = true
-        }
-
-        localStorage.team = JSON.stringify(team);
-
-      } else {
-        PubSub.publish( 'notification', {
-          text: 'Too powerful of a team',
-          type: 'error'
-        } );
-      }
-
-    } else {
+    if ( this.props.maxSize <= team.characters.length ) {
       PubSub.publish('notification', {
         text: 'Too many team members',
         type: 'error'
       });
+      return;
     }
+
+    if ( this.props.maxExperience <= team.experience + character.experience ) {
+      PubSub.publish( 'notification', {
+        text: 'Too powerful of a team',
+        type: 'error'
+      });
+      return;
+    }
+
+    var alreadyAdded = !!team.characters
+      .find(function(ch) { return ch.id == character.id; });
+
+    if ( alreadyAdded ) {
+      PubSub.publish('notification', {
+        text: 'Already added ' + character.name,
+        type: 'error'
+      });
+      return;
+    }
+
+    team.characters.push(character);
+    team.experience += character.experience;
+
+    PubSub.publish( 'notification', {
+      text: 'Added ' + character.name + ' to team',
+      type: 'success'
+    } );
+
+    if ( this.props.maxSize === team.characters.length ) {
+      team.isValid = true
+    }
+
+    localStorage.team = JSON.stringify(team);
 
     this.setState({
       team: team
@@ -114,15 +123,16 @@ TeamBuilder = React.createClass({
     });
   },
 
-  removeCharacterFromeTeam: function(removeCharacter) {
+  removeCharacterFromTeam: function(removeCharacter) {
     var team;
     team = JSON.parse(JSON.stringify(this.state.team));
     team.characters = team.characters.filter(function(character) {
       return character.id !== removeCharacter.id;
     });
 
-    team.experience -= removeCharacter.experience;
-    team.isValid     = false
+    team.experience  -= removeCharacter.experience;
+    team.isValid      = false
+    localStorage.team = JSON.stringify(team);
 
     this.setState({
       team: team
