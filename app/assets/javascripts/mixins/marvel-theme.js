@@ -14,6 +14,7 @@ var redDarkTheme = {
     var palette;
     palette = ThemeManager.types.DARK.getPalette();
     palette.primary1Color = Colors.red500;
+    palette.accent1Color = Colors.red500;
     palette.primary3Color = Colors.red50;
     return palette;
   }

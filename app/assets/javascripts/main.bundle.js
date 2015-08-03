@@ -20571,12 +20571,13 @@
 
 	var React            = __webpack_require__(2);
 	var CharacterSearch  = __webpack_require__(162);
-	var CharacterResults = __webpack_require__(325);
+	var CharacterResults = __webpack_require__(312);
 	var NewTeam          = __webpack_require__(314);
 	var TeamCreator      = __webpack_require__(160);
 	var MarvelTheme      = __webpack_require__(316);
 	var Menu             = __webpack_require__(317);
 	var mui              = __webpack_require__(165);
+	var ActionButton     = mui.FloatingActionButton;
 
 
 	var TeamBuilder, feedbackMessages;
@@ -20669,13 +20670,15 @@
 	    });
 	  },
 
-	  removeCharacter: function(removeCharacter) {
+	  removeCharacterFromeTeam: function(removeCharacter) {
 	    var team;
 	    team = JSON.parse(JSON.stringify(this.state.team));
 	    team.characters = team.characters.filter(function(character) {
-	      console.log(character);
 	      return character.id !== removeCharacter.id;
 	    });
+
+	    team.experience -= removeCharacter.experience;
+	    team.isValid     = false
 
 	    this.setState({
 	      team: team
@@ -20694,10 +20697,22 @@
 	          team: this.state.team, 
 	          allowedExperience: 2500, 
 	          maxTeamSize: 5, 
-	          onRemoveCharacter: this.removeCharacter}), 
+	          onRemoveCharacter: this.removeCharacterFromTeam}), 
 	        React.createElement(CharacterSearch, {onSearchSuccess: this.showCharacters}), 
-	        React.createElement(CharacterResults, {onCharacterSelect: this.addCharacterToTeam, characters: this.state.characters}), 
-	        React.createElement(TeamCreatorFeedback, {start: this.state.creatingTeam, onCreate: this.goToLeaderboard, team: this.state.team})
+	        React.createElement(CharacterResults, {
+	          onCharacterSelect: this.addCharacterToTeam, 
+	          characters: this.state.characters}), 
+	        React.createElement(TeamCreatorFeedback, {
+	          start: this.state.creatingTeam, 
+	          onCreate: this.goToLeaderboard, 
+	          team: this.state.team}), 
+	        React.createElement("div", {id: "create_team_button"}, 
+	          React.createElement(ActionButton, {
+	            onClick: this.startAssemblingTeam, 
+	            disabled: !this.state.team.isValid}, 
+	            React.createElement("i", {className: "material-icons"}, "build")
+	          )
+	        )
 	      )
 	    );
 	  }
@@ -40574,13 +40589,103 @@
 	};
 
 /***/ },
-/* 312 */,
-/* 313 */,
+/* 312 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React           = __webpack_require__(2);
+	var CharacterResult = __webpack_require__(313);
+	var mui             = __webpack_require__(165);
+	var List            = mui.List;
+
+	var CharacterResults = React.createClass({displayName: "CharacterResults",
+
+	  selectCharacter: function(character) {
+	    if (this.props.onCharacterSelect) {
+	      this.props.onCharacterSelect(character);
+	    }
+	  },
+
+	  render: function() {
+	    var createItem = function(character, index) {
+	      return (
+	        React.createElement(CharacterResult, {key: character.id, character: character, 
+	          onCharacterSelect: this.selectCharacter})
+	      );
+	    };
+
+	    return (
+	      React.createElement(List, {id: "character_results"}, 
+	        this.props.characters.map(createItem.bind(this))
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = CharacterResults;
+
+
+/***/ },
+/* 313 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React      = __webpack_require__(2);
+	var mui        = __webpack_require__(165);
+	var ListItem   = mui.ListItem;
+	var Paper      = mui.Paper;
+	var Avatar     = mui.Avatar;
+	var IconButton = mui.IconButton;
+
+
+	var Character = React.createClass({displayName: "Character",
+
+	  selectCharacter: function(event) {
+	    event.preventDefault();
+
+	    if (this.props.onCharacterSelect) {
+	      this.props.onCharacterSelect(this.props.character);
+	    }
+	  },
+
+	  render: function() {
+	    return (
+	      React.createElement(Paper, {zDepth: 1, className: "character-result"}, 
+	        React.createElement(ListItem, {
+	          leftAvatar: 
+	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
+	          
+	          rightIconButton: 
+	            React.createElement(IconButton, null, 
+	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
+	            ), 
+	          
+	          primaryText: this.props.character.name, 
+	          secondaryText: 
+	            React.createElement("p", null, 
+	              React.createElement("span", null, 
+	                this.props.character.real_name
+	              ), 
+	              React.createElement("br", null), 
+	              this.props.character.description
+	            ), 
+	          
+	          secondaryTextLines: 2, 
+	          onClick: this.selectCharacter})
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = Character;
+
+
+/***/ },
 /* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React          = __webpack_require__(2);
-	var CharacterSlot  = __webpack_require__(327);
+	var CharacterSlot  = __webpack_require__(315);
 	var mui            = __webpack_require__(165);
 	var Avatar         = mui.Avatar;
 	var Paper          = mui.Paper;
@@ -40666,7 +40771,64 @@
 
 
 /***/ },
-/* 315 */,
+/* 315 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(2);
+	var mui    = __webpack_require__(165);
+	var Avatar = mui.Avatar;
+
+	var CharacterSlot;
+
+	CharacterSlot = React.createClass({displayName: "CharacterSlot",
+
+	  propTypes: {
+	    character: React.PropTypes.any,
+	    onRemove: React.PropTypes.func
+	  },
+
+	  removeCharacter: function() {
+	    if ( !!this.props.onRemove ) {
+	      this.props.onRemove(this.props.character);
+	    }
+	  },
+
+	  render: function() {
+	    var character;
+	    character = this.props.character;
+	    if ( !!character ) {
+	      return (
+	        React.createElement("div", {className: "team-character"}, 
+	          React.createElement("div", {className: "character-avatar"}, 
+	            React.createElement(Avatar, {src: character.thumbnail_url}), 
+	            React.createElement("a", {href: "javascript:;", className: "remove-character", onClick: this.removeCharacter}, 
+	              React.createElement(Avatar, {icon: 
+	                React.createElement("i", {className: "material-icons md-dark"}, 
+	                  "clear"
+	                )
+	              })
+	            )
+	          )
+	        )
+	      );
+	    } else {
+	      return (
+	        React.createElement("div", {className: "team-character"}, 
+	          React.createElement(Avatar, {
+	            icon: 
+	              React.createElement("i", {className: "material-icons md-dark"}, "flash_on")
+	            })
+	        )
+	      );
+	    }
+	  }
+
+	});
+
+	module.exports = CharacterSlot;
+
+
+/***/ },
 /* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -40686,6 +40848,7 @@
 	    var palette;
 	    palette = ThemeManager.types.DARK.getPalette();
 	    palette.primary1Color = Colors.red500;
+	    palette.accent1Color = Colors.red500;
 	    palette.primary3Color = Colors.red50;
 	    return palette;
 	  }
@@ -41450,156 +41613,6 @@
 	};
 
 	module.exports = TouchEventUtils;
-
-
-/***/ },
-/* 325 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React           = __webpack_require__(2);
-	var CharacterResult = __webpack_require__(326);
-	var mui             = __webpack_require__(165);
-	var List            = mui.List;
-
-	var CharacterResults = React.createClass({displayName: "CharacterResults",
-
-	  selectCharacter: function(character) {
-	    if (this.props.onCharacterSelect) {
-	      this.props.onCharacterSelect(character);
-	    }
-	  },
-
-	  render: function() {
-	    var createItem = function(character, index) {
-	      return (
-	        React.createElement(CharacterResult, {key: character.id, character: character, 
-	          onCharacterSelect: this.selectCharacter})
-	      );
-	    };
-
-	    return (
-	      React.createElement(List, {id: "character_results"}, 
-	        this.props.characters.map(createItem.bind(this))
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = CharacterResults;
-
-
-/***/ },
-/* 326 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React      = __webpack_require__(2);
-	var mui        = __webpack_require__(165);
-	var ListItem   = mui.ListItem;
-	var Paper      = mui.Paper;
-	var Avatar     = mui.Avatar;
-	var IconButton = mui.IconButton;
-
-
-	var Character = React.createClass({displayName: "Character",
-
-	  selectCharacter: function(event) {
-	    event.preventDefault();
-
-	    if (this.props.onCharacterSelect) {
-	      this.props.onCharacterSelect(this.props.character);
-	    }
-	  },
-
-	  render: function() {
-	    return (
-	      React.createElement(Paper, {zDepth: 1, className: "character-result"}, 
-	        React.createElement(ListItem, {
-	          leftAvatar: 
-	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
-	          
-	          rightIconButton: 
-	            React.createElement(IconButton, null, 
-	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
-	            ), 
-	          
-	          primaryText: this.props.character.name, 
-	          secondaryText: 
-	            React.createElement("p", null, 
-	              React.createElement("span", null, 
-	                this.props.character.real_name
-	              ), 
-	              React.createElement("br", null), 
-	              this.props.character.description
-	            ), 
-	          
-	          secondaryTextLines: 2, 
-	          onClick: this.selectCharacter})
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = Character;
-
-
-/***/ },
-/* 327 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React  = __webpack_require__(2);
-	var mui    = __webpack_require__(165);
-	var Avatar = mui.Avatar;
-
-	var CharacterSlot;
-
-	CharacterSlot = React.createClass({displayName: "CharacterSlot",
-
-	  propTypes: {
-	    character: React.PropTypes.any,
-	    onRemove: React.PropTypes.func
-	  },
-
-	  removeCharacter: function() {
-	    if ( !!this.props.onRemove ) {
-	      this.props.onRemove(this.props.character);
-	    }
-	  },
-
-	  render: function() {
-	    var character;
-	    character = this.props.character;
-	    if ( !!character ) {
-	      return (
-	        React.createElement("div", {className: "team-character"}, 
-	          React.createElement("div", {className: "character-avatar"}, 
-	            React.createElement(Avatar, {src: character.thumbnail_url}), 
-	            React.createElement("a", {href: "javascript:;", className: "remove-character", onClick: this.removeCharacter}, 
-	              React.createElement(Avatar, {icon: 
-	                React.createElement("i", {className: "material-icons md-dark"}, 
-	                  "clear"
-	                )
-	              })
-	            )
-	          )
-	        )
-	      );
-	    } else {
-	      return (
-	        React.createElement("div", {className: "team-character"}, 
-	          React.createElement(Avatar, {
-	            icon: 
-	              React.createElement("i", {className: "material-icons md-dark"}, "flash_on")
-	            })
-	        )
-	      );
-	    }
-	  }
-
-	});
-
-	module.exports = CharacterSlot;
 
 
 /***/ }

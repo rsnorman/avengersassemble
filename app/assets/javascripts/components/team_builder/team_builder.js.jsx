@@ -6,6 +6,7 @@ var TeamCreator      = require('./team_creator.js.jsx');
 var MarvelTheme      = require('../../mixins/marvel-theme.js');
 var Menu             = require('../menu.js.jsx');
 var mui              = require('material-ui');
+var ActionButton     = mui.FloatingActionButton;
 
 
 var TeamBuilder, feedbackMessages;
@@ -98,13 +99,15 @@ TeamBuilder = React.createClass({
     });
   },
 
-  removeCharacter: function(removeCharacter) {
+  removeCharacterFromeTeam: function(removeCharacter) {
     var team;
     team = JSON.parse(JSON.stringify(this.state.team));
     team.characters = team.characters.filter(function(character) {
-      console.log(character);
       return character.id !== removeCharacter.id;
     });
+
+    team.experience -= removeCharacter.experience;
+    team.isValid     = false
 
     this.setState({
       team: team
@@ -123,10 +126,22 @@ TeamBuilder = React.createClass({
           team={this.state.team}
           allowedExperience={2500}
           maxTeamSize={5}
-          onRemoveCharacter={this.removeCharacter} />
+          onRemoveCharacter={this.removeCharacterFromTeam} />
         <CharacterSearch onSearchSuccess={this.showCharacters} />
-        <CharacterResults onCharacterSelect={this.addCharacterToTeam} characters={this.state.characters} />
-        <TeamCreatorFeedback start={this.state.creatingTeam} onCreate={this.goToLeaderboard} team={this.state.team} />
+        <CharacterResults
+          onCharacterSelect={this.addCharacterToTeam}
+          characters={this.state.characters} />
+        <TeamCreatorFeedback
+          start={this.state.creatingTeam}
+          onCreate={this.goToLeaderboard}
+          team={this.state.team} />
+        <div id="create_team_button">
+          <ActionButton
+            onClick={this.startAssemblingTeam}
+            disabled={!this.state.team.isValid}>
+            <i className="material-icons">build</i>
+          </ActionButton>
+        </div>
       </div>
     );
   }
