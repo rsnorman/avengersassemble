@@ -160,34 +160,36 @@ TeamBuilder = React.createClass({
     return (
       <div>
         <Menu title="Assemble Team" loggedIn={this.props.loggedIn} />
-        <NewTeam
-          team={this.state.team}
-          allowedExperience={this.props.maxExperience}
-          maxTeamSize={this.props.maxTeamSize}
-          onRemoveCharacter={this.removeCharacterFromTeam} />
-        <CharacterSearch onSearchSuccess={this.showCharacters} />
-        <CharacterResults
-          onCharacterSelect={this.addCharacterToTeam}
-          characters={this.state.characters} />
-        <TeamCreatorFeedback
-          start={this.state.creatingTeam}
-          onCreate={this.goToLeaderboard}
-          team={this.state.team} />
-        <div id="create_team_button">
-          <ActionButton
-            onClick={this.startAssemblingTeam}
-            disabled={!this.state.team.isValid}>
-            <i className="material-icons">build</i>
-          </ActionButton>
+        <div id="main">
+          <NewTeam
+            team={this.state.team}
+            allowedExperience={this.props.maxExperience}
+            maxTeamSize={this.props.maxTeamSize}
+            onRemoveCharacter={this.removeCharacterFromTeam} />
+          <CharacterSearch onSearchSuccess={this.showCharacters} />
+          <CharacterResults
+            onCharacterSelect={this.addCharacterToTeam}
+            characters={this.state.characters} />
+          <TeamCreatorFeedback
+            start={this.state.creatingTeam}
+            onCreate={this.goToLeaderboard}
+            team={this.state.team} />
+          <div id="create_team_button">
+            <ActionButton
+              onClick={this.startAssemblingTeam}
+              disabled={!this.state.team.isValid}>
+              <i className="material-icons">build</i>
+            </ActionButton>
+          </div>
+          <Dialog
+            ref="modal"
+            title="Sign In"
+            actions={standardActions}
+            actionFocus="submit"
+            modal={this.state.modal}>
+            Please sign in using your Facebook account to assemble your team.
+          </Dialog>
         </div>
-        <Dialog
-          ref="modal"
-          title="Sign In"
-          actions={standardActions}
-          actionFocus="submit"
-          modal={this.state.modal}>
-          Please sign in using your Facebook account to assemble your team.
-        </Dialog>
       </div>
     );
   }
