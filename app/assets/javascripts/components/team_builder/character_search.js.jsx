@@ -36,7 +36,7 @@ var CharacterSearch = React.createClass({
 
   render: function() {
       return (
-        <Paper zDepth={2}>
+        <Paper zIndex={1}>
           <TextField
             className="character-search-field"
             ref="searchField"

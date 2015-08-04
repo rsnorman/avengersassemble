@@ -20734,33 +20734,35 @@
 	    return (
 	      React.createElement("div", null, 
 	        React.createElement(Menu, {title: "Assemble Team", loggedIn: this.props.loggedIn}), 
-	        React.createElement(NewTeam, {
-	          team: this.state.team, 
-	          allowedExperience: this.props.maxExperience, 
-	          maxTeamSize: this.props.maxTeamSize, 
-	          onRemoveCharacter: this.removeCharacterFromTeam}), 
-	        React.createElement(CharacterSearch, {onSearchSuccess: this.showCharacters}), 
-	        React.createElement(CharacterResults, {
-	          onCharacterSelect: this.addCharacterToTeam, 
-	          characters: this.state.characters}), 
-	        React.createElement(TeamCreatorFeedback, {
-	          start: this.state.creatingTeam, 
-	          onCreate: this.goToLeaderboard, 
-	          team: this.state.team}), 
-	        React.createElement("div", {id: "create_team_button"}, 
-	          React.createElement(ActionButton, {
-	            onClick: this.startAssemblingTeam, 
-	            disabled: !this.state.team.isValid}, 
-	            React.createElement("i", {className: "material-icons"}, "build")
+	        React.createElement("div", {id: "main"}, 
+	          React.createElement(NewTeam, {
+	            team: this.state.team, 
+	            allowedExperience: this.props.maxExperience, 
+	            maxTeamSize: this.props.maxTeamSize, 
+	            onRemoveCharacter: this.removeCharacterFromTeam}), 
+	          React.createElement(CharacterSearch, {onSearchSuccess: this.showCharacters}), 
+	          React.createElement(CharacterResults, {
+	            onCharacterSelect: this.addCharacterToTeam, 
+	            characters: this.state.characters}), 
+	          React.createElement(TeamCreatorFeedback, {
+	            start: this.state.creatingTeam, 
+	            onCreate: this.goToLeaderboard, 
+	            team: this.state.team}), 
+	          React.createElement("div", {id: "create_team_button"}, 
+	            React.createElement(ActionButton, {
+	              onClick: this.startAssemblingTeam, 
+	              disabled: !this.state.team.isValid}, 
+	              React.createElement("i", {className: "material-icons"}, "build")
+	            )
+	          ), 
+	          React.createElement(Dialog, {
+	            ref: "modal", 
+	            title: "Sign In", 
+	            actions: standardActions, 
+	            actionFocus: "submit", 
+	            modal: this.state.modal}, 
+	            "Please sign in using your Facebook account to assemble your team."
 	          )
-	        ), 
-	        React.createElement(Dialog, {
-	          ref: "modal", 
-	          title: "Sign In", 
-	          actions: standardActions, 
-	          actionFocus: "submit", 
-	          modal: this.state.modal}, 
-	          "Please sign in using your Facebook account to assemble your team."
 	        )
 	      )
 	    );
@@ -21383,7 +21385,7 @@
 
 	  render: function() {
 	      return (
-	        React.createElement(Paper, {zDepth: 2}, 
+	        React.createElement(Paper, {zIndex: 1}, 
 	          React.createElement(TextField, {
 	            className: "character-search-field", 
 	            ref: "searchField", 
@@ -40904,6 +40906,7 @@
 	    palette.primary1Color = Colors.red500;
 	    palette.accent1Color  = Colors.red500;
 	    palette.primary3Color = Colors.red50;
+
 	    return palette;
 	  }
 	};
@@ -41041,8 +41044,10 @@
 	    return (
 	      React.createElement("div", null, 
 	        React.createElement(Menu, {title: "Leaderboard", loggedIn: this.props.loggedIn}), 
-	        React.createElement(List, {id: "ranking_teams"}, 
-	          this.state.teams.map(createTeam.bind(this))
+	        React.createElement("div", {id: "main"}, 
+	          React.createElement(List, {id: "ranking_teams"}, 
+	            this.state.teams.map(createTeam.bind(this))
+	          )
 	        )
 	      )
 	    );
