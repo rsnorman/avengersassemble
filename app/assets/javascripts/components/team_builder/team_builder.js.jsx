@@ -101,6 +101,8 @@ TeamBuilder = React.createClass({
     this.setState({
       team: team
     });
+
+    this.refs.search.reset();
   },
 
   startAssemblingTeam: function() {
@@ -166,7 +168,7 @@ TeamBuilder = React.createClass({
             allowedExperience={this.props.maxExperience}
             maxTeamSize={this.props.maxTeamSize}
             onRemoveCharacter={this.removeCharacterFromTeam} />
-          <CharacterSearch onSearchSuccess={this.showCharacters} />
+          <CharacterSearch ref="search" onSearchSuccess={this.showCharacters} />
           <CharacterResults
             onCharacterSelect={this.addCharacterToTeam}
             characters={this.state.characters} />
