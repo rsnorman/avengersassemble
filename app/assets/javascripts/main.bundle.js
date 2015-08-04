@@ -20681,9 +20681,7 @@
 
 	  startAssemblingTeam: function() {
 	    if ( this.props.loggedIn ) {
-	      this.setState({
-	        creatingTeam: true
-	      });
+	      this.refs.creator.create();
 	    } else {
 	      this.refs.modal.show();
 	    }
@@ -20747,7 +20745,7 @@
 	            onCharacterSelect: this.addCharacterToTeam, 
 	            characters: this.state.characters}), 
 	          React.createElement(TeamCreatorFeedback, {
-	            start: this.state.creatingTeam, 
+	            ref: "creator", 
 	            onCreate: this.goToLeaderboard, 
 	            team: this.state.team}), 
 	          React.createElement("div", {id: "create_team_button"}, 
@@ -20780,6 +20778,9 @@
 
 	var React      = __webpack_require__(2);
 	var Continuity = __webpack_require__(161);
+	var mui        = __webpack_require__(165);
+	var Dialog     = mui.Dialog;
+	var Progress   = mui.CircularProgress;
 
 	var TeamCreator, continuityTeamBuilder, matchedCharacters;
 	matchedCharacters = {};
@@ -20852,22 +20853,6 @@
 
 	TeamCreatorFeedback = React.createClass({displayName: "TeamCreatorFeedback",
 
-	  propTypes: {
-	    messages: React.PropTypes.array
-	  },
-
-	  getInitialState: function() {
-	    return {
-	      finishedCreating: false
-	    };
-	  },
-
-	  componentWillReceiveProps: function(nextProps) {
-	    if ( !this.props.start && nextProps.start ) {
-	      this.assembleTeam();
-	    }
-	  },
-
 	  assembleTeam: function() {
 	    var team;
 
@@ -20888,6 +20873,8 @@
 	           if ( this.props.onCreate ) {
 	             this.props.onCreate(team);
 	           }
+
+	           this.refs.modal.dismiss();
 	         }.bind(this))
 
 	         .fail(function(errorData) {
@@ -20915,19 +20902,18 @@
 	    }
 	  },
 
-	  render: function() {
-	    var className;
-	    if ( this.props.start ) {
-	      className = 'visible';
-	    }
+	  create: function() {
+	    this.refs.modal.show();
+	    this.assembleTeam();
+	  },
 
+	  render: function() {
 	    return (
-	      React.createElement("div", {id: "team_creator_feedback", className: className}, 
-	        React.createElement("div", {className: "row"}, 
-	          React.createElement("div", {className: "large-12 columns"}, 
-	            React.createElement("div", {id: "loader"}
-	            )
-	          )
+	      React.createElement("div", {id: "team_creator_feedback"}, 
+	        React.createElement(Dialog, {ref: "modal", title: "Assembling Team"}, 
+	          "Give us a second while we assemble your Avengers…", 
+	          React.createElement("br", null), 
+	          React.createElement(Progress, {mode: "indeterminate", size: 2})
 	        )
 	      )
 	    );
