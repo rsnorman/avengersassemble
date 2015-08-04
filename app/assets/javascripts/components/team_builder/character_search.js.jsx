@@ -9,7 +9,7 @@ var MIN_QUERY_LENGTH = 3;
 var CharacterSearch = React.createClass({
   getInitialState: function() {
     return {
-      text: ''
+      clearSearch: false
     };
   },
 
@@ -34,6 +34,21 @@ var CharacterSearch = React.createClass({
     });
   },
 
+  reset: function() {
+    this.setState({
+      clearSearch: true
+    });
+  },
+
+  clearText: function() {
+    if ( this.state.clearSearch ) {
+      this.setState({
+        clearSearch: false
+      });
+      this.refs.searchField.setValue('');
+    }
+  },
+
   render: function() {
       return (
         <Paper zIndex={1}>
@@ -42,7 +57,8 @@ var CharacterSearch = React.createClass({
             ref="searchField"
             hintText="Search Marvel Characters"
             fullWidth={true}
-            onChange={debounce(this.searchCharacters, 500)} />
+            onChange={debounce(this.searchCharacters, 500)}
+            onFocus={this.clearText} />
         </Paper>
       );
   }

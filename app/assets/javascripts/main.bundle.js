@@ -20675,6 +20675,8 @@
 	    this.setState({
 	      team: team
 	    });
+
+	    this.refs.search.reset();
 	  },
 
 	  startAssemblingTeam: function() {
@@ -20740,7 +20742,7 @@
 	            allowedExperience: this.props.maxExperience, 
 	            maxTeamSize: this.props.maxTeamSize, 
 	            onRemoveCharacter: this.removeCharacterFromTeam}), 
-	          React.createElement(CharacterSearch, {onSearchSuccess: this.showCharacters}), 
+	          React.createElement(CharacterSearch, {ref: "search", onSearchSuccess: this.showCharacters}), 
 	          React.createElement(CharacterResults, {
 	            onCharacterSelect: this.addCharacterToTeam, 
 	            characters: this.state.characters}), 
@@ -21358,7 +21360,7 @@
 	var CharacterSearch = React.createClass({displayName: "CharacterSearch",
 	  getInitialState: function() {
 	    return {
-	      text: ''
+	      clearSearch: false
 	    };
 	  },
 
@@ -21383,6 +21385,21 @@
 	    });
 	  },
 
+	  reset: function() {
+	    this.setState({
+	      clearSearch: true
+	    });
+	  },
+
+	  clearText: function() {
+	    if ( this.state.clearSearch ) {
+	      this.setState({
+	        clearSearch: false
+	      });
+	      this.refs.searchField.setValue('');
+	    }
+	  },
+
 	  render: function() {
 	      return (
 	        React.createElement(Paper, {zIndex: 1}, 
@@ -21391,7 +21408,8 @@
 	            ref: "searchField", 
 	            hintText: "Search Marvel Characters", 
 	            fullWidth: true, 
-	            onChange: debounce(this.searchCharacters, 500)})
+	            onChange: debounce(this.searchCharacters, 500), 
+	            onFocus: this.clearText})
 	        )
 	      );
 	  }
@@ -40906,7 +40924,6 @@
 	    palette.primary1Color = Colors.red500;
 	    palette.accent1Color  = Colors.red500;
 	    palette.primary3Color = Colors.red50;
-
 	    return palette;
 	  }
 	};
