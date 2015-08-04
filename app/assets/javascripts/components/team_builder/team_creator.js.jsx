@@ -1,5 +1,8 @@
 var React      = require('react');
 var Continuity = require('promise-continuity');
+var mui        = require('material-ui');
+var Dialog     = mui.Dialog;
+var Progress   = mui.CircularProgress;
 
 var TeamCreator, continuityTeamBuilder, matchedCharacters;
 matchedCharacters = {};
@@ -72,22 +75,6 @@ function createTeam(teamAttributes) {
 
 TeamCreatorFeedback = React.createClass({
 
-  propTypes: {
-    messages: React.PropTypes.array
-  },
-
-  getInitialState: function() {
-    return {
-      finishedCreating: false
-    };
-  },
-
-  componentWillReceiveProps: function(nextProps) {
-    if ( !this.props.start && nextProps.start ) {
-      this.assembleTeam();
-    }
-  },
-
   assembleTeam: function() {
     var team;
 
@@ -108,6 +95,8 @@ TeamCreatorFeedback = React.createClass({
            if ( this.props.onCreate ) {
              this.props.onCreate(team);
            }
+
+           this.refs.modal.dismiss();
          }.bind(this))
 
          .fail(function(errorData) {
@@ -135,20 +124,19 @@ TeamCreatorFeedback = React.createClass({
     }
   },
 
-  render: function() {
-    var className;
-    if ( this.props.start ) {
-      className = 'visible';
-    }
+  create: function() {
+    this.refs.modal.show();
+    this.assembleTeam();
+  },
 
+  render: function() {
     return (
-      <div id="team_creator_feedback" className={className}>
-        <div className="row">
-          <div className="large-12 columns">
-            <div id="loader">
-            </div>
-          </div>
-        </div>
+      <div id="team_creator_feedback">
+        <Dialog ref="modal" title="Assembling Team">
+          Give us a second while we assemble your Avengers&hellip;
+          <br />
+          <Progress mode="indeterminate" size={2} />
+        </Dialog>
       </div>
     );
   }

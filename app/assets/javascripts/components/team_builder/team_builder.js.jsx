@@ -107,9 +107,7 @@ TeamBuilder = React.createClass({
 
   startAssemblingTeam: function() {
     if ( this.props.loggedIn ) {
-      this.setState({
-        creatingTeam: true
-      });
+      this.refs.creator.create();
     } else {
       this.refs.modal.show();
     }
@@ -173,7 +171,7 @@ TeamBuilder = React.createClass({
             onCharacterSelect={this.addCharacterToTeam}
             characters={this.state.characters} />
           <TeamCreatorFeedback
-            start={this.state.creatingTeam}
+            ref="creator"
             onCreate={this.goToLeaderboard}
             team={this.state.team} />
           <div id="create_team_button">
