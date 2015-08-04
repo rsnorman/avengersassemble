@@ -41100,7 +41100,7 @@
 	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 60})
 	            ), 
 	            React.createElement("div", {className: "team-details"}, 
-	              React.createElement("div", {className: "team-name"}, team.name), 
+	              React.createElement("div", {className: "team-name"}, team.rank, ". ", team.name), 
 	              React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
 	              React.createElement("div", {className: "team-characters"}, 
 	                team.characters.map(createCharacter.bind(this))
