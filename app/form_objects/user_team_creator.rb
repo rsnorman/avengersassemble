@@ -6,7 +6,7 @@ class UserTeamCreator
     @team = Team.new(user: @user)
   end
 
-  def assemble(team_attributes = { character_ids: [691, 1307, 649, 309, 355] })
+  def assemble(team_attributes)
     @team.characters = Character.where(id: team_attributes[:character_ids])
 
     @team.characters.each do |character|

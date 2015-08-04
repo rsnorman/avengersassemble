@@ -34,7 +34,7 @@ var Team = React.createClass({
               <Avatar src={team.leader.image + '?type=large'} size={60}/>
             </div>
             <div className="team-details">
-              <div className="team-name">{team.name}</div>
+              <div className="team-name">{team.rank}.&nbsp;{team.name}</div>
               <LinearProgress mode="determinate" value={scorePercent} />
               <div className="team-characters">
                 {team.characters.map(createCharacter.bind(this))}
