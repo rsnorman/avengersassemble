@@ -17,6 +17,8 @@ class UserTeamCreator
     @team.total_camaraderie = team_attributes[:total_camaraderie]
     @team.name = "#{@user.name}'s Avengers!"
 
+    @team.score = ScoreCalculator.new(@team).score
+
     @team.save
     @team
   end
