@@ -14,9 +14,8 @@ class UserTeamCreator
       @team.total_experience += character.experience
     end
 
-    @team.total_camaraderie = team_attributes[:total_camaraderie]
+    @team.total_camaraderie = total_camaraderie
     @team.name = "#{@user.name}'s Avengers!"
-
     @team.score = ScoreCalculator.new(@team).score
 
     @team.save
@@ -29,5 +28,19 @@ class UserTeamCreator
       current_rating_value + character.ratings.public_send(rating_name)
 
     @team.public_send("total_#{rating_name}=", new_rating_value)
+  end
+
+  def total_camaraderie
+    total = 0
+    character_pairs.each do |pair|
+      total += SharedComicCamaraderie.new(pair.first, pair.last).total
+    end
+    total
+  end
+
+  private
+
+  def character_pairs
+    @character_pairs ||= CharacterPairs.new(@team.characters).pairs
   end
 end

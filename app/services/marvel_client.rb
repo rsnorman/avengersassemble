@@ -35,7 +35,7 @@ class MarvelClient
 
   def get_shared_comics(character, other_character)
     puts "Finding shared comics between: #{character.name}" \
-     "and #{other_character.name}"
+     " and #{other_character.name}"
 
     character_ids = [character.marvel_id, other_character.marvel_id].join(',')
 
