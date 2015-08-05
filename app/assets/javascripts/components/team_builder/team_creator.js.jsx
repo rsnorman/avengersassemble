@@ -29,7 +29,7 @@ function alreadyMatched(matches, character, otherCharacter) {
            (matches[otherCharacter.id] && [otherCharacter.id].indexOf(character.id) != -1)
 }
 
-function getCharacterCamaraderie(character, characters) {
+function primeCharacterCamaraderie(character, characters) {
   var _i, _len, _char;
   for ( _i = 0, _len = characters.length; _i < _len; _i++ ) {
     _char = characters[_i];
@@ -82,14 +82,6 @@ TeamCreatorFeedback = React.createClass({
 
     getTeamCamaraderie()
       .then(function(camaraderieValues) {
-        var totalCamaraderie;
-        totalCamaraderie =
-          camaraderieValues.reduce(function(total, val) {
-            return total + val;
-          }, 0);
-
-        team.total_camaraderie = totalCamaraderie;
-
         createTeam(team)
          .then(function(team) {
            if ( this.props.onCreate ) {
@@ -120,7 +112,7 @@ TeamCreatorFeedback = React.createClass({
     var newCharacter;
     if ( this.props.team.characters.length > prevProps.team.characters.length ) {
       newCharacter = this.props.team.characters[this.props.team.characters.length - 1];
-      getCharacterCamaraderie(newCharacter, this.props.team.characters);
+      primeCharacterCamaraderie(newCharacter, this.props.team.characters);
     }
   },
 
