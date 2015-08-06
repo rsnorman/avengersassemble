@@ -50,4 +50,6 @@ group :test do
   gem 'rspec-rails'
   gem 'selenium-webdriver'
   gem 'rack_session_access'
+  gem 'webmock'
+  gem 'vcr'
 end

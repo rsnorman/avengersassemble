@@ -1,4 +1,4 @@
-@javascript
+@javascript @vcrpath @slow_selenium @clear_cache
 Feature: Assembling Team
 
   Scenario: Creating a team and saving while logged in

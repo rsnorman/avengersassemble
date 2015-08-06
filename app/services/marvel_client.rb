@@ -18,9 +18,7 @@ class MarvelClient
     shared_comic_data = get_shared_comics(character, other_character)
 
     if shared_comic_data.key?('data')
-      shared_comic_data['data']['total'].tap do |count|
-        puts "Found #{count} shared comics"
-      end
+      shared_comic_data['data']['total']
     else
       fail MarvelClientError.new(marvel_client_error_message)
     end
@@ -34,9 +32,6 @@ class MarvelClient
   end
 
   def get_shared_comics(character, other_character)
-    puts "Finding shared comics between: #{character.name}" \
-     " and #{other_character.name}"
-
     character_ids = [character.marvel_id, other_character.marvel_id].join(',')
 
     comics(

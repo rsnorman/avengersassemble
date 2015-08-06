@@ -95,15 +95,3 @@ Then(/^I should see my team on the leaderboard$/) do
     expect(page).to have_content "#{@user.name}'s Avengers"
   end
 end
-
-def find_character(name)
-  @characters ||= {}
-  @characters[name] ||= Character.find_by(name: name)
-end
-
-def create_user
-  User.create(
-    name:  ['Ryan Norman', 'Jessica Garvey', 'Dexter Beagle'].sample,
-    image: 'http://graph.facebook.com/10100751232536290/picture?type=large'
-  )
-end
