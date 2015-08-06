@@ -1,6 +1,7 @@
 var React        = require('react');
 var mui          = require('material-ui');
 var List         = mui.List;
+var Paper        = mui.Paper;
 var Menu         = require('../menu.js.jsx');
 var Team         = require('./team.js.jsx');
 var MarvelTheme  = require('../../mixins/marvel-theme.js');
@@ -45,9 +46,23 @@ var TeamRankings = React.createClass({
       <div>
         <Menu title="Leaderboard" loggedIn={this.props.loggedIn} />
         <div id="main">
-          <List id="ranking_teams">
-            {this.state.teams.map(createTeam.bind(this))}
-          </List>
+          {(function() {
+            if ( this.state.teams.length > 0 ) {
+              return (
+                <List id="ranking_teams">
+                  {this.state.teams.map(createTeam.bind(this))}
+                </List>
+              );
+            } else {
+              return (
+                <Paper zIndex={1}>
+                  <p>
+                    <em>No one has created any teams</em>
+                  </p>
+                </Paper>
+              );
+            }
+          }).call(this)}
         </div>
       </div>
     );

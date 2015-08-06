@@ -40996,6 +40996,7 @@
 	var React        = __webpack_require__(2);
 	var mui          = __webpack_require__(162);
 	var List         = mui.List;
+	var Paper        = mui.Paper;
 	var Menu         = __webpack_require__(317);
 	var Team         = __webpack_require__(319);
 	var MarvelTheme  = __webpack_require__(316);
@@ -41040,9 +41041,23 @@
 	      React.createElement("div", null, 
 	        React.createElement(Menu, {title: "Leaderboard", loggedIn: this.props.loggedIn}), 
 	        React.createElement("div", {id: "main"}, 
-	          React.createElement(List, {id: "ranking_teams"}, 
-	            this.state.teams.map(createTeam.bind(this))
-	          )
+	          (function() {
+	            if ( this.state.teams.length > 0 ) {
+	              return (
+	                React.createElement(List, {id: "ranking_teams"}, 
+	                  this.state.teams.map(createTeam.bind(this))
+	                )
+	              );
+	            } else {
+	              return (
+	                React.createElement(Paper, {zIndex: 1}, 
+	                  React.createElement("p", null, 
+	                    React.createElement("em", null, "No one has created any teams")
+	                  )
+	                )
+	              );
+	            }
+	          }).call(this)
 	        )
 	      )
 	    );

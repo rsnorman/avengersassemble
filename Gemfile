@@ -43,3 +43,10 @@ group :development, :test do
   gem 'web-console', '~> 2.0'
   gem 'spring'
 end
+
+group :test do
+  gem 'cucumber-rails', require: false
+  gem 'database_cleaner'
+  gem 'rspec-rails'
+  gem 'selenium-webdriver'
+end
