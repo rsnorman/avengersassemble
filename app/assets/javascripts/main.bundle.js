@@ -20633,15 +20633,7 @@
 
 	    if ( this.props.maxSize <= team.characters.length ) {
 	      PubSub.publish('notification', {
-	        text: 'Too many team members',
-	        type: 'error'
-	      });
-	      return;
-	    }
-
-	    if ( this.props.maxExperience <= team.experience + character.experience ) {
-	      PubSub.publish( 'notification', {
-	        text: 'Too powerful of a team',
+	        text: 'Your team has too many superheroes',
 	        type: 'error'
 	      });
 	      return;
@@ -20652,7 +20644,15 @@
 
 	    if ( alreadyAdded ) {
 	      PubSub.publish('notification', {
-	        text: 'Already added ' + character.name,
+	        text: 'You already added ' + character.name,
+	        type: 'error'
+	      });
+	      return;
+	    }
+
+	    if ( this.props.maxExperience <= team.experience + character.experience ) {
+	      PubSub.publish( 'notification', {
+	        text: 'Your team is too powerful',
 	        type: 'error'
 	      });
 	      return;
@@ -40553,6 +40553,7 @@
 	      return (
 	        React.createElement(Paper, {zIndex: 1}, 
 	          React.createElement(TextField, {
+	            name: "character-search", 
 	            className: "character-search-field", 
 	            ref: "searchField", 
 	            hintText: "Search Marvel Characters", 
@@ -40699,8 +40700,11 @@
 	  },
 
 	  render: function() {
+	    var characterId;
+	    characterId = 'character_result_' + this.props.character.id;
+
 	    return (
-	      React.createElement(Paper, {zDepth: 1, className: "character-result"}, 
+	      React.createElement(Paper, {zDepth: 1, className: "character-result", id: characterId}, 
 	        React.createElement(ListItem, {
 	          leftAvatar: 
 	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
@@ -40845,11 +40849,13 @@
 	  },
 
 	  render: function() {
-	    var character;
+	    var character, characterId;
 	    character = this.props.character;
 	    if ( !!character ) {
+	      characterId = 'team_character_' + character.id;
+
 	      return (
-	        React.createElement("div", {className: "team-character"}, 
+	        React.createElement("div", {className: "team-character", id: characterId, onClick: this.removeCharacter}, 
 	          React.createElement("div", {className: "character-avatar"}, 
 	            React.createElement(Avatar, {src: character.thumbnail_url}), 
 	            React.createElement("a", {href: "javascript:;", className: "remove-character", onClick: this.removeCharacter}, 

@@ -59,15 +59,7 @@ TeamBuilder = React.createClass({
 
     if ( this.props.maxSize <= team.characters.length ) {
       PubSub.publish('notification', {
-        text: 'Too many team members',
-        type: 'error'
-      });
-      return;
-    }
-
-    if ( this.props.maxExperience <= team.experience + character.experience ) {
-      PubSub.publish( 'notification', {
-        text: 'Too powerful of a team',
+        text: 'Your team has too many superheroes',
         type: 'error'
       });
       return;
@@ -78,7 +70,15 @@ TeamBuilder = React.createClass({
 
     if ( alreadyAdded ) {
       PubSub.publish('notification', {
-        text: 'Already added ' + character.name,
+        text: 'You already added ' + character.name,
+        type: 'error'
+      });
+      return;
+    }
+
+    if ( this.props.maxExperience <= team.experience + character.experience ) {
+      PubSub.publish( 'notification', {
+        text: 'Your team is too powerful',
         type: 'error'
       });
       return;
