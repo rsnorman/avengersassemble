@@ -125,7 +125,9 @@ TeamCreatorFeedback = React.createClass({
     return (
       <div id="team_creator_feedback">
         <Dialog ref="modal" title="Assembling Team">
-          Give us a second while we assemble your Avengers&hellip;
+          <p className="creating-message">
+            Give us a second while we assemble your Avengers&hellip;
+          </p>
           <br />
           <Progress mode="indeterminate" size={2} />
         </Dialog>

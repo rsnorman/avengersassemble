@@ -18,11 +18,13 @@ CharacterSlot = React.createClass({
   },
 
   render: function() {
-    var character;
+    var character, characterId;
     character = this.props.character;
     if ( !!character ) {
+      characterId = 'team_character_' + character.id;
+
       return (
-        <div className="team-character">
+        <div className="team-character" id={characterId} onClick={this.removeCharacter}>
           <div className="character-avatar">
             <Avatar src={character.thumbnail_url} />
             <a href="javascript:;" className="remove-character" onClick={this.removeCharacter}>

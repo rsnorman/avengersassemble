@@ -53,6 +53,7 @@ var CharacterSearch = React.createClass({
       return (
         <Paper zIndex={1}>
           <TextField
+            name="character-search"
             className="character-search-field"
             ref="searchField"
             hintText="Search Marvel Characters"

@@ -20633,15 +20633,7 @@
 
 	    if ( this.props.maxSize <= team.characters.length ) {
 	      PubSub.publish('notification', {
-	        text: 'Too many team members',
-	        type: 'error'
-	      });
-	      return;
-	    }
-
-	    if ( this.props.maxExperience <= team.experience + character.experience ) {
-	      PubSub.publish( 'notification', {
-	        text: 'Too powerful of a team',
+	        text: 'Your team has too many superheroes',
 	        type: 'error'
 	      });
 	      return;
@@ -20652,7 +20644,15 @@
 
 	    if ( alreadyAdded ) {
 	      PubSub.publish('notification', {
-	        text: 'Already added ' + character.name,
+	        text: 'You already added ' + character.name,
+	        type: 'error'
+	      });
+	      return;
+	    }
+
+	    if ( this.props.maxExperience <= team.experience + character.experience ) {
+	      PubSub.publish( 'notification', {
+	        text: 'Your team is too powerful',
 	        type: 'error'
 	      });
 	      return;
@@ -20903,7 +20903,9 @@
 	    return (
 	      React.createElement("div", {id: "team_creator_feedback"}, 
 	        React.createElement(Dialog, {ref: "modal", title: "Assembling Team"}, 
-	          "Give us a second while we assemble your Avengers…", 
+	          React.createElement("p", {className: "creating-message"}, 
+	            "Give us a second while we assemble your Avengers…"
+	          ), 
 	          React.createElement("br", null), 
 	          React.createElement(Progress, {mode: "indeterminate", size: 2})
 	        )
@@ -40553,6 +40555,7 @@
 	      return (
 	        React.createElement(Paper, {zIndex: 1}, 
 	          React.createElement(TextField, {
+	            name: "character-search", 
 	            className: "character-search-field", 
 	            ref: "searchField", 
 	            hintText: "Search Marvel Characters", 
@@ -40699,8 +40702,11 @@
 	  },
 
 	  render: function() {
+	    var characterId;
+	    characterId = 'character_result_' + this.props.character.id;
+
 	    return (
-	      React.createElement(Paper, {zDepth: 1, className: "character-result"}, 
+	      React.createElement(Paper, {zDepth: 1, className: "character-result", id: characterId}, 
 	        React.createElement(ListItem, {
 	          leftAvatar: 
 	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
@@ -40710,14 +40716,20 @@
 	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
 	            ), 
 	          
-	          primaryText: this.props.character.name, 
+	          primaryText: 
+	            React.createElement("span", {className: "character-name"}, 
+	              this.props.character.name
+	            ), 
+	          
 	          secondaryText: 
 	            React.createElement("p", null, 
-	              React.createElement("span", null, 
+	              React.createElement("span", {className: "real-name"}, 
 	                this.props.character.real_name
 	              ), 
 	              React.createElement("br", null), 
-	              this.props.character.description
+	              React.createElement("span", {className: "description"}, 
+	                this.props.character.description
+	              )
 	            ), 
 	          
 	          secondaryTextLines: 2, 
@@ -40845,11 +40857,13 @@
 	  },
 
 	  render: function() {
-	    var character;
+	    var character, characterId;
 	    character = this.props.character;
 	    if ( !!character ) {
+	      characterId = 'team_character_' + character.id;
+
 	      return (
-	        React.createElement("div", {className: "team-character"}, 
+	        React.createElement("div", {className: "team-character", id: characterId, onClick: this.removeCharacter}, 
 	          React.createElement("div", {className: "character-avatar"}, 
 	            React.createElement(Avatar, {src: character.thumbnail_url}), 
 	            React.createElement("a", {href: "javascript:;", className: "remove-character", onClick: this.removeCharacter}, 
@@ -40996,6 +41010,7 @@
 	var React        = __webpack_require__(2);
 	var mui          = __webpack_require__(162);
 	var List         = mui.List;
+	var Paper        = mui.Paper;
 	var Menu         = __webpack_require__(317);
 	var Team         = __webpack_require__(319);
 	var MarvelTheme  = __webpack_require__(316);
@@ -41040,9 +41055,23 @@
 	      React.createElement("div", null, 
 	        React.createElement(Menu, {title: "Leaderboard", loggedIn: this.props.loggedIn}), 
 	        React.createElement("div", {id: "main"}, 
-	          React.createElement(List, {id: "ranking_teams"}, 
-	            this.state.teams.map(createTeam.bind(this))
-	          )
+	          (function() {
+	            if ( this.state.teams.length > 0 ) {
+	              return (
+	                React.createElement(List, {id: "ranking_teams"}, 
+	                  this.state.teams.map(createTeam.bind(this))
+	                )
+	              );
+	            } else {
+	              return (
+	                React.createElement(Paper, {zIndex: 1}, 
+	                  React.createElement("p", null, 
+	                    React.createElement("em", null, "No one has created any teams")
+	                  )
+	                )
+	              );
+	            }
+	          }).call(this)
 	        )
 	      )
 	    );

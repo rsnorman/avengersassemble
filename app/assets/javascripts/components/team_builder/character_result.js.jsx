@@ -17,8 +17,11 @@ var Character = React.createClass({
   },
 
   render: function() {
+    var characterId;
+    characterId = 'character_result_' + this.props.character.id;
+
     return (
-      <Paper zDepth={1} className="character-result">
+      <Paper zDepth={1} className="character-result" id={characterId}>
         <ListItem
           leftAvatar={
             <Avatar src={this.props.character.thumbnail_url} />
@@ -28,14 +31,20 @@ var Character = React.createClass({
               <i className="material-icons md-light">add_box</i>
             </IconButton>
           }
-          primaryText={this.props.character.name}
+          primaryText={
+            <span className="character-name">
+              {this.props.character.name}
+            </span>
+          }
           secondaryText={
             <p>
-              <span>
+              <span className="real-name">
                 {this.props.character.real_name}
               </span>
               <br/>
-              {this.props.character.description}
+              <span className="description">
+                {this.props.character.description}
+              </span>
             </p>
           }
           secondaryTextLines={2}
