@@ -31,14 +31,20 @@ var Character = React.createClass({
               <i className="material-icons md-light">add_box</i>
             </IconButton>
           }
-          primaryText={this.props.character.name}
+          primaryText={
+            <span className="character-name">
+              {this.props.character.name}
+            </span>
+          }
           secondaryText={
             <p>
-              <span>
+              <span className="real-name">
                 {this.props.character.real_name}
               </span>
               <br/>
-              {this.props.character.description}
+              <span className="description">
+                {this.props.character.description}
+              </span>
             </p>
           }
           secondaryTextLines={2}

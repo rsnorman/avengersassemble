@@ -1,6 +1,7 @@
 require 'cucumber/rails'
 require 'capybara/rspec'
 require 'rack_session_access/capybara'
+require 'site_prism'
 
 Capybara.register_driver :selenium do |app|
   profile = Selenium::WebDriver::Firefox::Profile.new
@@ -17,4 +18,8 @@ end
 Before('@clear_cache') do
   require 'fileutils'
   FileUtils.rm_rf(Rails.root.join('tmp/cache'))
+end
+
+SitePrism.configure do |config|
+  config.use_implicit_waits = true
 end

@@ -39,6 +39,8 @@ Feature: Assembling Team
     Then I should not be able to assemble my team
     When I add Groot to my team
     Then I see Groot added to my team
+    When I add Groot to my team
+    Then I see an alert that my team is full
     When I assemble my team
     Then I should see that my team is being assembled
     And I should see my team on the leaderboard

@@ -20903,7 +20903,9 @@
 	    return (
 	      React.createElement("div", {id: "team_creator_feedback"}, 
 	        React.createElement(Dialog, {ref: "modal", title: "Assembling Team"}, 
-	          "Give us a second while we assemble your Avengers…", 
+	          React.createElement("p", {className: "creating-message"}, 
+	            "Give us a second while we assemble your Avengers…"
+	          ), 
 	          React.createElement("br", null), 
 	          React.createElement(Progress, {mode: "indeterminate", size: 2})
 	        )
@@ -40714,14 +40716,20 @@
 	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
 	            ), 
 	          
-	          primaryText: this.props.character.name, 
+	          primaryText: 
+	            React.createElement("span", {className: "character-name"}, 
+	              this.props.character.name
+	            ), 
+	          
 	          secondaryText: 
 	            React.createElement("p", null, 
-	              React.createElement("span", null, 
+	              React.createElement("span", {className: "real-name"}, 
 	                this.props.character.real_name
 	              ), 
 	              React.createElement("br", null), 
-	              this.props.character.description
+	              React.createElement("span", {className: "description"}, 
+	                this.props.character.description
+	              )
 	            ), 
 	          
 	          secondaryTextLines: 2, 

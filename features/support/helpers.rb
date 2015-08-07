@@ -26,6 +26,10 @@ module Helpers
     team.score             = ScoreCalculator.new(team).score
     team.save
   end
+
+  def notifications
+    @notifications ||= NotificationsSection.new('body', '#notifications')
+  end
 end
 
 World(Helpers)

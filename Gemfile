@@ -52,4 +52,5 @@ group :test do
   gem 'rack_session_access'
   gem 'webmock'
   gem 'vcr'
+  gem 'site_prism'
 end

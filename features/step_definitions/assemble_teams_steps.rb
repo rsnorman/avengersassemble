@@ -14,84 +14,64 @@ Given(/^all the characters have been imported$/) do
 end
 
 When(/^I visit the assemble team page$/) do
-  visit '/teams/new'
+  @new_team_page = NewTeamPage.new
+  @new_team_page.load
 end
 
 When(/^I search for (.*)$/) do |character_name|
-  within '.character-search-field' do
-    fill_in 'character-search', with: character_name
-  end
+  @new_team_page.search_field.set character_name
 end
 
 Then(/^I see (.*) in the results$/) do |character_name|
-  within '#character_results' do
-    expect(page).to have_content character_name
-  end
+  expect(@new_team_page).to have_character_results text: character_name
 end
 
 When(/^I add (.*) to my team$/) do |character_name|
-  within "#character_result_#{find_character(character_name).id}" do
-    find('button', text: 'add_box').click
-  end
+  @new_team_page.add_character(character_name)
 end
 
 Then(/^I see (.*) added to my team$/) do |character_name|
-  within '#team_characters' do
-    expect(page)
-      .to have_css "#team_character_#{find_character(character_name).id}"
-  end
+  expect(@new_team_page).to have_team_member character_name
 end
 
 Then(/^I should see an alert that (.*) has already been added$/) do |character_name|
-  within '#notifications' do
-    expect(page).to have_content "You already added #{character_name}"
-  end
+  expect(notifications).to have_message "You already added #{character_name}"
 end
 
 Then(/^I don't see (.*) on my team$/) do |character_name|
-  within '#team_characters' do
-    expect(page)
-      .to_not have_css "#team_character_#{find_character(character_name).id}"
-  end
+  expect(@new_team_page).to_not have_team_member character_name
 end
 
 Then(/^I see an alert that my team is too powerful$/) do
-  within '#notifications' do
-    expect(page).to have_content 'Your team is too powerful'
-  end
+  expect(notifications).to have_message 'Your team is too powerful'
+end
+
+Then(/^I see an alert that my team is full$/) do
+  expect(notifications).to have_message 'Your team has too many superheroes'
 end
 
 Then(/^I should be able to assemble my team$/) do
-  within '#create_team_button' do
-    expect(page).to have_button 'build', disabled: false
-  end
+  expect(@new_team_page.assemble_button['disabled']).to be_nil
 end
 
 When(/^I remove (.*) from my team$/) do |character_name|
-  find("#team_character_#{find_character(character_name).id}").click
+  @new_team_page.find_team_member(character_name).click
 end
 
 Then(/^I should not be able to assemble my team$/) do
-  within '#create_team_button' do
-    expect(page).to have_button 'build', disabled: true
-  end
+  expect(@new_team_page.assemble_button['disabled']).to eq 'true'
 end
 
 When(/^I assemble my team$/) do
-  within '#create_team_button' do
-    click_button 'build'
-  end
+  @new_team_page.assemble_button.click
 end
 
 Then(/^I should see that my team is being assembled$/) do
-  within '#team_creator_feedback' do
-    expect(page)
-      .to have_content 'Give us a second while we assemble your Avengers…'
-  end
+  expect(@new_team_page.creator_feedback).to have_assembling_team_message
 end
 
 Then(/^I should see my team on the leaderboard$/) do
-  within '#ranking_teams' do
-    expect(page).to have_content "#{@user.name}'s Avengers"
-  end
+  leaderboard_page = LeaderboardPage.new
+  leaderboard_page.wait_for_ranked_teams
+  expect(leaderboard_page).to have_team "#{@user.name}'s Avengers"
 end

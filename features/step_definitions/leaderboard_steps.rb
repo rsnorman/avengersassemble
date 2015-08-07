@@ -3,11 +3,12 @@ Given(/^there are no teams$/) do
 end
 
 When(/^I visit the leaderboard$/) do
-  visit '/'
+  @leaderboard_page = LeaderboardPage.new
+  @leaderboard_page.load
 end
 
 Then(/^I see the message that there are no teams$/) do
-  expect(page).to have_content 'No one has created any teams'
+  expect(@leaderboard_page).to have_no_ranked_teams
 end
 
 Given(/^there are multiple ranked teams$/) do
@@ -17,9 +18,8 @@ Given(/^there are multiple ranked teams$/) do
 end
 
 Then(/^I see the teams ranked from most powerful to least$/) do
-  within('#ranking_teams') do
-    Team.order(score: :desc).each_with_index do |team, index|
-      expect(all('.ranking-team')[index]).to have_content team.name
-    end
+  @leaderboard_page.wait_for_ranked_teams
+  Team.order(score: :desc).each_with_index do |team, index|
+    expect(@leaderboard_page.ranked_teams[index]).to have_team_name team.name
   end
 end
