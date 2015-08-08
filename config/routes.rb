@@ -2,7 +2,7 @@ Rails.application.routes.draw do
 
   root 'teams#index'
 
-  resources :teams, only: [:new, :index]
+  resources :teams, only: [:new, :index, :show]
 
   resources :sessions, only: :new
 

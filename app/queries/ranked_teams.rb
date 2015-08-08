@@ -8,6 +8,12 @@ class RankedTeams
     Team.find_by_sql(ranking_sql)
   end
 
+  def rank_for_team(team)
+    sql = "SELECT * FROM (#{ranking_sql}) ranked_teams " \
+      "WHERE id = #{team.id}"
+    Team.find_by_sql(sql).first["rank"]
+  end
+
   private
 
   def ranking_sql

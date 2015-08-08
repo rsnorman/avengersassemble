@@ -34,6 +34,8 @@ gem 'marvelite'
 
 gem 'nokogiri'
 
+gem 'active_model_serializers', '~> 0.8.0'
+
 gem 'rollbar', '~> 1.2.7'
 
 gem 'rubocop', require: false

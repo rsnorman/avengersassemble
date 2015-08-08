@@ -139,8 +139,10 @@ TeamBuilder = React.createClass({
     });
   },
 
-  goToLeaderboard: function(team) {
-    window.location = '/teams?active=' + team.id;
+  goToProfile: function(team) {
+    setTimeout(function() {
+      window.location = '/teams/' + team.id;
+    }, 2000);
   },
 
   signIn: function() {
@@ -172,7 +174,7 @@ TeamBuilder = React.createClass({
             characters={this.state.characters} />
           <TeamCreatorFeedback
             ref="creator"
-            onCreate={this.goToLeaderboard}
+            onCreate={this.goToProfile}
             team={this.state.team} />
           <div id="create_team_button">
             <ActionButton

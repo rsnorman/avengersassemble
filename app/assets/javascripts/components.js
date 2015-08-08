@@ -2,6 +2,7 @@ var React        = require('react');
 var Notifier     = require('./components/notifier.js.jsx');
 var TeamBuilder  = require('./components/team_builder/team_builder.js.jsx');
 var TeamRankings = require('./components/team_rankings/team_rankings.js.jsx');
+var TeamProfile  = require('./components/team_profile/team_profile.js.jsx');
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 
@@ -10,6 +11,13 @@ var injectTapEventPlugin = require("react-tap-event-plugin");
 //Check this repo:
 //https://github.com/zilverline/react-tap-event-plugin
 injectTapEventPlugin();
+
+function getProps(el) {
+  var props;
+  props = JSON.parse(el.attributes['data-react-prop'].value);
+  props.loggedIn = window.teamLeaderLoggedIn;
+  return props;
+}
 
 
 $(document).on('ready page:load', function() {
@@ -40,5 +48,16 @@ $(document).on('ready page:load', function() {
       maxExperience: 2500,
       loggedIn: window.teamLeaderLoggedIn
     }), teamBuilderEl);
+  }
+});
+
+$(document).on('ready page:load', function() {
+  var teamProfileEl;
+  teamProfileEl = document.getElementById('team_profile');
+
+  if ( teamProfileEl ) {
+    React.render(
+      React.createElement(TeamProfile, getProps(teamProfileEl)), teamProfileEl
+    );
   }
 });

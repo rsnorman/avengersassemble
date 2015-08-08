@@ -43,4 +43,4 @@ Feature: Assembling Team
     Then I see an alert that my team is full
     When I assemble my team
     Then I should see that my team is being assembled
-    And I should see my team on the leaderboard
+    And I should be taken to my team profile

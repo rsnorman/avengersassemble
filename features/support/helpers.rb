@@ -11,20 +11,18 @@ module Helpers
     )
   end
 
-  def create_team(name)
-    team = Team.new(
-      name: name,
-      user: create_user
-    )
-
-    Ratings::RATING_NAMES.each do |rating|
-      team.public_send("total_#{rating}=", (1..7).to_a.sample)
+  def create_team
+    all_character_ids = Character.valid.original.experienced.pluck(:id)
+    character_ids = []
+    while character_ids.size < 5 do
+      character_ids << all_character_ids.sample
+      character_ids = character_ids.uniq
     end
 
-    team.total_experience  = (1500..2500).to_a.sample
-    team.total_camaraderie = (50..200).to_a.sample
-    team.score             = ScoreCalculator.new(team).score
-    team.save
+    UserTeamCreator.new(create_user).assemble(
+      character_ids: character_ids,
+      camaraderie:   200
+    )
   end
 
   def notifications
