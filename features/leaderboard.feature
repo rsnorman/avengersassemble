@@ -10,3 +10,5 @@ Feature: Leaderboard
     Given there are multiple ranked teams
     When I visit the leaderboard
     Then I see the teams ranked from most powerful to least
+    When I click on a team
+    Then I am taken to the team's profile

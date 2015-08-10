@@ -4,7 +4,7 @@ class Ratings
     fighting strength energy intelligence durability speed
   ).freeze
 
-  attr_reader *RATING_NAMES
+  attr_reader(*RATING_NAMES)
 
   def self.from_character(character)
     ratings = RATING_NAMES.collect do |rating_name|

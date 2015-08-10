@@ -28,7 +28,7 @@ var Team = React.createClass({
 
     return (
       <Paper zDepth={1} className="ranking-team-container">
-        <ListItem>
+        <ListItem href={'/teams/' + team.id}>
           <div className="ranking-team">
             <div className="leader-icon">
               <Avatar src={team.leader.image + '?type=large'} size={60}/>

@@ -8,7 +8,7 @@ Given(/^I have not created a team$/) do
 end
 
 Given(/^all the characters have been imported$/) do
-  file = "db/characters-2015-5-20.csv"
+  file = "features/support/fixtures/characters.csv"
   exporter = CharacterCSVImporter.new(file)
   exporter.import
 end
@@ -70,8 +70,8 @@ Then(/^I should see that my team is being assembled$/) do
   expect(@new_team_page.creator_feedback).to have_assembling_team_message
 end
 
-Then(/^I should see my team on the leaderboard$/) do
-  leaderboard_page = LeaderboardPage.new
-  leaderboard_page.wait_for_ranked_teams
-  expect(leaderboard_page).to have_team "#{@user.name}'s Avengers"
+Then(/^I should be taken to my team profile$/) do
+  while Team.count.zero?; end
+  team_profile_page = TeamProfilePage.new
+  expect(team_profile_page).to be_displayed(team_id: Team.last.id)
 end
