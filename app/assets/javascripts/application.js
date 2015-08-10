@@ -19,3 +19,11 @@
 //= require main.bundle
 
 Turbolinks.enableProgressBar();
+
+(function() {
+  if ( !Array.prototype.find ) {
+    Array.prototype.find = function find() {
+      Array.prototype.filter.apply(this, arguments)[0];
+    };
+  }
+})();
