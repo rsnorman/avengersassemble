@@ -25,4 +25,8 @@ class Team < ActiveRecord::Base
     @stats ||= Stats.from_team(self)
   end
 
+  def rank
+    @rank ||= RankedTeams.new.rank_for_team(self)
+  end
+
 end

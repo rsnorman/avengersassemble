@@ -32,9 +32,10 @@ $(document).on('ready page:load', function() {
   teamRankingsEl = document.getElementById('team_rankings');
 
   if ( teamRankingsEl ) {
-    React.render(React.createElement(TeamRankings, {
-      loggedIn: window.teamLeaderLoggedIn
-    }), teamRankingsEl);
+    console.log(getProps(teamRankingsEl));
+    React.render(
+      React.createElement(TeamRankings, getProps(teamRankingsEl)), teamRankingsEl
+    );
   }
 });
 
@@ -43,11 +44,9 @@ $(document).on('ready page:load', function() {
   teamBuilderEl = document.getElementById('team_builder');
 
   if ( teamBuilderEl ) {
-    React.render(React.createElement(TeamBuilder, {
-      maxSize: 5,
-      maxExperience: 2500,
-      loggedIn: window.teamLeaderLoggedIn
-    }), teamBuilderEl);
+    React.render(
+      React.createElement(TeamBuilder, getProps(teamBuilderEl)), teamBuilderEl
+    );
   }
 });
 

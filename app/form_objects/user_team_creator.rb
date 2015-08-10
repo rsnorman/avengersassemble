@@ -1,5 +1,6 @@
 class UserTeamCreator
   ALLOWED_CUMULATIVE_EXPERIENCE = 2500
+  MAX_CHARACTERS = 5
 
   def initialize(user)
     @user = user
