@@ -5,27 +5,39 @@ class RankedTeams
   end
 
   def rankings
-    Team.find_by_sql(ranking_sql)
+    @teams
+    .select(ranking_select_sql)
+    .includes(:characters, :user)
+    .order('rank ASC')
   end
 
   def rank_for_team(team)
-    sql = "SELECT * FROM (#{ranking_sql}) ranked_teams " \
-      "WHERE id = #{team.id}"
-    Team.find_by_sql(sql).first["rank"]
+    Team.find_by_sql(individual_ranking_sql(team)).first['rank']
   end
 
   private
 
-  def ranking_sql
+  def individual_ranking_sql(team)
     team_ids = @teams.pluck(:id)
     team_ids << -1 if team_ids.empty?
-    <<-EOF
-      SELECT *,
-      RANK() OVER (ORDER BY score DESC, created_at ASC) AS rank
-      FROM teams
-      WHERE teams.id IN (#{team_ids.join(',')})
-      ORDER BY rank ASC
-    EOF
+    <<-SQL
+      SELECT * FROM (
+        SELECT #{ranking_select_sql}
+        FROM teams
+        WHERE teams.id IN (#{team_ids.join(',')})
+        ORDER BY rank ASC
+      ) ranking_teams
+      WHERE id = #{team.id}
+    SQL
+  end
+
+  def ranking_select_sql
+    <<-SQL
+      "teams".*,
+      RANK() OVER (
+        ORDER BY "teams"."score" DESC, "teams"."created_at" ASC
+      ) AS "rank"
+    SQL
   end
 
 end
