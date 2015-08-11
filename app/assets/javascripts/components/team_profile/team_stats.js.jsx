@@ -32,8 +32,6 @@ TeamStats = React.createClass({
       var statPercent;
       statPercent = Math.round(statValue / maxStats[statName] * 100);
 
-      console.log(statPercent, statValue, statName, maxStats[statName]);
-
       return (
         <ListItem
           id={statName + '_stat'}

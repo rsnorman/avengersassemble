@@ -1,1 +1,7 @@
-<div id="team_builder"></div>
+<div
+  id="team_builder"
+  data-react-prop="<%= {
+    maxTeamSize:   UserTeamCreator::MAX_CHARACTERS,
+    maxExperience: UserTeamCreator::ALLOWED_CUMULATIVE_EXPERIENCE
+  }.to_json %>">
+</div>

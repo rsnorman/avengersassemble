@@ -1,4 +1,12 @@
 <div
   id="team_profile"
-  data-react-prop="{&quot;team&quot;:<%=TeamSerializer.new(@team).to_json%>, &quot;maxStats&quot;:<%=MaxStats.all.to_json%>}">
+  data-react-prop="<%= react_props({
+    team:     {
+      template: 'teams/show.json',
+      locals: {
+        team: @team
+      }
+    },
+    maxStats: MaxStats.all
+  }) %>">
 </div>

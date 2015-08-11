@@ -57,7 +57,7 @@ TeamBuilder = React.createClass({
     var team;
     team = JSON.parse(JSON.stringify(this.state.team));
 
-    if ( this.props.maxSize <= team.characters.length ) {
+    if ( this.props.maxTeamSize <= team.characters.length ) {
       PubSub.publish('notification', {
         text: 'Your team has too many superheroes',
         type: 'error'
@@ -92,7 +92,7 @@ TeamBuilder = React.createClass({
       type: 'success'
     } );
 
-    if ( this.props.maxSize === team.characters.length ) {
+    if ( this.props.maxTeamSize === team.characters.length ) {
       team.isValid = true
     }
 
@@ -142,7 +142,7 @@ TeamBuilder = React.createClass({
   goToProfile: function(team) {
     setTimeout(function() {
       window.location = '/teams/' + team.id;
-    }, 2000);
+    }, 1000);
   },
 
   signIn: function() {

@@ -11,34 +11,15 @@ var TeamRankings = React.createClass({
   mixins: [MarvelTheme],
 
   propTypes: {
-    loggedIn: React.PropTypes.bool.isRequired
-  },
-
-  getInitialState: function() {
-    return {
-      isLoading: true,
-      teams: []
-    };
-  },
-
-  componentDidMount: function() {
-    $.ajax({
-      url: '/api/v1/teams',
-      dataType: 'json',
-      success: function(data) {
-        this.setState({
-          isLoading: false,
-          teams: data.results
-        });
-      }.bind(this)
-    });
+    loggedIn: React.PropTypes.bool.isRequired,
+    teams: React.PropTypes.array.isRequired
   },
 
   render: function() {
     var topTeamScore;
 
     function createTeam(team) {
-      topTeamScore = topTeamScore || this.state.teams[0].score;
+      topTeamScore = topTeamScore || this.props.teams[0].score;
       return <Team team={team} maxScore={topTeamScore} key={team.id} />
     }
 
@@ -47,10 +28,10 @@ var TeamRankings = React.createClass({
         <Menu title="Leaderboard" loggedIn={this.props.loggedIn} />
         <div id="main">
           {(function() {
-            if ( this.state.teams.length > 0 ) {
+            if ( this.props.teams.length > 0 ) {
               return (
                 <List id="ranking_teams">
-                  {this.state.teams.map(createTeam.bind(this))}
+                  {this.props.teams.map(createTeam.bind(this))}
                 </List>
               );
             } else {

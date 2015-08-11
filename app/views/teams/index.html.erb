@@ -1,1 +1,9 @@
-<div id="team_rankings"></div>
+<div
+  id="team_rankings"
+  data-react-prop="<%=react_props({
+    teams: {
+      template: 'teams/_teams.json',
+      locals: { teams: @teams }
+    }
+  })%>">
+</div>

@@ -85,9 +85,9 @@
 	  teamRankingsEl = document.getElementById('team_rankings');
 
 	  if ( teamRankingsEl ) {
-	    React.render(React.createElement(TeamRankings, {
-	      loggedIn: window.teamLeaderLoggedIn
-	    }), teamRankingsEl);
+	    React.render(
+	      React.createElement(TeamRankings, getProps(teamRankingsEl)), teamRankingsEl
+	    );
 	  }
 	});
 
@@ -96,11 +96,9 @@
 	  teamBuilderEl = document.getElementById('team_builder');
 
 	  if ( teamBuilderEl ) {
-	    React.render(React.createElement(TeamBuilder, {
-	      maxSize: 5,
-	      maxExperience: 2500,
-	      loggedIn: window.teamLeaderLoggedIn
-	    }), teamBuilderEl);
+	    React.render(
+	      React.createElement(TeamBuilder, getProps(teamBuilderEl)), teamBuilderEl
+	    );
 	  }
 	});
 
@@ -133,34 +131,15 @@
 	  mixins: [MarvelTheme],
 
 	  propTypes: {
-	    loggedIn: React.PropTypes.bool.isRequired
-	  },
-
-	  getInitialState: function() {
-	    return {
-	      isLoading: true,
-	      teams: []
-	    };
-	  },
-
-	  componentDidMount: function() {
-	    $.ajax({
-	      url: '/api/v1/teams',
-	      dataType: 'json',
-	      success: function(data) {
-	        this.setState({
-	          isLoading: false,
-	          teams: data.results
-	        });
-	      }.bind(this)
-	    });
+	    loggedIn: React.PropTypes.bool.isRequired,
+	    teams: React.PropTypes.array.isRequired
 	  },
 
 	  render: function() {
 	    var topTeamScore;
 
 	    function createTeam(team) {
-	      topTeamScore = topTeamScore || this.state.teams[0].score;
+	      topTeamScore = topTeamScore || this.props.teams[0].score;
 	      return React.createElement(Team, {team: team, maxScore: topTeamScore, key: team.id})
 	    }
 
@@ -169,10 +148,10 @@
 	        React.createElement(Menu, {title: "Leaderboard", loggedIn: this.props.loggedIn}), 
 	        React.createElement("div", {id: "main"}, 
 	          (function() {
-	            if ( this.state.teams.length > 0 ) {
+	            if ( this.props.teams.length > 0 ) {
 	              return (
 	                React.createElement(List, {id: "ranking_teams"}, 
-	                  this.state.teams.map(createTeam.bind(this))
+	                  this.props.teams.map(createTeam.bind(this))
 	                )
 	              );
 	            } else {
@@ -40096,7 +40075,7 @@
 	    var team;
 	    team = JSON.parse(JSON.stringify(this.state.team));
 
-	    if ( this.props.maxSize <= team.characters.length ) {
+	    if ( this.props.maxTeamSize <= team.characters.length ) {
 	      PubSub.publish('notification', {
 	        text: 'Your team has too many superheroes',
 	        type: 'error'
@@ -40131,7 +40110,7 @@
 	      type: 'success'
 	    } );
 
-	    if ( this.props.maxSize === team.characters.length ) {
+	    if ( this.props.maxTeamSize === team.characters.length ) {
 	      team.isValid = true
 	    }
 
@@ -40181,7 +40160,7 @@
 	  goToProfile: function(team) {
 	    setTimeout(function() {
 	      window.location = '/teams/' + team.id;
-	    }, 2000);
+	    }, 1000);
 	  },
 
 	  signIn: function() {
@@ -41278,8 +41257,6 @@
 	    createStat = function createStat(statName, statValue) {
 	      var statPercent;
 	      statPercent = Math.round(statValue / maxStats[statName] * 100);
-
-	      console.log(statPercent, statValue, statName, maxStats[statName]);
 
 	      return (
 	        React.createElement(ListItem, {
