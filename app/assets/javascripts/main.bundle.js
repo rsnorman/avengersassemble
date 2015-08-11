@@ -85,7 +85,6 @@
 	  teamRankingsEl = document.getElementById('team_rankings');
 
 	  if ( teamRankingsEl ) {
-	    console.log(getProps(teamRankingsEl));
 	    React.render(
 	      React.createElement(TeamRankings, getProps(teamRankingsEl)), teamRankingsEl
 	    );
@@ -41258,8 +41257,6 @@
 	    createStat = function createStat(statName, statValue) {
 	      var statPercent;
 	      statPercent = Math.round(statValue / maxStats[statName] * 100);
-
-	      console.log(statPercent, statValue, statName, maxStats[statName]);
 
 	      return (
 	        React.createElement(ListItem, {

@@ -32,7 +32,6 @@ $(document).on('ready page:load', function() {
   teamRankingsEl = document.getElementById('team_rankings');
 
   if ( teamRankingsEl ) {
-    console.log(getProps(teamRankingsEl));
     React.render(
       React.createElement(TeamRankings, getProps(teamRankingsEl)), teamRankingsEl
     );
