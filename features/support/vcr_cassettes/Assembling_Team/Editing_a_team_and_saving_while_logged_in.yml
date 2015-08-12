@@ -1,0 +1,373 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=31d3cfdea50e4ae73bffd02380c2ef2a&limit=1&sharedAppearances=1009220,1011159&ts=1439363471
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:52 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:12 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=6d4ba3af59cc06fc56ad86a526ae24ed&limit=1&sharedAppearances=1010733,1011159&ts=1439363472
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:33 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:12 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=6d4ba3af59cc06fc56ad86a526ae24ed&limit=1&sharedAppearances=1009589,1011159&ts=1439363472
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:52 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:13 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=bfaa5ff0b9bd7e0c8932a6a5c24cbd56&limit=1&sharedAppearances=1010371,1011159&ts=1439363473
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:53 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:13 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=bfaa5ff0b9bd7e0c8932a6a5c24cbd56&limit=1&sharedAppearances=1009220,1010733&ts=1439363473
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:34 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:13 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=bfaa5ff0b9bd7e0c8932a6a5c24cbd56&limit=1&sharedAppearances=1009220,1009589&ts=1439363473
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:35 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:14 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=6387e9e284a11b88a21e496e61e0d1a0&limit=1&sharedAppearances=1009220,1010371&ts=1439363474
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:54 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:14 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=6387e9e284a11b88a21e496e61e0d1a0&limit=1&sharedAppearances=1010733,1009589&ts=1439363474
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:35 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:14 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=6387e9e284a11b88a21e496e61e0d1a0&limit=1&sharedAppearances=1010733,1010371&ts=1439363474
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:35 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:14 GMT
+- request:
+    method: get
+    uri: http://gateway.marvel.com/v1/public/comics?apikey=534a1c83ec57591f6de64ea33b87d483&hash=6387e9e284a11b88a21e496e61e0d1a0&limit=1&sharedAppearances=1009589,1010371&ts=1439363474
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Etag:
+      - dba3400fdf9f13c96425c48195b1441de97a2f75
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 12 Aug 2015 07:12:55 GMT
+      Connection:
+      - keep-alive
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJjb2RlIjoyMDAsInN0YXR1cyI6Ik9rIiwiY29weXJpZ2h0IjoiwqkgMjAx
+        NSBNQVJWRUwiLCJhdHRyaWJ1dGlvblRleHQiOiJEYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUwiLCJhdHRyaWJ1dGlvbkhUTUwiOiI8
+        YSBocmVmPVwiaHR0cDovL21hcnZlbC5jb21cIj5EYXRhIHByb3ZpZGVkIGJ5
+        IE1hcnZlbC4gwqkgMjAxNSBNQVJWRUw8L2E+IiwiZXRhZyI6ImRiYTM0MDBm
+        ZGY5ZjEzYzk2NDI1YzQ4MTk1YjE0NDFkZTk3YTJmNzUiLCJkYXRhIjp7Im9m
+        ZnNldCI6MCwibGltaXQiOjEsInRvdGFsIjowLCJjb3VudCI6MCwicmVzdWx0
+        cyI6W119fQ==
+    http_version: 
+  recorded_at: Wed, 12 Aug 2015 07:11:15 GMT
+recorded_with: VCR 2.9.2

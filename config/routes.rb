@@ -2,7 +2,7 @@ Rails.application.routes.draw do
 
   root 'teams#index'
 
-  resources :teams, only: [:new, :index, :show]
+  resources :teams, only: [:new, :index, :show, :edit]
 
   resources :sessions, only: :new
 
@@ -17,7 +17,7 @@ Rails.application.routes.draw do
           get :camaraderie
         end
       end
-      resources :teams, only: [:create, :index]
+      resources :teams, only: [:create, :update, :index]
     end
   end
 

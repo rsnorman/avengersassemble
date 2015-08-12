@@ -8,6 +8,10 @@ class Api::V1::TeamsController < ApplicationController
     @team = UserTeamCreator.new(current_user).assemble(params[:team])
   end
 
+  def update
+    @team = UserTeamCreator.new(current_user).assemble(params[:team])
+  end
+
   private
 
   def team_params

@@ -11,7 +11,7 @@ module Helpers
     )
   end
 
-  def create_team
+  def create_team(user = create_user)
     all_character_ids = Character.valid.original.experienced.pluck(:id)
     character_ids = []
     while character_ids.size < 5 do
@@ -19,7 +19,7 @@ module Helpers
       character_ids = character_ids.uniq
     end
 
-    UserTeamCreator.new(create_user).assemble(
+    UserTeamCreator.new(user).assemble(
       character_ids: character_ids,
       camaraderie:   200
     )

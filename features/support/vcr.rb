@@ -8,4 +8,5 @@ end
 VCR.cucumber_tags do |t|
   t.tag '@vcr', use_scenario_name: true
   t.tag '@vcrpath', use_scenario_name: true, match_requests_on: [:method, :path]
+  t.tag '@vcrall', use_scenario_name: true, record: :all
 end

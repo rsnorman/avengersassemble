@@ -19,7 +19,9 @@ TeamBuilder = React.createClass({
   propTypes: {
     maxExperience: React.PropTypes.number,
     maxTeamSize:   React.PropTypes.number,
-    loggedIn:      React.PropTypes.bool
+    loggedIn:      React.PropTypes.bool.isRequired,
+    leaderTeamId:  React.PropTypes.number,
+    team:          React.PropTypes.object
   },
 
   getDefaultProps: function() {
@@ -27,6 +29,10 @@ TeamBuilder = React.createClass({
   },
 
   getInitialState: function() {
+    if ( !!this.props.team ) {
+      localStorage.team = JSON.stringify(this.props.team);
+    }
+
     if ( !localStorage.team ) {
       return {
         characters: [],
@@ -142,7 +148,7 @@ TeamBuilder = React.createClass({
   goToProfile: function(team) {
     setTimeout(function() {
       window.location = '/teams/' + team.id;
-    }, 1000);
+    }, 2000);
   },
 
   signIn: function() {
@@ -161,7 +167,10 @@ TeamBuilder = React.createClass({
 
     return (
       <div>
-        <Menu title="Assemble Team" loggedIn={this.props.loggedIn} />
+        <Menu title="Assemble Team"
+          loggedIn={this.props.loggedIn}
+          leaderTeamId={this.props.leaderTeamId}
+        />
         <div id="main">
           <NewTeam
             team={this.state.team}
@@ -176,7 +185,7 @@ TeamBuilder = React.createClass({
             ref="creator"
             onCreate={this.goToProfile}
             team={this.state.team} />
-          <div id="create_team_button">
+          <div id="create_team_button" className="team-floating-action-button">
             <ActionButton
               onClick={this.startAssemblingTeam}
               disabled={!this.state.team.isValid}>
