@@ -16,8 +16,12 @@ Rails.application.routes.draw do
         collection do
           get :camaraderie
         end
+        member do
+          get :image
+        end
       end
       resources :teams, only: [:create, :update, :index]
+      resources :team_banners, only: :create
     end
   end
 
