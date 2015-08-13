@@ -27,7 +27,7 @@ TeamProfile = React.createClass({
 
   render: function() {
     function renderEditButton() {
-      if ( !!this.props.leaderTeamId ) {
+      if ( this.props.leaderTeamId === this.props.team.id ) {
         return (
           <div id="edit_team_button" className="team-floating-action-button">
             <ActionButton

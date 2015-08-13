@@ -41269,7 +41269,7 @@
 
 	  render: function() {
 	    function renderEditButton() {
-	      if ( !!this.props.leaderTeamId ) {
+	      if ( this.props.leaderTeamId === this.props.team.id ) {
 	        return (
 	          React.createElement("div", {id: "edit_team_button", className: "team-floating-action-button"}, 
 	            React.createElement(ActionButton, {

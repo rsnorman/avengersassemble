@@ -16,6 +16,8 @@ class Character < ActiveRecord::Base
   scope :experienced,   -> { where('experience IS NOT NULL') }
   scope :inexperienced, -> { where(experience: nil) }
 
+  default_scope -> { order(experience: :desc, name: :asc) }
+
   def ratings
     @ratings ||= Ratings.from_character(self)
   end
