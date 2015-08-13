@@ -16,7 +16,10 @@
   <body>
     <%= yield %>
     <script type="text/javascript">
-      window.teamLeaderLoggedIn = <%= current_user.present? ? 'true' : 'false' %>;
+      window.teamLeaderLoggedIn =
+        <%= current_user.present? ? 'true' : 'false' %>;
+      window.teamLeaderAssembledTeamId =
+        <%= current_user.try(:team).try(:id) || 'null' %>;
     </script>
   </body>
   <% if Rails.env.production? %>

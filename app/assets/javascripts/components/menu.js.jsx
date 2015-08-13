@@ -8,8 +8,9 @@ var MenuItem = mui.MenuItem;
 var Menu = React.createClass({
 
   propTypes: {
-    title:    React.PropTypes.string.isRequired,
-    loggedIn: React.PropTypes.bool.isRequired
+    title:        React.PropTypes.string.isRequired,
+    loggedIn:     React.PropTypes.bool.isRequired,
+    leaderTeamId: React.PropTypes.number
   },
 
   openMenu: function openMenu(e) {
@@ -22,13 +23,22 @@ var Menu = React.createClass({
         type: MenuItem.Types.LINK,
         payload: '/teams',
         text: 'Leaderboard'
-      },
-      {
+      }
+    ];
+
+    if ( !!this.props.leaderTeamId ) {
+      menuItems.push({
+        type: MenuItem.Types.LINK,
+        payload: '/teams/' + this.props.leaderTeamId,
+        text: 'Your Team'
+      });
+    } else {
+      menuItems.push({
         type: MenuItem.Types.LINK,
         payload: '/teams/new',
         text: 'Assemble Team'
-      }
-    ];
+      });
+    }
 
     if ( !this.props.loggedIn ) {
       menuItems.push({

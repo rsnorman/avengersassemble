@@ -4,7 +4,7 @@ class UserTeamCreator
 
   def initialize(user)
     @user = user
-    @team = Team.new(user: @user)
+    @team = @user.team || Team.new(user: @user)
   end
 
   def assemble(team_attributes)

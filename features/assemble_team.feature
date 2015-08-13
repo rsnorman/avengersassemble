@@ -39,8 +39,31 @@ Feature: Assembling Team
     Then I should not be able to assemble my team
     When I add Groot to my team
     Then I see Groot added to my team
+    Then I should be able to assemble my team
     When I add Groot to my team
     Then I see an alert that my team is full
     When I assemble my team
     Then I should see that my team is being assembled
+    And I should see that my team is successfully assembled
     And I should be taken to my team profile
+    And I see Iron Man on my team profile
+    And I see Black Widow on my team profile
+    And I see Jubilee on my team profile
+    And I see May Parker on my team profile
+    And I see Groot on my team profile
+
+  Scenario: Editing a team and saving while logged in
+    Given all the characters have been imported
+    And I am an authenticated user
+    And my team exists
+    When I visit my assemble team page
+    Then I should not be able to assemble my team
+    And I remove a character
+    Then I should not be able to assemble my team
+    When I add a new character
+    Then I should be able to assemble my team
+    When I assemble my team
+    Then I should see that my team is being assembled
+    And I should see that my team is successfully assembled
+    And I should be taken to my team profile
+    And I have the new character on my team profile

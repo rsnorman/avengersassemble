@@ -6,6 +6,7 @@ var TeamCharacters = require('./team_characters.js.jsx');
 var mui            = require('material-ui');
 var Paper          = mui.Paper;
 var Avatar         = mui.Avatar;
+var ActionButton   = mui.FloatingActionButton;
 
 var TeamProfile;
 
@@ -14,15 +15,36 @@ TeamProfile = React.createClass({
   mixins: [MarvelTheme],
 
   propTypes: {
-    loggedIn: React.PropTypes.bool.isRequired,
-    team: React.PropTypes.object.isRequired,
-    maxStats: React.PropTypes.object.isRequired
+    loggedIn:     React.PropTypes.bool.isRequired,
+    leaderTeamId: React.PropTypes.number,
+    team:         React.PropTypes.object.isRequired,
+    maxStats:     React.PropTypes.object.isRequired
+  },
+
+  editAssembledTeam: function() {
+    window.location = '/teams/' + this.props.team.id + '/edit';
   },
 
   render: function() {
+    function renderEditButton() {
+      if ( !!this.props.leaderTeamId ) {
+        return (
+          <div id="edit_team_button" className="team-floating-action-button">
+            <ActionButton
+              onClick={this.editAssembledTeam} >
+              <i className="material-icons">build</i>
+            </ActionButton>
+          </div>
+        );
+      }
+    }
+
     return (
       <div>
-        <Menu title="Team Profile" loggedIn={this.props.loggedIn} />
+        <Menu title="Team Profile"
+          loggedIn={this.props.loggedIn}
+          leaderTeamId={this.props.leaderTeamId}
+        />
         <div id="main">
           <Paper id="team_profile_header">
             <Avatar
@@ -37,6 +59,7 @@ TeamProfile = React.createClass({
             stats={this.props.team.stats}
             maxStats={this.props.maxStats} />
           <TeamCharacters characters={this.props.team.characters} />
+          {renderEditButton.call(this)}
         </div>
       </div>
     );

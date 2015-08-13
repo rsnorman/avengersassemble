@@ -41,3 +41,24 @@ Then(/^I see the superheroes on the team$/) do
     end
   end
 end
+
+Then(/^I don't see the ability to edit the team$/) do
+  expect(@team_profile).to_not have_edit_team_button
+end
+
+When(/^I visit my team profile$/) do
+  step('I visit the team profile')
+end
+
+Then(/^I see the ability to edit my team$/) do
+  expect(@team_profile).to have_edit_team_button
+end
+
+When(/^I click the button to edit my team$/) do
+  @team_profile.edit_team_button.click
+end
+
+Then(/^I'm on the edit team page$/) do
+  assemble_team_page = EditTeamPage.new
+  expect(assemble_team_page).to be_displayed(team_id: @team.id)
+end

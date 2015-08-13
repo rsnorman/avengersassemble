@@ -56,9 +56,17 @@ function createTeam(teamAttributes) {
 
     teamAttributes.character_ids = characterIds;
 
+    if ( teamAttributes.id ) {
+      url    = '/api/v1/teams/' + teamAttributes.id;
+      method = 'PUT';
+    } else {
+      url    = '/api/v1/teams';
+      method = 'POST';
+    }
+
     $.ajax({
-      url: '/api/v1/teams',
-      type: 'POST',
+      url: url,
+      type: method,
       dataType: 'json',
       data: {
         team: teamAttributes
@@ -75,23 +83,41 @@ function createTeam(teamAttributes) {
 
 TeamCreatorFeedback = React.createClass({
 
+  getInitialState: function() {
+    return {
+      creating: false,
+      created: false
+    };
+  },
+
   assembleTeam: function() {
     var team;
-
     team = JSON.parse(JSON.stringify(this.props.team));
+
+    this.setState({
+      creating: true,
+      created: false
+    });
 
     getTeamCamaraderie()
       .then(function(camaraderieValues) {
         createTeam(team)
          .then(function(team) {
+           this.setState({
+             creating: false,
+             created: true
+           });
+
            if ( this.props.onCreate ) {
              this.props.onCreate(team);
            }
-
-           this.refs.modal.dismiss();
          }.bind(this))
 
          .fail(function(errorData) {
+           this.setState({
+             creating: false,
+             created: false
+           });
            console.warn('There was an error saving team', errorData);
          });
 
@@ -122,14 +148,33 @@ TeamCreatorFeedback = React.createClass({
   },
 
   render: function() {
+    function renderMessage() {
+      if ( this.state.creating ) {
+        return (
+          <div>
+            <p className="creating-message">
+              Give us a second while we assemble your Avengers&hellip;
+            </p>
+            <br />
+            <Progress mode="indeterminate" size={2} />
+          </div>
+        );
+      } else if ( this.state.created ) {
+        return (
+          <div>
+            <p className="success-message">
+              Avengers Assembled!
+            </p>
+            <br />
+            <Progress mode="determinate" value={100} size={2} />
+          </div>
+        );
+      }
+    }
     return (
       <div id="team_creator_feedback">
         <Dialog ref="modal" title="Assembling Team">
-          <p className="creating-message">
-            Give us a second while we assemble your Avengers&hellip;
-          </p>
-          <br />
-          <Progress mode="indeterminate" size={2} />
+          {renderMessage.call(this)}
         </Dialog>
       </div>
     );

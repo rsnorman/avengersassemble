@@ -67,8 +67,9 @@
 
 	function getProps(el) {
 	  var props;
-	  props = JSON.parse(el.attributes['data-react-prop'].value);
-	  props.loggedIn = window.teamLeaderLoggedIn;
+	  props              = JSON.parse(el.attributes['data-react-prop'].value);
+	  props.loggedIn     = window.teamLeaderLoggedIn;
+	  props.leaderTeamId = window.teamLeaderAssembledTeamId;
 	  return props;
 	}
 
@@ -131,8 +132,9 @@
 	  mixins: [MarvelTheme],
 
 	  propTypes: {
-	    loggedIn: React.PropTypes.bool.isRequired,
-	    teams: React.PropTypes.array.isRequired
+	    loggedIn:     React.PropTypes.bool.isRequired,
+	    leaderTeamId: React.PropTypes.number,
+	    teams:        React.PropTypes.array.isRequired
 	  },
 
 	  render: function() {
@@ -145,7 +147,10 @@
 
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Leaderboard", loggedIn: this.props.loggedIn}), 
+	        React.createElement(Menu, {title: "Leaderboard", 
+	          loggedIn: this.props.loggedIn, 
+	          leaderTeamId: this.props.leaderTeamId}
+	        ), 
 	        React.createElement("div", {id: "main"}, 
 	          (function() {
 	            if ( this.props.teams.length > 0 ) {
@@ -39733,8 +39738,9 @@
 	var Menu = React.createClass({displayName: "Menu",
 
 	  propTypes: {
-	    title:    React.PropTypes.string.isRequired,
-	    loggedIn: React.PropTypes.bool.isRequired
+	    title:        React.PropTypes.string.isRequired,
+	    loggedIn:     React.PropTypes.bool.isRequired,
+	    leaderTeamId: React.PropTypes.number
 	  },
 
 	  openMenu: function openMenu(e) {
@@ -39747,13 +39753,22 @@
 	        type: MenuItem.Types.LINK,
 	        payload: '/teams',
 	        text: 'Leaderboard'
-	      },
-	      {
+	      }
+	    ];
+
+	    if ( !!this.props.leaderTeamId ) {
+	      menuItems.push({
+	        type: MenuItem.Types.LINK,
+	        payload: '/teams/' + this.props.leaderTeamId,
+	        text: 'Your Team'
+	      });
+	    } else {
+	      menuItems.push({
 	        type: MenuItem.Types.LINK,
 	        payload: '/teams/new',
 	        text: 'Assemble Team'
-	      }
-	    ];
+	      });
+	    }
 
 	    if ( !this.props.loggedIn ) {
 	      menuItems.push({
@@ -40037,7 +40052,9 @@
 	  propTypes: {
 	    maxExperience: React.PropTypes.number,
 	    maxTeamSize:   React.PropTypes.number,
-	    loggedIn:      React.PropTypes.bool
+	    loggedIn:      React.PropTypes.bool.isRequired,
+	    leaderTeamId:  React.PropTypes.number,
+	    team:          React.PropTypes.object
 	  },
 
 	  getDefaultProps: function() {
@@ -40045,6 +40062,10 @@
 	  },
 
 	  getInitialState: function() {
+	    if ( !!this.props.team ) {
+	      localStorage.team = JSON.stringify(this.props.team);
+	    }
+
 	    if ( !localStorage.team ) {
 	      return {
 	        characters: [],
@@ -40160,7 +40181,7 @@
 	  goToProfile: function(team) {
 	    setTimeout(function() {
 	      window.location = '/teams/' + team.id;
-	    }, 1000);
+	    }, 2000);
 	  },
 
 	  signIn: function() {
@@ -40179,7 +40200,10 @@
 
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Assemble Team", loggedIn: this.props.loggedIn}), 
+	        React.createElement(Menu, {title: "Assemble Team", 
+	          loggedIn: this.props.loggedIn, 
+	          leaderTeamId: this.props.leaderTeamId}
+	        ), 
 	        React.createElement("div", {id: "main"}, 
 	          React.createElement(NewTeam, {
 	            team: this.state.team, 
@@ -40194,7 +40218,7 @@
 	            ref: "creator", 
 	            onCreate: this.goToProfile, 
 	            team: this.state.team}), 
-	          React.createElement("div", {id: "create_team_button"}, 
+	          React.createElement("div", {id: "create_team_button", className: "team-floating-action-button"}, 
 	            React.createElement(ActionButton, {
 	              onClick: this.startAssemblingTeam, 
 	              disabled: !this.state.team.isValid}, 
@@ -40280,9 +40304,17 @@
 
 	    teamAttributes.character_ids = characterIds;
 
+	    if ( teamAttributes.id ) {
+	      url    = '/api/v1/teams/' + teamAttributes.id;
+	      method = 'PUT';
+	    } else {
+	      url    = '/api/v1/teams';
+	      method = 'POST';
+	    }
+
 	    $.ajax({
-	      url: '/api/v1/teams',
-	      type: 'POST',
+	      url: url,
+	      type: method,
 	      dataType: 'json',
 	      data: {
 	        team: teamAttributes
@@ -40299,23 +40331,41 @@
 
 	TeamCreatorFeedback = React.createClass({displayName: "TeamCreatorFeedback",
 
+	  getInitialState: function() {
+	    return {
+	      creating: false,
+	      created: false
+	    };
+	  },
+
 	  assembleTeam: function() {
 	    var team;
-
 	    team = JSON.parse(JSON.stringify(this.props.team));
+
+	    this.setState({
+	      creating: true,
+	      created: false
+	    });
 
 	    getTeamCamaraderie()
 	      .then(function(camaraderieValues) {
 	        createTeam(team)
 	         .then(function(team) {
+	           this.setState({
+	             creating: false,
+	             created: true
+	           });
+
 	           if ( this.props.onCreate ) {
 	             this.props.onCreate(team);
 	           }
-
-	           this.refs.modal.dismiss();
 	         }.bind(this))
 
 	         .fail(function(errorData) {
+	           this.setState({
+	             creating: false,
+	             created: false
+	           });
 	           console.warn('There was an error saving team', errorData);
 	         });
 
@@ -40346,14 +40396,33 @@
 	  },
 
 	  render: function() {
+	    function renderMessage() {
+	      if ( this.state.creating ) {
+	        return (
+	          React.createElement("div", null, 
+	            React.createElement("p", {className: "creating-message"}, 
+	              "Give us a second while we assemble your Avengers…"
+	            ), 
+	            React.createElement("br", null), 
+	            React.createElement(Progress, {mode: "indeterminate", size: 2})
+	          )
+	        );
+	      } else if ( this.state.created ) {
+	        return (
+	          React.createElement("div", null, 
+	            React.createElement("p", {className: "success-message"}, 
+	              "Avengers Assembled!"
+	            ), 
+	            React.createElement("br", null), 
+	            React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
+	          )
+	        );
+	      }
+	    }
 	    return (
 	      React.createElement("div", {id: "team_creator_feedback"}, 
 	        React.createElement(Dialog, {ref: "modal", title: "Assembling Team"}, 
-	          React.createElement("p", {className: "creating-message"}, 
-	            "Give us a second while we assemble your Avengers…"
-	          ), 
-	          React.createElement("br", null), 
-	          React.createElement(Progress, {mode: "indeterminate", size: 2})
+	          renderMessage.call(this)
 	        )
 	      )
 	    );
@@ -41179,6 +41248,7 @@
 	var mui            = __webpack_require__(159);
 	var Paper          = mui.Paper;
 	var Avatar         = mui.Avatar;
+	var ActionButton   = mui.FloatingActionButton;
 
 	var TeamProfile;
 
@@ -41187,15 +41257,36 @@
 	  mixins: [MarvelTheme],
 
 	  propTypes: {
-	    loggedIn: React.PropTypes.bool.isRequired,
-	    team: React.PropTypes.object.isRequired,
-	    maxStats: React.PropTypes.object.isRequired
+	    loggedIn:     React.PropTypes.bool.isRequired,
+	    leaderTeamId: React.PropTypes.number,
+	    team:         React.PropTypes.object.isRequired,
+	    maxStats:     React.PropTypes.object.isRequired
+	  },
+
+	  editAssembledTeam: function() {
+	    window.location = '/teams/' + this.props.team.id + '/edit';
 	  },
 
 	  render: function() {
+	    function renderEditButton() {
+	      if ( !!this.props.leaderTeamId ) {
+	        return (
+	          React.createElement("div", {id: "edit_team_button", className: "team-floating-action-button"}, 
+	            React.createElement(ActionButton, {
+	              onClick: this.editAssembledTeam}, 
+	              React.createElement("i", {className: "material-icons"}, "build")
+	            )
+	          )
+	        );
+	      }
+	    }
+
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Team Profile", loggedIn: this.props.loggedIn}), 
+	        React.createElement(Menu, {title: "Team Profile", 
+	          loggedIn: this.props.loggedIn, 
+	          leaderTeamId: this.props.leaderTeamId}
+	        ), 
 	        React.createElement("div", {id: "main"}, 
 	          React.createElement(Paper, {id: "team_profile_header"}, 
 	            React.createElement(Avatar, {
@@ -41209,7 +41300,8 @@
 	          React.createElement(TeamStats, {
 	            stats: this.props.team.stats, 
 	            maxStats: this.props.maxStats}), 
-	          React.createElement(TeamCharacters, {characters: this.props.team.characters})
+	          React.createElement(TeamCharacters, {characters: this.props.team.characters}), 
+	          renderEditButton.call(this)
 	        )
 	      )
 	    );

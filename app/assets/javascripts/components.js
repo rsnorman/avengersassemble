@@ -14,8 +14,9 @@ injectTapEventPlugin();
 
 function getProps(el) {
   var props;
-  props = JSON.parse(el.attributes['data-react-prop'].value);
-  props.loggedIn = window.teamLeaderLoggedIn;
+  props              = JSON.parse(el.attributes['data-react-prop'].value);
+  props.loggedIn     = window.teamLeaderLoggedIn;
+  props.leaderTeamId = window.teamLeaderAssembledTeamId;
   return props;
 }
 

@@ -1,0 +1,13 @@
+<div
+  id="team_builder"
+  data-react-prop="<%= react_props({
+    team:     {
+      template: 'teams/show.json',
+      locals: {
+        team: @team
+      }
+    },
+    maxTeamSize:   UserTeamCreator::MAX_CHARACTERS,
+    maxExperience: UserTeamCreator::ALLOWED_CUMULATIVE_EXPERIENCE
+  }) %>">
+</div>

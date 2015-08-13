@@ -11,8 +11,9 @@ var TeamRankings = React.createClass({
   mixins: [MarvelTheme],
 
   propTypes: {
-    loggedIn: React.PropTypes.bool.isRequired,
-    teams: React.PropTypes.array.isRequired
+    loggedIn:     React.PropTypes.bool.isRequired,
+    leaderTeamId: React.PropTypes.number,
+    teams:        React.PropTypes.array.isRequired
   },
 
   render: function() {
@@ -25,7 +26,10 @@ var TeamRankings = React.createClass({
 
     return (
       <div>
-        <Menu title="Leaderboard" loggedIn={this.props.loggedIn} />
+        <Menu title="Leaderboard"
+          loggedIn={this.props.loggedIn}
+          leaderTeamId={this.props.leaderTeamId}
+        />
         <div id="main">
           {(function() {
             if ( this.props.teams.length > 0 ) {
