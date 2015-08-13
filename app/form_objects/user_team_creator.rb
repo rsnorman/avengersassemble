@@ -8,8 +8,9 @@ class UserTeamCreator
   end
 
   def assemble(team_attributes)
-    @team.characters = Character.where(id: team_attributes[:character_ids])
+    reset_team_stats
 
+    @team.characters = Character.where(id: team_attributes[:character_ids])
     @team.characters.each do |character|
       Ratings::RATING_NAMES.each { |r| set_rating_value(character, r) }
       @team.total_experience += character.experience
@@ -40,6 +41,10 @@ class UserTeamCreator
   end
 
   private
+
+  def reset_team_stats
+    Stats::STAT_NAMES.each { |s| @team.public_send("total_#{s}=", 0)  }
+  end
 
   def character_pairs
     @character_pairs ||= CharacterPairs.new(@team.characters).pairs
