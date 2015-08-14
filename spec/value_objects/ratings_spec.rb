@@ -1,4 +1,3 @@
-require 'spec_helper'
 require './app/value_objects/ratings'
 
 RSpec.describe Ratings do
@@ -42,22 +41,22 @@ RSpec.describe Ratings do
 
     subject { super().missing? }
 
-    context 'with all nil values' do
+    context 'with all nil ratings' do
       let(:value) { nil }
       it { is_expected.to be_truthy }
     end
 
-    context 'with all zero values' do
+    context 'with all zero ratings' do
       let(:value) { 0 }
       it { is_expected.to be_truthy }
     end
 
-    context 'with all values equal to 1' do
+    context 'with all ratings equal to 1' do
       let(:value) { 1 }
       it { is_expected.to be_truthy }
     end
 
-    context 'with not all values equal to nil, zero, or one' do
+    context 'with not all ratings equal to nil, zero, or one' do
       let(:value) { 2 }
       it { is_expected.to be_falsey }
     end

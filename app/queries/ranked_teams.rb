@@ -7,7 +7,6 @@ class RankedTeams
   def rankings
     @teams
     .select(ranking_select_sql)
-    .includes(:characters, :user)
     .order('rank ASC')
   end
 

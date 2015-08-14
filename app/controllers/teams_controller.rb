@@ -1,7 +1,7 @@
 class TeamsController < ApplicationController
 
   def index
-    @teams = RankedTeams.new.rankings
+    @teams = RankedTeams.new(Team.all.includes(:characters, :user)).rankings
   end
 
   def show
