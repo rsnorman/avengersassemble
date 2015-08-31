@@ -23,7 +23,7 @@ module ApplicationHelper
   end
 
   def url_host
-    "#{request.protocol}#{request.host}#{":#{request.port}" if request.port}"
+    "#{request.protocol}#{request.host}#{":#{request.port}" if request.port && !Rails.env.production?}"
   end
 
 end

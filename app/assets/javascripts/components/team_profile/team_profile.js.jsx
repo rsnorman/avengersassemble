@@ -73,15 +73,28 @@ TeamProfile = React.createClass({
             },
 
            function(response) {
-             console.log(response);
 
-             this.setState({
-               sharingTeam: false,
-               shared:      true
-             });
-             setTimeout(function() {
-               this.refs.modal.dismiss();
-             }.bind(this), 2000);
+             FB.api(
+               //'me/avengersassembletest:assemble',
+               'me/assembleavengers:assemble',
+               'post',
+               {
+                 'avengers_team': response.id
+               },
+
+               function(response) {
+                 console.log(response);
+
+                this.setState({
+                  sharingTeam: false,
+                  shared:      true
+                });
+
+                setTimeout(function() {
+                  this.refs.modal.dismiss();
+                }.bind(this), 2000);
+               }.bind(this)
+             );
             }.bind(this)
           );
         }.bind(this), {scope: 'publish_actions'});
