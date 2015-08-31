@@ -41300,13 +41300,15 @@
 	          var objectData = {
 	            'og:url':         data.banner.team.url,
 	            'og:title':       data.banner.team.name,
-	            'og:type':        'avengersassemble:avengers_team',
+	            // 'og:type':        'avengersassembletest:avengers_team',
+	            'og:type':        'assembleavengers:avengers_team',
 	            'og:image':       data.banner.url,
 	            'og:description': 'Currently ranked #' + data.banner.team.rank
 	          };
 
 	          FB.api(
-	            'me/objects/avengersassemble:avengers_team',
+	            // 'me/objects/avengersassembletest:avengers_team',
+	            'me/objects/assembleavengers:avengers_team',
 	            'post',
 	            {
 	              'object': objectData
