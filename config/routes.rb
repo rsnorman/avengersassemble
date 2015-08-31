@@ -4,6 +4,12 @@ Rails.application.routes.draw do
 
   resources :teams, only: [:new, :index, :show, :edit]
 
+  resources :characters do
+    member do
+      get :image
+    end
+  end
+
   resources :sessions, only: :new
 
   match 'auth/:provider/callback', to: 'sessions#create', via: :get
@@ -15,9 +21,6 @@ Rails.application.routes.draw do
       resources :characters, only: :index do
         collection do
           get :camaraderie
-        end
-        member do
-          get :image
         end
       end
       resources :teams, only: [:create, :update, :index]

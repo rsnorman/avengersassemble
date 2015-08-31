@@ -6,11 +6,6 @@ module Api
         @characters = matching_characters
       end
 
-      def image
-        require 'open-uri'
-        send_data open("http:#{character.thumbnail_url}").read
-      end
-
       def camaraderie
         render json: { total: character_camaraderie }
       end
@@ -25,10 +20,6 @@ module Api
         character = Character.find(params[:character_id])
         other_character = Character.find(params[:other_character_id])
         SharedComicCamaraderie.new(character, other_character).total
-      end
-
-      def character
-        character = Character.find(params[:character_id] || params[:id])
       end
 
     end

@@ -58,19 +58,21 @@ TeamProfile = React.createClass({
           var objectData = {
             'og:url':         data.banner.team.url,
             'og:title':       data.banner.team.name,
-            'og:type':        'avengersassembletest:avengers_team',
+            'og:type':        'avengersassemble:avengers_team',
             'og:image':       data.banner.url,
             'og:description': 'Currently ranked #' + data.banner.team.rank
           };
 
           FB.api(
-            'me/objects/avengersassembletest:avengers_team',
+            'me/objects/avengersassemble:avengers_team',
             'post',
             {
               'object': objectData
             },
 
            function(response) {
+             console.log(response);
+
              this.setState({
                sharingTeam: false,
                shared:      true
@@ -176,15 +178,8 @@ TeamProfile = React.createClass({
   },
 
   _renderTeamBanner: function() {
-    function warmCharacterImageCache(character) {
-      return (
-        <img src={character.thumbnail_url} key={character.id} />
-      );
-    }
-
     return (
       <div style={{visibility:'hidden', position: 'absolute', top: '0', left: '-1000px', width: 0, height: 0}}>
-        {this.props.team.characters.map(warmCharacterImageCache)}
         <TeamBanner
           ref="teamBanner"
           visible={this.state.sharingTeam}

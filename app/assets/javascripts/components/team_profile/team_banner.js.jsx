@@ -63,7 +63,7 @@ TeamBanner = React.createClass({
         left: leftPosition - slice.centerPosition.x
       });
 
-      var imageSrc = '/api/v1/characters/' + character.id + '/image';
+      var imageSrc = '/characters/' + character.id + '/image';
       return <Image src={imageSrc} style={imageStyle} key={index} />;
     }
 
@@ -189,6 +189,12 @@ TeamBanner = React.createClass({
       );
     }
 
+    function warmCharacterImageCache(character) {
+      return (
+        <img src={'/characters/' + character.id + '/image'} key={character.id} />
+      );
+    }
+
     var team = this.props.team;
 
     if (this.props.visible) {
@@ -213,7 +219,11 @@ TeamBanner = React.createClass({
         </Surface>
       );
     } else {
-      return (<div />);
+      return (
+        <div>
+          {this.props.team.characters.map(warmCharacterImageCache)}
+        </div>
+      );
     }
   },
 

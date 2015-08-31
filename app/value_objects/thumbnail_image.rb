@@ -11,7 +11,7 @@ class ThumbnailImage
   end
 
   def url
-    @url.gsub(/(?:http|https):/, '')
+    _url = @url.gsub(/(?:http|https):/, '')
   end
 
 end
