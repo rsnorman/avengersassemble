@@ -21,4 +21,9 @@ module ApplicationHelper
 
     props_json
   end
+
+  def url_host
+    "#{request.protocol}#{request.host}#{":#{request.port}" if request.port}"
+  end
+
 end

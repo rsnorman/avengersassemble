@@ -13,3 +13,5 @@ end
 json.characters team.characters do |character|
   json.partial! 'api/v1/characters/character', character: character
 end
+
+json.url "#{url_host}/teams/#{team.id}"
