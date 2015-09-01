@@ -22,7 +22,8 @@ TeamProfile = React.createClass({
     loggedIn:     React.PropTypes.bool.isRequired,
     leaderTeamId: React.PropTypes.number,
     team:         React.PropTypes.object.isRequired,
-    maxStats:     React.PropTypes.object.isRequired
+    maxStats:     React.PropTypes.object.isRequired,
+    fbOpenGraphNamespace: React.PropTypes.string.isRequired
   },
 
   getInitialState: function() {
@@ -54,19 +55,21 @@ TeamProfile = React.createClass({
         }
       },
       success: function(data) {
+        var namespace, openGraphType;
+        namespace = this.props.fbOpenGraphNamespace;
+        openGraphType = namespace + ':avengers_team';
+
         FB.login(function(){
           var objectData = {
             'og:url':         data.banner.team.url,
             'og:title':       data.banner.team.name,
-            // 'og:type':        'avengersassembletest:avengers_team',
-            'og:type':        'assembleavengers:avengers_team',
+            'og:type':        openGraphType,
             'og:image':       data.banner.url,
             'og:description': 'Currently ranked #' + data.banner.team.rank
           };
 
           FB.api(
-            // 'me/objects/avengersassembletest:avengers_team',
-            'me/objects/assembleavengers:avengers_team',
+            'me/objects/' + openGraphType,
             'post',
             {
               'object': objectData
@@ -75,8 +78,7 @@ TeamProfile = React.createClass({
            function(response) {
 
              FB.api(
-               //'me/avengersassembletest:assemble',
-               'me/assembleavengers:assemble',
+               'me/' + namespace + ':assemble',
                'post',
                {
                  'avengers_team': response.id

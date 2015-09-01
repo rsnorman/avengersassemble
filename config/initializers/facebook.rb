@@ -1,5 +1,7 @@
-FACEBOOK_APP_ID = if Rails.env.development?
-                    '1627640444115447'.freeze
-                  else
-                    '1627567727456052'.freeze
-                  end
+if Rails.env.development?
+  FACEBOOK_APP_ID = '1627640444115447'.freeze
+  FACEBOOK_OPEN_GRAPH_NAMESPACE = 'avengersassembletest'.freeze
+else
+  FACEBOOK_APP_ID = '1627567727456052'.freeze
+  FACEBOOK_OPEN_GRAPH_NAMESPACE = 'assembleavengers'.freeze
+end

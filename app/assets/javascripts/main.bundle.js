@@ -41264,7 +41264,8 @@
 	    loggedIn:     React.PropTypes.bool.isRequired,
 	    leaderTeamId: React.PropTypes.number,
 	    team:         React.PropTypes.object.isRequired,
-	    maxStats:     React.PropTypes.object.isRequired
+	    maxStats:     React.PropTypes.object.isRequired,
+	    fbOpenGraphNamespace: React.PropTypes.string.isRequired
 	  },
 
 	  getInitialState: function() {
@@ -41296,19 +41297,21 @@
 	        }
 	      },
 	      success: function(data) {
+	        var namespace, openGraphType;
+	        namespace = this.props.fbOpenGraphNamespace;
+	        openGraphType = namespace + ':avengers_team';
+
 	        FB.login(function(){
 	          var objectData = {
 	            'og:url':         data.banner.team.url,
 	            'og:title':       data.banner.team.name,
-	            // 'og:type':        'avengersassembletest:avengers_team',
-	            'og:type':        'assembleavengers:avengers_team',
+	            'og:type':        openGraphType,
 	            'og:image':       data.banner.url,
 	            'og:description': 'Currently ranked #' + data.banner.team.rank
 	          };
 
 	          FB.api(
-	            // 'me/objects/avengersassembletest:avengers_team',
-	            'me/objects/assembleavengers:avengers_team',
+	            'me/objects/' + openGraphType,
 	            'post',
 	            {
 	              'object': objectData
@@ -41317,8 +41320,7 @@
 	           function(response) {
 
 	             FB.api(
-	               //'me/avengersassembletest:assemble',
-	               'me/assembleavengers:assemble',
+	               'me/' + namespace + ':assemble',
 	               'post',
 	               {
 	                 'avengers_team': response.id
@@ -41599,9 +41601,22 @@
 	var Group       = ReactCanvas.Group;
 
 	var TeamBanner;
-	var OPTIMAL_BANNER_WIDTH  = 1200;
-	var OPTIMAL_BANNER_HEIGHT = 630;
-	var CHARACTER_MARGIN      = 10;
+	var pixelRatio = window.devicePixelRatio || 1;
+	var OPTIMAL_BANNER_WIDTH   = 1200 / pixelRatio;
+	var OPTIMAL_BANNER_HEIGHT  = 630  / pixelRatio;
+	var CHARACTER_MARGIN       = 10   / pixelRatio;
+	var TOP_MARGIN             = 25   / pixelRatio;
+	var CHARACTER_HEIGHT       = 50   / pixelRatio;
+	var STAT_HEIGHT            = 20   / pixelRatio;
+	var IMAGE_SIZE             = 110  / pixelRatio;
+	var CHARACTER_FONT_SIZE    = 18   / pixelRatio;
+	var STAT_FONT_SIZE         = 16   / pixelRatio;
+	var CHARACTER_MARGIN_LEFT  = 50   / pixelRatio;
+	var CHARACTER_NAME_WIDTH   = 200  / pixelRatio;
+	var CHARACTER_IMAGE_MARGIN = 15   / pixelRatio;
+	var CHARACTER_OFFSET       = 15   / pixelRatio;
+	var STAT_MARGIN            = 25   / pixelRatio;
+	var STAT_BAR_HEIGHT        = 10   / pixelRatio;
 
 	TeamBanner = React.createClass({displayName: "TeamBanner",
 
@@ -41631,10 +41646,10 @@
 
 	    var slices = new Dicer({
 	      radius:        OPTIMAL_BANNER_HEIGHT,
-	      sectionHeight: OPTIMAL_BANNER_HEIGHT - 50
+	      sectionHeight: OPTIMAL_BANNER_HEIGHT - (TOP_MARGIN * 2)
 	    }).slice(this.props.team.characters.length);
 
-	    var topPosition  = slices[0].centerPosition.y + 25;
+	    var topPosition  = slices[0].centerPosition.y + TOP_MARGIN;
 	    var leftPosition = 0;
 
 	    for ( var _i = 0, _len = slices.length; _i < _len; _i++ ) {
@@ -41643,7 +41658,7 @@
 	      }
 	    }
 
-	    leftPosition += 25;
+	    leftPosition += CHARACTER_MARGIN_LEFT;
 
 	    function renderCharacter(character, index) {
 	      var characterSrc = character.thumbnail_url;
@@ -41658,29 +41673,30 @@
 	    }
 
 	    function renderCharacterName(character, index) {
-	      var width  = OPTIMAL_BANNER_WIDTH / 2 - 200;
-	      var height = 50;
+	      var width  = OPTIMAL_BANNER_WIDTH / 2 - CHARACTER_NAME_WIDTH;
+	      var height = CHARACTER_HEIGHT;
 	      var slice  = slices[index];
+	      var left   = leftPosition - slice.centerPosition.x + IMAGE_SIZE + CHARACTER_IMAGE_MARGIN;
 
 	      var groupTextStyle = {
-	        top:    topPosition  - slice.endPosition.y - 15,
-	        left:   leftPosition - slice.centerPosition.x + 125,
+	        top:    topPosition  - slice.endPosition.y - CHARACTER_OFFSET,
+	        left:   left,
 	        width:  width,
 	        height: height
 	      };
 
 	      var textStyle = {
-	        top:      topPosition  - slice.endPosition.y - 15,
-	        left:     leftPosition - slice.centerPosition.x + 125,
+	        top:      topPosition  - slice.endPosition.y - CHARACTER_OFFSET,
+	        left:     left,
 	        height:   height,
 	        width:    width,
-	        fontSize: 18,
+	        fontSize: CHARACTER_FONT_SIZE,
 	        color:    '#ededed'
 	      };
 
 	      var underlineStyle = {
-	        top:             topPosition  - slice.endPosition.y + 15,
-	        left:            leftPosition - slice.centerPosition.x + 125,
+	        top:             topPosition  - slice.endPosition.y + CHARACTER_OFFSET,
+	        left:            left,
 	        height:          1,
 	        width:           width,
 	        backgroundColor: '#F7412D'
@@ -41698,10 +41714,10 @@
 
 	    var statSlices = new Dicer({
 	      radius:        OPTIMAL_BANNER_HEIGHT,
-	      sectionHeight: OPTIMAL_BANNER_HEIGHT - 50
+	      sectionHeight: OPTIMAL_BANNER_HEIGHT - (TOP_MARGIN * 2)
 	    }).slice(Object.keys(this.props.team.stats).length);
 
-	    var statTopPosition = statSlices[0].centerPosition.y + 25;
+	    var statTopPosition = statSlices[0].centerPosition.y + TOP_MARGIN;
 	    var statLeftPosition = 0;
 
 	    for ( var _i = 0, _len = statSlices.length; _i < _len; _i++ ) {
@@ -41725,47 +41741,46 @@
 
 	    function renderStat(statName, statValue, maxValue, index) {
 	      var width  = OPTIMAL_BANNER_WIDTH / 3;
-	      var height = 30;
+	      var height = STAT_HEIGHT;
 	      var slice  = statSlices[index];
 
 	      var groupTextStyle = {
-	        top:    statTopPosition  - slice.endPosition.y - 15,
-	        left:   statLeftPosition - slice.centerPosition.x + 25,
+	        top:    statTopPosition  - slice.endPosition.y - CHARACTER_OFFSET,
+	        left:   statLeftPosition - slice.centerPosition.x + STAT_MARGIN,
 	        width:  width,
 	        height: height
 	      };
 
 	      var textStyle = {
-	        top:      statTopPosition  - slice.endPosition.y - 15,
-	        left:     statLeftPosition - slice.centerPosition.x + 25,
+	        top:      statTopPosition  - slice.endPosition.y - CHARACTER_OFFSET,
+	        left:     statLeftPosition - slice.centerPosition.x + STAT_MARGIN,
 	        height:   height,
 	        width:    width,
-	        fontSize: 16,
+	        fontSize: STAT_FONT_SIZE,
 	        color:    '#aeaeae'
 	      };
 
 	      var underlineStyle = {
-	        top:             statTopPosition  - slice.endPosition.y + 15,
-	        left:            statLeftPosition - slice.centerPosition.x + 25,
-	        height:          10,
+	        top:             statTopPosition  - slice.endPosition.y + CHARACTER_OFFSET,
+	        left:            statLeftPosition - slice.centerPosition.x + STAT_MARGIN,
+	        height:          STAT_BAR_HEIGHT,
 	        width:           width,
 	        backgroundColor: '#F7412D',
 	        alpha:           0.2,
-	        borderRadius:    5
+	        borderRadius:    STAT_BAR_HEIGHT / 2
 	      };
 
 	      var statStyle = JSON.parse(JSON.stringify(underlineStyle));
-	      var SMALLEST_STAT_WIDTH = 10;
-
 	      statStyle.width = statValue * width / maxValue;
+
 	      if ( statStyle.width < 1 ) {
 	        statStyle.alpha = 0;
 	      } else {
 	        statStyle.alpha = 1;
 	      }
 
-	      if ( statStyle.width < SMALLEST_STAT_WIDTH ) {
-	        statStyle.width = SMALLEST_STAT_WIDTH;
+	      if ( statStyle.width < STAT_BAR_HEIGHT ) {
+	        statStyle.width = STAT_BAR_HEIGHT;
 	      }
 
 	      return (
@@ -41828,15 +41843,12 @@
 	  },
 
 	  _getImageStyle: function(dimensions) {
-	    var width = 110;
-	    var height = 110;
-
 	    return {
 	      top:          dimensions.top + 2,
 	      left:         dimensions.left,
-	      width:        width,
-	      height:       height,
-	      borderRadius: width / 2,
+	      width:        IMAGE_SIZE,
+	      height:       IMAGE_SIZE,
+	      borderRadius: IMAGE_SIZE / 2,
 	      borderColor:  '#BDBDBD'
 	    };
 	  }

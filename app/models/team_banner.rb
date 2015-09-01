@@ -18,7 +18,7 @@ class TeamBanner
       )
     )
 
-    unless File.exists?(path)
+    unless File.exists?(path) || Rails.env.production?
       image_data = attributes[:data].gsub(DATA_URL_PREFIX, '')
       image_data = image_data.gsub(' ', '+')
       File.open(path, 'wb') { |f| f.write(Base64.decode64(image_data)) }
