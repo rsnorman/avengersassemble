@@ -173,13 +173,9 @@ TeamProfile = React.createClass({
           <TeamCharacters characters={this.props.team.characters} />
           {renderEditButton.call(this)}
 
-          <div id="share_team_button" className="team-floating-action-button">
-            <ActionButton onClick={this.shareAssembledTeam}>
-              <i className="material-icons">share</i>
-            </ActionButton>
-          </div>
+          {this._renderShareActionButton()}
 
-          {this._renderTeamBanner.call(this)}
+          {this._renderTeamBanner()}
           <div id="team_sharing_feedback">
             <Dialog
               ref="modal"
@@ -192,6 +188,20 @@ TeamProfile = React.createClass({
         </div>
       </div>
     );
+  },
+
+  _renderShareActionButton: function() {
+    if ( this.props.loggedIn && this.props.leaderTeamId == this.props.team.id ) {
+      return (
+        <div id="share_team_button" className="team-floating-action-button">
+          <ActionButton onClick={this.shareAssembledTeam}>
+            <i className="material-icons">share</i>
+          </ActionButton>
+        </div>
+      );
+    } else {
+      return <div />;
+    }
   },
 
   _renderTeamBanner: function() {

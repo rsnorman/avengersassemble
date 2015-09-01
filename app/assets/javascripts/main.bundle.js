@@ -41415,13 +41415,9 @@
 	          React.createElement(TeamCharacters, {characters: this.props.team.characters}), 
 	          renderEditButton.call(this), 
 
-	          React.createElement("div", {id: "share_team_button", className: "team-floating-action-button"}, 
-	            React.createElement(ActionButton, {onClick: this.shareAssembledTeam}, 
-	              React.createElement("i", {className: "material-icons"}, "share")
-	            )
-	          ), 
+	          this._renderShareActionButton(), 
 
-	          this._renderTeamBanner.call(this), 
+	          this._renderTeamBanner(), 
 	          React.createElement("div", {id: "team_sharing_feedback"}, 
 	            React.createElement(Dialog, {
 	              ref: "modal", 
@@ -41434,6 +41430,20 @@
 	        )
 	      )
 	    );
+	  },
+
+	  _renderShareActionButton: function() {
+	    if ( this.props.loggedIn && this.props.leaderTeamId == this.props.team.id ) {
+	      return (
+	        React.createElement("div", {id: "share_team_button", className: "team-floating-action-button"}, 
+	          React.createElement(ActionButton, {onClick: this.shareAssembledTeam}, 
+	            React.createElement("i", {className: "material-icons"}, "share")
+	          )
+	        )
+	      );
+	    } else {
+	      return React.createElement("div", null);
+	    }
 	  },
 
 	  _renderTeamBanner: function() {
