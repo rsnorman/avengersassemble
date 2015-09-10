@@ -15,6 +15,7 @@ Rails.application.routes.draw do
   match 'auth/:provider/callback', to: 'sessions#create', via: :get
   match 'auth/failure', to: redirect('/'), via: :get
   match 'signout', to: 'sessions#destroy', as: 'signout', via: :get
+  match 'privacy', to: 'privacy_policy#index', via: :get
 
   namespace :api do
     namespace :v1 do
