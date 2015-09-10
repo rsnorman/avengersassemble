@@ -37,8 +37,11 @@ TeamProfile = React.createClass({
     window.location = '/teams/' + this.props.team.id + '/edit';
   },
 
-  shareAssembledTeam: function() {
+  showShareAssembledTeamPrompt: function() {
     this.refs.modal.show();
+  },
+
+  shareAssembledTeam: function() {
     this.setState({
       sharingTeam: true
     });
@@ -85,16 +88,17 @@ TeamProfile = React.createClass({
                },
 
                function(response) {
-                 console.log(response);
+                 this.setState({
+                   sharingTeam: false,
+                   shared:      true
+                 });
 
-                this.setState({
-                  sharingTeam: false,
-                  shared:      true
-                });
-
-                setTimeout(function() {
-                  this.refs.modal.dismiss();
-                }.bind(this), 2000);
+                 setTimeout(function() {
+                   this.refs.modal.dismiss();
+                   this.setState({
+                     shared: false
+                   });
+                 }.bind(this), 2000);
                }.bind(this)
              );
             }.bind(this)
@@ -116,30 +120,6 @@ TeamProfile = React.createClass({
               onClick={this.shareAssembledTeam} >
               <i className="material-icons">share</i>
             </ActionButton>
-          </div>
-        );
-      }
-    }
-
-    function renderSharingMessage() {
-      if ( this.state.sharingTeam ) {
-        return (
-          <div>
-            <p className="sharing-message">
-              Sharing your Avengers&hellip;
-            </p>
-            <br />
-            <Progress mode="indeterminate" size={2} />
-          </div>
-        );
-      } else if ( this.state.shared ) {
-        return (
-          <div>
-            <p className="success-message">
-              Your Avengers Shared!
-            </p>
-            <br />
-            <Progress mode="determinate" value={100} size={2} />
           </div>
         );
       }
@@ -176,25 +156,73 @@ TeamProfile = React.createClass({
           {this._renderShareActionButton()}
 
           {this._renderTeamBanner()}
-          <div id="team_sharing_feedback">
-            <Dialog
-              ref="modal"
-              title="Sharing Team&hellip;"
-              actionFocus="submit"
-              modal={true}>
-              {renderSharingMessage.call(this)}
-            </Dialog>
-          </div>
+          {this._renderShareDialog()}
         </div>
       </div>
     );
+  },
+
+  _renderShareDialog: function() {
+    var standardActions = [
+      { text: 'No Thanks' },
+      { text: 'Sure!', onTouchTap: this.shareAssembledTeam, ref: 'submit' }
+    ];
+
+    if ( this.state.sharingTeam || this.state.shared) {
+      standardActions = [];
+    }
+
+    return (
+      <div id="team_sharing_feedback">
+        <Dialog
+          ref="modal"
+          title="Share Your Avengers"
+          actionFocus="submit"
+          actions={standardActions}
+          modal={true}>
+          {this._renderSharingMessage()}
+        </Dialog>
+      </div>
+    );
+  },
+
+  _renderSharingMessage: function() {
+    if ( this.state.sharingTeam ) {
+      return (
+        <div>
+          <p className="sharing-message">
+            Sharing your Avengers&hellip;
+          </p>
+          <br />
+          <Progress mode="indeterminate" size={2} />
+        </div>
+      );
+    } else if ( this.state.shared ) {
+      return (
+        <div>
+          <p className="success-message">
+            Your Avengers Shared!
+          </p>
+          <br />
+          <Progress mode="determinate" value={100} size={2} />
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <p className="facebook-share">
+            Share your team on Facebook?
+          </p>
+        </div>
+      );
+    }
   },
 
   _renderShareActionButton: function() {
     if ( this.props.loggedIn && this.props.leaderTeamId == this.props.team.id ) {
       return (
         <div id="share_team_button" className="team-floating-action-button">
-          <ActionButton onClick={this.shareAssembledTeam}>
+          <ActionButton onClick={this.showShareAssembledTeamPrompt}>
             <i className="material-icons">share</i>
           </ActionButton>
         </div>

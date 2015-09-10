@@ -41279,8 +41279,11 @@
 	    window.location = '/teams/' + this.props.team.id + '/edit';
 	  },
 
-	  shareAssembledTeam: function() {
+	  showShareAssembledTeamPrompt: function() {
 	    this.refs.modal.show();
+	  },
+
+	  shareAssembledTeam: function() {
 	    this.setState({
 	      sharingTeam: true
 	    });
@@ -41327,16 +41330,17 @@
 	               },
 
 	               function(response) {
-	                 console.log(response);
+	                 this.setState({
+	                   sharingTeam: false,
+	                   shared:      true
+	                 });
 
-	                this.setState({
-	                  sharingTeam: false,
-	                  shared:      true
-	                });
-
-	                setTimeout(function() {
-	                  this.refs.modal.dismiss();
-	                }.bind(this), 2000);
+	                 setTimeout(function() {
+	                   this.refs.modal.dismiss();
+	                   this.setState({
+	                     shared: false
+	                   });
+	                 }.bind(this), 2000);
 	               }.bind(this)
 	             );
 	            }.bind(this)
@@ -41358,30 +41362,6 @@
 	              onClick: this.shareAssembledTeam}, 
 	              React.createElement("i", {className: "material-icons"}, "share")
 	            )
-	          )
-	        );
-	      }
-	    }
-
-	    function renderSharingMessage() {
-	      if ( this.state.sharingTeam ) {
-	        return (
-	          React.createElement("div", null, 
-	            React.createElement("p", {className: "sharing-message"}, 
-	              "Sharing your Avengers…"
-	            ), 
-	            React.createElement("br", null), 
-	            React.createElement(Progress, {mode: "indeterminate", size: 2})
-	          )
-	        );
-	      } else if ( this.state.shared ) {
-	        return (
-	          React.createElement("div", null, 
-	            React.createElement("p", {className: "success-message"}, 
-	              "Your Avengers Shared!"
-	            ), 
-	            React.createElement("br", null), 
-	            React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
 	          )
 	        );
 	      }
@@ -41418,25 +41398,73 @@
 	          this._renderShareActionButton(), 
 
 	          this._renderTeamBanner(), 
-	          React.createElement("div", {id: "team_sharing_feedback"}, 
-	            React.createElement(Dialog, {
-	              ref: "modal", 
-	              title: "Sharing Team…", 
-	              actionFocus: "submit", 
-	              modal: true}, 
-	              renderSharingMessage.call(this)
-	            )
-	          )
+	          this._renderShareDialog()
 	        )
 	      )
 	    );
+	  },
+
+	  _renderShareDialog: function() {
+	    var standardActions = [
+	      { text: 'No Thanks' },
+	      { text: 'Sure!', onTouchTap: this.shareAssembledTeam, ref: 'submit' }
+	    ];
+
+	    if ( this.state.sharingTeam || this.state.shared) {
+	      standardActions = [];
+	    }
+
+	    return (
+	      React.createElement("div", {id: "team_sharing_feedback"}, 
+	        React.createElement(Dialog, {
+	          ref: "modal", 
+	          title: "Share Your Avengers", 
+	          actionFocus: "submit", 
+	          actions: standardActions, 
+	          modal: true}, 
+	          this._renderSharingMessage()
+	        )
+	      )
+	    );
+	  },
+
+	  _renderSharingMessage: function() {
+	    if ( this.state.sharingTeam ) {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "sharing-message"}, 
+	            "Sharing your Avengers…"
+	          ), 
+	          React.createElement("br", null), 
+	          React.createElement(Progress, {mode: "indeterminate", size: 2})
+	        )
+	      );
+	    } else if ( this.state.shared ) {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "success-message"}, 
+	            "Your Avengers Shared!"
+	          ), 
+	          React.createElement("br", null), 
+	          React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
+	        )
+	      );
+	    } else {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "facebook-share"}, 
+	            "Share your team on Facebook?"
+	          )
+	        )
+	      );
+	    }
 	  },
 
 	  _renderShareActionButton: function() {
 	    if ( this.props.loggedIn && this.props.leaderTeamId == this.props.team.id ) {
 	      return (
 	        React.createElement("div", {id: "share_team_button", className: "team-floating-action-button"}, 
-	          React.createElement(ActionButton, {onClick: this.shareAssembledTeam}, 
+	          React.createElement(ActionButton, {onClick: this.showShareAssembledTeamPrompt}, 
 	            React.createElement("i", {className: "material-icons"}, "share")
 	          )
 	        )
