@@ -10,21 +10,21 @@ var Group       = ReactCanvas.Group;
 
 var TeamBanner;
 var pixelRatio = window.devicePixelRatio || 1;
-var OPTIMAL_BANNER_WIDTH   = 1200 / pixelRatio;
-var OPTIMAL_BANNER_HEIGHT  = 630  / pixelRatio;
-var CHARACTER_MARGIN       = 10   / pixelRatio;
-var TOP_MARGIN             = 25   / pixelRatio;
-var CHARACTER_HEIGHT       = 50   / pixelRatio;
-var STAT_HEIGHT            = 20   / pixelRatio;
-var IMAGE_SIZE             = 110  / pixelRatio;
-var CHARACTER_FONT_SIZE    = 18   / pixelRatio;
-var STAT_FONT_SIZE         = 16   / pixelRatio;
-var CHARACTER_MARGIN_LEFT  = 50   / pixelRatio;
-var CHARACTER_NAME_WIDTH   = 200  / pixelRatio;
-var CHARACTER_IMAGE_MARGIN = 15   / pixelRatio;
-var CHARACTER_OFFSET       = 15   / pixelRatio;
-var STAT_MARGIN            = 25   / pixelRatio;
-var STAT_BAR_HEIGHT        = 10   / pixelRatio;
+var OPTIMAL_BANNER_WIDTH   = Math.ceil(1200 / pixelRatio * 10) / 10;
+var OPTIMAL_BANNER_HEIGHT  = Math.ceil(630  / pixelRatio * 10) / 10;
+var CHARACTER_MARGIN       = Math.ceil(10   / pixelRatio * 10) / 10;
+var TOP_MARGIN             = Math.ceil(25   / pixelRatio * 10) / 10;
+var CHARACTER_HEIGHT       = Math.ceil(50   / pixelRatio * 10) / 10;
+var STAT_HEIGHT            = Math.ceil(20   / pixelRatio * 10) / 10;
+var IMAGE_SIZE             = Math.ceil(110  / pixelRatio * 10) / 10;
+var CHARACTER_FONT_SIZE    = Math.ceil(18   / pixelRatio * 10) / 10;
+var STAT_FONT_SIZE         = Math.ceil(16   / pixelRatio * 10) / 10;
+var CHARACTER_MARGIN_LEFT  = Math.ceil(50   / pixelRatio * 10) / 10;
+var CHARACTER_NAME_WIDTH   = Math.ceil(200  / pixelRatio * 10) / 10;
+var CHARACTER_IMAGE_MARGIN = Math.ceil(15   / pixelRatio * 10) / 10;
+var CHARACTER_OFFSET       = Math.ceil(15   / pixelRatio * 10) / 10;
+var STAT_MARGIN            = Math.ceil(25   / pixelRatio * 10) / 10;
+var STAT_BAR_HEIGHT        = Math.ceil(10   / pixelRatio * 10) / 10;
 
 TeamBanner = React.createClass({
 
