@@ -21,4 +21,3 @@ marvel_keys.yml
 rubocop.html
 node_modules
 npm-debug.log
-/public/images/banners/*
