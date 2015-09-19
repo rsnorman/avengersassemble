@@ -15,7 +15,7 @@ Notifier = React.createClass({
   componentDidMount: function() {
 
     PubSub.subscribe( 'notification', function(eventName, message) {
-
+      console.log('got a notification', eventName, message);
       this.setState({
         message: message.text,
         type:    message.type,

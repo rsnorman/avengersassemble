@@ -28,9 +28,24 @@ module.exports = {
     // The 'module' and 'loaders' options tell webpack to use loaders.
     // @see http://webpack.github.io/docs/using-loaders.html
     module: {
+        loaderResolve: {
+          modulesDirectories: ['node_loaders']
+        },
         loaders: [{
+            test: /\.js.?/,
+            loader: 'log_remover'
+        },{
+            test: /\.js.?/,
+            loader: 'log_warner'
+        },{
+            test: /\.js.?/,
+            loader: 'log_exceptions'
+        },{
+            test: /\.clog.?/,
+            loader: 'log_processor'
+        },{
             test: /\.jsx?$/,
             loader: 'jsx-loader'
-        }]
+        },] // These run from bottom to top
     }
 };

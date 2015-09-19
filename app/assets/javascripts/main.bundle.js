@@ -39952,7 +39952,7 @@
 	  componentDidMount: function() {
 
 	    PubSub.subscribe( 'notification', function(eventName, message) {
-
+	      
 	      this.setState({
 	        message: message.text,
 	        type:    message.type,
@@ -41305,7 +41305,7 @@
 	        openGraphType = namespace + ':avengers_team';
 
 	        FB.login(function(){
-	          console.log(data);
+	          
 
 	          var objectData = {
 	            'og:url':         data.banner.team.url,
@@ -41315,9 +41315,9 @@
 	            'og:description': 'Currently ranked #' + data.banner.team.rank
 	          };
 
-	          console.log('open graph type', openGraphType);
-	          console.log('object data', objectData);
-	          console.log('namespace', namespace);
+	          
+	          
+	          
 
 	          FB.api(
 	            'me/objects/' + openGraphType,
@@ -41327,7 +41327,7 @@
 	            },
 
 	           function(response) {
-	             console.log('object', response.id);
+	             
 
 	             FB.api(
 	               'me/' + namespace + ':assemble',
@@ -41337,7 +41337,7 @@
 	               },
 
 	               function(response) {
-	                 console.log('action', response.id);
+	                 
 	                 this.setState({
 	                   sharingTeam: false,
 	                   shared:      true
@@ -41356,7 +41356,7 @@
 	        }.bind(this), {scope: 'publish_actions'});
 	      }.bind(this),
 	      error: function() {
-	        console.log(arguments);
+	        
 	      }
 	    });
 	  },
