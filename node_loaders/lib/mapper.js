@@ -77,7 +77,7 @@ function mapAllCalls(content) {
  * @param {String} content content that may contain "console.log" calls
  * @return {Object} containing content and where "console.log" calls occurred
  */
-function LogMapper(content) {
+function LogMapper(content, lineExceptions) {
   return mapAllCalls(content)
 };
 

@@ -7,10 +7,9 @@
 'use strict';
 
 var LogExceptions = require('./lib/exceptions');
-var path = require("path");
-var loaderUtils = require("loader-utils");
-
-var EXCEPTIONS_FILENAME = './log_hunter/exceptions.json'
+var path = require('path');
+var fs = require('fs');
+var loaderUtils = require('loader-utils');
 
 function fileExists(content) {
   return false;
@@ -24,32 +23,24 @@ function fileExists(content) {
  */
 function LogExceptionsLoader(content) {
   var callback, config, exceptionsPath;
-  //
-  exceptionsPath = path.resolve(EXCEPTIONS_FILENAME);
-  console.log(exceptionsPath);
-  //
-  // this.addDependency(exceptionsPath);
-  //
-  // this.cacheable && this.cacheable();
-  // callback = this.async();
-  //
-  // config = loaderUtils.parseQuery(this.query);
-  //
-  // if (fileExists(exceptionsPath) && !config.force) {
-  //   return;
-  // }
-  //
-  // if (!!callback) {
-  //   new LogExceptions(content).createFile(exceptionsPath, function success() {
-  //     console.log(content);
-  //     callback(content);
-  //   });
-  // } else {
-  //   new LogExceptions(content, exceptionsPath).createFile();
-  //   return content;
-  // }
+  exceptionsPath = path.resoEXCEPTIONS_PATH);
+
+   this.cacheable && this.cacheable();
+
+   callback = this.async();
+
+   if (callback) {
+     new LogExceptions(content).createFile(exceptionsPath, function success() {
+       callback(null, content);
+     });
+   } else {
+     new LogExceptions(content).createFile(exceptionsPath);
+     return content;
+   }
 
   return content;
 }
+
+LogExceptionsLoader.EXCEPTIONS_PATH = path.resolve('/.log-exceptions.json');
 
 module.exports = LogExceptionsLoader;

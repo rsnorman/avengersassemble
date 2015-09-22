@@ -16,6 +16,9 @@ Notifier = React.createClass({
 
     PubSub.subscribe( 'notification', function(eventName, message) {
       console.log('got a notification', eventName, message);
+      console.log('another message');
+      console.log('here');
+      console.log('remove it');
       this.setState({
         message: message.text,
         type:    message.type,

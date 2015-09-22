@@ -7,7 +7,10 @@
 'use strict';
 
 var LogMapper = require('./lib/mapper');
+var LogExceptions = require('./lib/exceptions');
 var loaderUtils = require('loader-utils');
+var path = require('path');
+
 
 /**
  * Creates a warning message for all "console.log" occurrences
@@ -17,11 +20,27 @@ var loaderUtils = require('loader-utils');
  */
 function createWarningMessage(logOccurrences) {
   var message;
+
   message = 'Found ' + logOccurrences.length + ' "console.log" statements\n'
 
   return logOccurrences.reduce(function(msg, occurrence) {
-    return msg + '  `' + occurrence.content + '` on line ' + occurrence.lineNumber + '\n';
+    return msg + '  "' + occurrence.content + '" on line ' + occurrence.lineNumber + '\n';
   }, message);
+}
+
+function removeExceptions(logOccurrences, exceptions) {
+  return logOccurrences.filter(function(occurrence) {
+    return exceptions.indexOf(occurrence.lineNumber) === -1;
+  })
+}
+
+function commentContent(content, message) {
+  var commentWarning;
+  commentWarning = message.split('\n').map(function(line) {
+    return '// ' + line;
+  }).join('\n');
+
+  return commentWarning + '\n\n' + content;
 }
 
 /**
@@ -31,21 +50,51 @@ function createWarningMessage(logOccurrences) {
  * @return {String} original content with or without "console.log" statements
  */
 function LogMapperLoader(content) {
-  var config, logMap, emitter;
+  var config, logMap, emitter, callback,
+  logExceptions, lineExceptions, warningMsg;
 
   this.cacheable && this.cacheable();
+  //callback = this.async();
+  callback = null;
 
   config = loaderUtils.parseQuery(this.query);
-
-  logMap = new LogMapper(content);
-
   emitter = config.emitError ? this.emitError : this.emitWarning;
 
-  if ( !!emitter && logMap.length > 0 ) {
-    emitter(createWarningMessage(logMap));
-  }
+  logMap = new LogMapper(content);
+  logExceptions = new LogExceptions(this.resource);
 
-  return content;
+  if (callback) {
+    logExceptions.allAsync().then(function(exceptions) {
+
+      if (lineExceptions.length > 0) {
+        this.addDependency(path.resolve(LogExceptions.EXCEPTIONS_PATH));
+        logMap = removeExceptions(logMap, logExceptions.all());
+      }
+
+      warningMsg = createWarningMessage(logMap);
+
+      if ( emitter && logMap.length > 0 ) {
+        emitter(warningMsg);
+      }
+
+      callback(null, commentContent(content, warningMsg));
+    });
+  } else {
+    lineExceptions = logExceptions.all();
+
+    if (lineExceptions.length > 0) {
+      this.addDependency(path.resolve(LogExceptions.EXCEPTIONS_PATH));
+      logMap = removeExceptions(logMap, logExceptions.all());
+    }
+
+    warningMsg = createWarningMessage(logMap);
+
+    if ( emitter && logMap.length > 0 ) {
+      emitter(warningMsg);
+    }
+
+    return commentContent(content, warningMsg);
+  }
 }
 
 module.exports = LogMapperLoader;

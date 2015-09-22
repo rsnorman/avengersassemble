@@ -33,13 +33,7 @@ module.exports = {
         },
         loaders: [{
             test: /\.js.?/,
-            loader: 'log_remover'
-        },{
-            test: /\.js.?/,
             loader: 'log_warner'
-        },{
-            test: /\.js.?/,
-            loader: 'log_exceptions'
         },{
             test: /\.clog.?/,
             loader: 'log_processor'
