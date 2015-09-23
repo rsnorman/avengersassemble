@@ -34,7 +34,7 @@ function removeExceptions(logOccurrences, exceptions) {
   })
 }
 
-function getLogOccurrences(content, exceptionFile) {
+function getLogOccurrencesSync(content, exceptionFile) {
   var skipLines, logExceptions, logOccurrences;
 
   if (exceptionFile) {
@@ -48,6 +48,25 @@ function getLogOccurrences(content, exceptionFile) {
   return removeExceptions(logOccurrences, skipLines);
 }
 
+function getLogOccurrences(content, exceptionFile, callback) {
+  var skipLines, logExceptions, logOccurrences;
+
+  if (callback) {
+    logOccurrences = logMapper(content);
+
+    if (exceptionFile) {
+      logExceptions = new LogExceptions(exceptionFile);
+      logExceptions.forResourceAsync(this.resource).then(function(skipLines) {
+        callback(null, removeExceptions(logOccurrences, skipLines));
+      });
+    } else {
+      callback(null, logOccurrences);
+    }
+  } else {
+    return getLogOccurrencesSync.call(this, content, exceptionFile);
+  }
+}
+
 function commentContent(content, message) {
   var commentWarning;
   commentWarning = message.split('\n').map(function(line) {
@@ -59,7 +78,7 @@ function commentContent(content, message) {
 
 
 
-var EXCEPTIONS_PATH = './log-exceptions.json';
+var EXCEPTIONS_PATH = path.resolve('./log-exceptions.json');
 
 
 
@@ -74,17 +93,35 @@ function LogHunterLoader(content) {
 
   emitter = config.emitError ? this.emitError : this.emitWarning;
 
-  this.addDependency(path.resolve(EXCEPTIONS_PATH));
+  this.addDependency(EXCEPTIONS_PATH);
 
-  logOccurrences = getLogOccurrences.call(this, content, EXCEPTIONS_PATH);
+  callback = this.async();
 
-  warningMessage = createWarningMessage(logOccurrences);
+  if (callback) {
+    getLogOccurrences.call(this, content, EXCEPTIONS_PATH, function(err, logOccurrences) {
+      warningMessage = createWarningMessage(logOccurrences);
 
-  if (logOccurrences.length > 0) {
-    emitter && emitter(warningMessage);
+      if (logOccurrences.length > 0) {
+        emitter && emitter(warningMessage);
+
+        callback(null, commentContent(content, warningMessage));
+      } else {
+        callback(null, content);
+      }
+    });
+  } else {
+    logOccurrences = getLogOccurrences.call(this, content, EXCEPTIONS_PATH);
+
+    warningMessage = createWarningMessage(logOccurrences);
+
+    if (logOccurrences.length > 0) {
+      emitter && emitter(warningMessage);
+
+      return commentContent(content, warningMessage);
+    } else {
+      return content;
+    }
   }
-
-  return commentContent(content, warningMessage);
 }
 
 module.exports = LogHunterLoader;
