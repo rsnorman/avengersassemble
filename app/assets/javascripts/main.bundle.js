@@ -40865,9 +40865,8 @@
 /* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Found 2 "console.log" statements
+	// Found 1 "console.log" statements
 	//   "console.log('here');" on line 20
-	//   "console.log('remove it');" on line 21
 	// 
 
 	var React = __webpack_require__(3);

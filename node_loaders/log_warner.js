@@ -54,21 +54,20 @@ function LogMapperLoader(content) {
   logExceptions, lineExceptions, warningMsg;
 
   this.cacheable && this.cacheable();
-  //callback = this.async();
-  callback = null;
+  callback = this.async();
 
   config = loaderUtils.parseQuery(this.query);
   emitter = config.emitError ? this.emitError : this.emitWarning;
 
   logMap = new LogMapper(content);
   logExceptions = new LogExceptions(this.resource);
+  this.addDependency(path.resolve(LogExceptions.EXCEPTIONS_PATH));
 
   if (callback) {
-    logExceptions.allAsync().then(function(exceptions) {
+    logExceptions.allAsync().then(function(lineExceptions) {
 
       if (lineExceptions.length > 0) {
-        this.addDependency(path.resolve(LogExceptions.EXCEPTIONS_PATH));
-        logMap = removeExceptions(logMap, logExceptions.all());
+        logMap = removeExceptions(logMap, lineExceptions);
       }
 
       warningMsg = createWarningMessage(logMap);
@@ -78,12 +77,12 @@ function LogMapperLoader(content) {
       }
 
       callback(null, commentContent(content, warningMsg));
-    });
+
+    }.bind(this));
   } else {
     lineExceptions = logExceptions.all();
 
     if (lineExceptions.length > 0) {
-      this.addDependency(path.resolve(LogExceptions.EXCEPTIONS_PATH));
       logMap = removeExceptions(logMap, logExceptions.all());
     }
 
