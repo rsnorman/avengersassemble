@@ -41,9 +41,15 @@ function commentContent(content, message) {
  * @return {String} original content with or without "console.log" statements
  */
 function LogHunterLoader(content) {
-  var logMap, warningMessage;
+  var logMap, warningMessage, emitter;
   logMap = LogMapper(content);
   warningMessage = createWarningMessage(logMap);
+
+  emitter = this.emitWarning;
+  if ( logMap.length > 0 ) {
+    emitter && emitter(warningMessage);
+  }
+
   return commentContent(content, warningMessage);
 }
 
