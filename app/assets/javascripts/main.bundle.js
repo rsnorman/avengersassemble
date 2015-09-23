@@ -40865,8 +40865,11 @@
 /* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Found 1 "console.log" statements
+	// Found 4 "console.log" statements
+	//   "console.log('got a notification', eventName, message);" on line 18
+	//   "console.log('another message');" on line 19
 	//   "console.log('here');" on line 20
+	//   "console.log('remove it');" on line 21
 	// 
 
 	var React = __webpack_require__(3);
@@ -42207,12 +42210,14 @@
 /* 321 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// Found 5 "console.log" statements
+	// Found 7 "console.log" statements
 	//   "console.log(data);" on line 66
+	//   "console.log('open graph type', openGraphType);" on line 76
 	//   "console.log('object data', objectData);" on line 77
 	//   "console.log('namespace', namespace);" on line 78
 	//   "console.log('object', response.id);" on line 88
 	//   "console.log('action', response.id);" on line 98
+	//   "console.log(arguments);" on line 117
 	// 
 
 	var React          = __webpack_require__(3);
