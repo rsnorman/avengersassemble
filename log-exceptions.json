@@ -1,7 +1,7 @@
 [
   {
     "filename": "/components/notifier.js.jsx",
-    "lines": [18, 19, 21]
+    "lines": [18, 19]
   }, {
     "filename": "/components/team_profile/team_profile.js.jsx",
     "lines": [76, 117]

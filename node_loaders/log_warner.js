@@ -6,8 +6,12 @@
 
 'use strict';
 
-var LogMapper = require('./lib/mapper');
+var logMapper = require('./lib/mapper');
+var LogExceptions = require('./lib/exceptions');
+var path = require('path');
 var loaderUtils = require('loader-utils');
+
+var EXCEPTIONS_PATH = './log-exceptions.json';
 
 /**
  * Creates a warning message for all "console.log" occurrences
@@ -23,6 +27,12 @@ function createWarningMessage(logOccurrences) {
   return logOccurrences.reduce(function(msg, occurrence) {
     return msg + '  "' + occurrence.content + '" on line ' + occurrence.lineNumber + '\n';
   }, message);
+}
+
+function removeExceptions(logOccurrences, exceptions) {
+  return logOccurrences.filter(function(occurrence) {
+    return exceptions.indexOf(occurrence.lineNumber) === -1;
+  })
 }
 
 function commentContent(content, message) {
@@ -41,18 +51,51 @@ function commentContent(content, message) {
  * @return {String} original content with or without "console.log" statements
  */
 function LogHunterLoader(content) {
-  var logMap, warningMessage, emitter, config;
-  logMap = LogMapper(content);
-  warningMessage = createWarningMessage(logMap);
+  var logMap, warningMessage, emitter,
+  config, skipLines, logExceptions, callback;
 
   config = loaderUtils.parseQuery(this.query);
 
   emitter = config.emitError ? this.emitError : this.emitWarning;
-  if ( logMap.length > 0 ) {
-    emitter && emitter(warningMessage);
-  }
 
-  return commentContent(content, warningMessage);
+  this.cacheable && this.cacheable();
+
+  callback = this.async();
+
+  logMap = LogMapper(content);
+
+  this.addDependency(path.resolve(EXCEPTIONS_PATH));
+  logExceptions = new LogExceptions(EXCEPTIONS_PATH);
+
+  if (callback) {
+    logExceptions.allAsync(this.resource).then(function(skipLines) {
+      logMap = removeExceptions(logMap, skipLines);
+
+      warningMessage = createWarningMessage(logMap);
+
+      if ( logMap.length > 0 ) {
+        emitter && emitter(warningMessage);
+      }
+
+      callback(null, commentContent(content, warningMessage));
+    });
+  } else {
+
+    skipLines = logExceptions.all(this.resource);
+    logMap = removeExceptions(logMap, skipLines);
+
+    warningMessage = createWarningMessage(logMap);
+
+    config = loaderUtils.parseQuery(this.query);
+
+    emitter = config.emitError ? this.emitError : this.emitWarning;
+
+    if ( logMap.length > 0 ) {
+      emitter && emitter(warningMessage);
+    }
+
+    return commentContent(content, warningMessage);
+  }
 }
 
 module.exports = LogHunterLoader;

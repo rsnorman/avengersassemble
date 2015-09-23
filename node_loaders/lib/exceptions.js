@@ -11,50 +11,51 @@ var Promise = require('bluebird');
 var path = require('path');
 Promise.promisifyAll(fs);
 
-var EXCEPTIONS_FILENAME = './log-exceptions.json';
+function LogExceptions(exceptionFilename) {
 
-
-function LogExceptions(contentFile) {
-
-  function getExceptionFile(exceptionFile) {
-    return contentFile.indexOf(path.resolve(exceptionFile.filename)) !== -1;
+  function getResourceFileExceptionData(resourceFile, resourceData) {
+    return resourceFile.indexOf(path.resolve(resourceData.filename)) !== -1;
   }
 
-  function getLineNumbers(exceptionFile) {
-    return exceptionFile.lines;
+  function getSkipLineNumbers(resourceData) {
+    return resourceData.lines;
   }
 
-  this.all = function() {
+  this.forResource = function(resourceFilename) {
     var exceptionData, exceptions;
 
     try {
-      fs.accessSync(LogExceptions.EXCEPTIONS_PATH, fs.R_OK | fs.W_OK);
+      fs.accessSync(exceptionFilename, fs.R_OK | fs.W_OK);
     } catch(_e) {
       return [];
     }
 
-    exceptionData = fs.readFileSync(LogExceptions.EXCEPTIONS_PATH, 'utf8');
+    exceptionData = fs.readFileSync(exceptionFilename, 'utf8');
     exceptions = JSON.parse(exceptionData);
 
     return exceptions
-    .filter(getExceptionFile)
-    .map(getLineNumbers)
+    .filter(function(resourceData) {
+      return getResourceFileExceptionData(resourceFilename, resourceData);
+    })
+    .map(getSkipLineNumbers)
     .reduce(function(lines, lineNumbers) {
       return lines.concat(lineNumbers);
     }, []);
   };
 
-  this.allAsync = function(callback) {
+  this.forResourceAsync = function(resourceFilename, callback) {
    return new Promise(function(resolve, reject) {
-      fs.accessAsync(LogExceptions.EXCEPTIONS_PATH, fs.R_OK | fs.W_OK).then(function() {
-        fs.readFileAsync(LogExceptions.EXCEPTIONS_PATH, 'utf8').then(function(exceptionData) {
+      fs.accessAsync(exceptionFilename, fs.R_OK | fs.W_OK).then(function() {
+        fs.readFileAsync(exceptionFilename, 'utf8').then(function(exceptionData) {
           var exceptions;
           exceptions = JSON.parse(exceptionData);
 
           resolve(
             exceptions
-            .filter(getExceptionFile)
-            .map(getLineNumbers)
+            .filter(function(resourceData) {
+              return getResourceFileExceptionData(resourceFilename, resourceData);
+            })
+            .map(getSkipLineNumbers)
             .reduce(function(lines, lineNumbers) {
               return lines.concat(lineNumbers);
             }, [])
@@ -69,7 +70,5 @@ function LogExceptions(contentFile) {
     });
   };
 };
-
-LogExceptions.EXCEPTIONS_PATH = './log-exceptions.json';
 
 module.exports = LogExceptions;
