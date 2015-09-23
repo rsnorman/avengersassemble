@@ -41,6 +41,10 @@ function commentContent(content, message) {
  * @return {String} original content with or without "console.log" statements
  */
 function LogHunterLoader(content) {
+  var logMap, warningMessage;
+  logMap = LogMapper(content);
+  warningMessage = createWarningMessage(logMap);
+  return commentContent(content, warningMessage);
 }
 
 module.exports = LogHunterLoader;
