@@ -33,7 +33,8 @@ module.exports = {
         },
         loaders: [{
             test: /\.js.?/,
-            loader: 'log_warner?emitError=false'
+            loader: 'log_warner'
+            //loader: 'log_warner?emitError=true'
         }, {
             test: /\.jsx?$/,
             loader: 'jsx-loader'

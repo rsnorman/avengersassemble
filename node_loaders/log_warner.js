@@ -11,7 +11,6 @@ var LogExceptions = require('./lib/exceptions');
 var path = require('path');
 var loaderUtils = require('loader-utils');
 
-var EXCEPTIONS_PATH = './log-exceptions.json';
 
 /**
  * Creates a warning message for all "console.log" occurrences
@@ -35,6 +34,20 @@ function removeExceptions(logOccurrences, exceptions) {
   })
 }
 
+function getLogOccurrences(content, exceptionFile) {
+  var skipLines, logExceptions, logOccurrences;
+
+  if (exceptionFile) {
+    logExceptions = new LogExceptions(exceptionFile);
+    skipLines = logExceptions.forResource(this.resource);
+  } else {
+    skipLines = [];
+  }
+
+  logOccurrences = logMapper(content);
+  return removeExceptions(logOccurrences, skipLines);
+}
+
 function commentContent(content, message) {
   var commentWarning;
   commentWarning = message.split('\n').map(function(line) {
@@ -44,58 +57,39 @@ function commentContent(content, message) {
   return commentWarning + '\n\n' + content;
 }
 
-/**
- * Loader for finding and/or removing "console.log" statements
- *
- * @param {String} content with potential "console.log" statements
- * @return {String} original content with or without "console.log" statements
- */
+
+
+var EXCEPTIONS_PATH = './log-exceptions.json';
+
+
+
+
+
 function LogHunterLoader(content) {
-  var logMap, warningMessage, emitter,
-  config, skipLines, logExceptions, callback;
+  var logOccurrences, warningMessage, emitter, config, callback;
+
+  this.cacheable && this.cacheable();
 
   config = loaderUtils.parseQuery(this.query);
 
   emitter = config.emitError ? this.emitError : this.emitWarning;
 
-  this.cacheable && this.cacheable();
-
-  callback = this.async();
-
-  logMap = LogMapper(content);
-
   this.addDependency(path.resolve(EXCEPTIONS_PATH));
-  logExceptions = new LogExceptions(EXCEPTIONS_PATH);
 
-  if (callback) {
-    logExceptions.allAsync(this.resource).then(function(skipLines) {
-      logMap = removeExceptions(logMap, skipLines);
+  logOccurrences = getLogOccurrences.call(this, content, EXCEPTIONS_PATH);
 
-      warningMessage = createWarningMessage(logMap);
+  warningMessage = createWarningMessage(logOccurrences);
 
-      if ( logMap.length > 0 ) {
-        emitter && emitter(warningMessage);
-      }
-
-      callback(null, commentContent(content, warningMessage));
-    });
-  } else {
-
-    skipLines = logExceptions.all(this.resource);
-    logMap = removeExceptions(logMap, skipLines);
-
-    warningMessage = createWarningMessage(logMap);
-
-    config = loaderUtils.parseQuery(this.query);
-
-    emitter = config.emitError ? this.emitError : this.emitWarning;
-
-    if ( logMap.length > 0 ) {
-      emitter && emitter(warningMessage);
-    }
-
-    return commentContent(content, warningMessage);
+  if (logOccurrences.length > 0) {
+    emitter && emitter(warningMessage);
   }
+
+  return commentContent(content, warningMessage);
 }
 
 module.exports = LogHunterLoader;
+
+
+
+
+
