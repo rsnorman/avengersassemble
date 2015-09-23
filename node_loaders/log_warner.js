@@ -41,11 +41,13 @@ function commentContent(content, message) {
  * @return {String} original content with or without "console.log" statements
  */
 function LogHunterLoader(content) {
-  var logMap, warningMessage, emitter;
+  var logMap, warningMessage, emitter, config;
   logMap = LogMapper(content);
   warningMessage = createWarningMessage(logMap);
 
-  emitter = this.emitWarning;
+  config = loaderUtils.parseQuery(this.query);
+
+  emitter = config.emitError ? this.emitError : this.emitWarning;
   if ( logMap.length > 0 ) {
     emitter && emitter(warningMessage);
   }
