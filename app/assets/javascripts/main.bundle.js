@@ -41300,60 +41300,21 @@
 	        }
 	      },
 	      success: function(data) {
-	        var namespace, openGraphType;
-	        namespace = this.props.fbOpenGraphNamespace;
-	        openGraphType = namespace + ':avengers_team';
-
-	        FB.login(function(){
-	          console.log(data);
-
-	          var objectData = {
-	            'og:url':         data.banner.team.url,
-	            'og:title':       data.banner.team.name,
-	            'og:type':        openGraphType,
-	            'og:image':       data.banner.url,
-	            'og:description': 'Currently ranked #' + data.banner.team.rank
-	          };
-
-	          console.log('open graph type', openGraphType);
-	          console.log('object data', objectData);
-	          console.log('namespace', namespace);
-
-	          FB.api(
-	            'me/objects/' + openGraphType,
-	            'post',
-	            {
-	              'object': objectData
-	            },
-
-	           function(response) {
-	             console.log('object', response.id);
-
-	             FB.api(
-	               'me/' + namespace + ':assemble',
-	               'post',
-	               {
-	                 'avengers_team': response.id
-	               },
-
-	               function(response) {
-	                 console.log('action', response.id);
-	                 this.setState({
-	                   sharingTeam: false,
-	                   shared:      true
-	                 });
-
-	                 setTimeout(function() {
-	                   this.refs.modal.dismiss();
-	                   this.setState({
-	                     shared: false
-	                   });
-	                 }.bind(this), 2000);
-	               }.bind(this)
-	             );
-	            }.bind(this)
-	          );
-	        }.bind(this), {scope: 'publish_actions'});
+	        FB.ui({
+	          method:        'share',
+	          href:          data.banner.team.url,
+	          name:          data.banner.team.name,
+	          picture:       data.banner.url,
+	          description:   'Currently ranked number ' + + data.banner.team.rank +'!'
+	        }, function(response) {
+	          console.log(response);
+	          setTimeout(function() {
+	            this.refs.modal.dismiss();
+	            this.setState({
+	              shared: false
+	            });
+	          }.bind(this), 2000);
+	        });
 	      }.bind(this),
 	      error: function() {
 	        console.log(arguments);
