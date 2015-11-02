@@ -34,7 +34,7 @@ gem 'marvelite'
 
 gem 'nokogiri'
 
-gem 'rollbar', '~> 1.2.7'
+gem 'rollbar', '~> 2'
 
 gem 'rubocop', require: false
 
