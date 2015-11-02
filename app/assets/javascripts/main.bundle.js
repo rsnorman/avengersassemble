@@ -40135,7 +40135,11 @@
 	      team.isValid = true
 	    }
 
-	    localStorage.team = JSON.stringify(team);
+	    try {
+	      localStorage.team = JSON.stringify(team);
+	    } catch(e) {
+	      // Can't use local storage in private mode in Safari
+	    }
 
 	    this.setState({
 	      team: team
