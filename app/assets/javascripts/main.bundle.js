@@ -41271,8 +41271,9 @@
 
 	  getInitialState: function() {
 	    return {
+	      preparingShare: false,
 	      sharingTeam: false,
-	      shared: false
+	      shared: false,
 	    };
 	  },
 
@@ -41282,15 +41283,18 @@
 
 	  showShareAssembledTeamPrompt: function() {
 	    this.refs.modal.show();
+	    this.setState({
+	      preparingShare: true
+	    });
 	  },
 
 	  shareAssembledTeam: function() {
 	    this.setState({
-	      sharingTeam: true
+	      preparingShare: true
 	    });
 	  },
 
-	  shareTeamBanner: function() {
+	  displayShareTeam: function() {
 	    jQuery.ajax({
 	      url: '/api/v1/team_banners',
 	      method: 'POST',
@@ -41301,25 +41305,39 @@
 	        }
 	      },
 	      success: function(data) {
-	        console.log(data);
-	        FB.ui({
-	          method:        'share',
-	          href:          data.banner.team.url,
-	          name:          data.banner.team.leader.name + '\'s Avengers',
-	          picture:       data.banner.url,
-	          description:   data.banner.team.leader.name + '\'s team is currently ranked number ' + data.banner.team.rank + '! Can you assemble a stronger team of Avengers?'
-	        }, function(response) {
-	          console.log(response);
-	          setTimeout(function() {
-	            this.refs.modal.dismiss();
-	            this.setState({
-	              shared: false,
-	              sharingTeam: false,
-	            });
-	          }.bind(this), 2000);
-	        }.bind(this));
-	      }.bind(this),
+	        this.setState({
+	          preparingShare: false,
+	          banner: data,
+	        });
+	      }.bind(this)
 	    });
+	  },
+
+	  shareTeamBanner: function() {
+	    var banner;
+	    banner = this.state.banner;
+
+	    this.setState({
+	      sharingTeam: true,
+	    });
+
+	    FB.ui({
+	      method:        'share',
+	      redirectUri:   banner.team.url,
+	      href:          banner.team.url,
+	      name:          banner.team.leader.name + '\'s Avengers',
+	      picture:       banner.url,
+	      description:   banner.team.leader.name + '\'s team is currently ranked number ' + banner.team.rank + '! Can you assemble a stronger team of Avengers?'
+	    }, function(response) {
+	      console.log(response);
+	      setTimeout(function() {
+	        this.refs.modal.dismiss();
+	        this.setState({
+	          shared: false,
+	          sharingTeam: false,
+	        });
+	      }.bind(this), 2000);
+	    }.bind(this));
 	  },
 
 	  render: function() {
@@ -41375,10 +41393,10 @@
 	  _renderShareDialog: function() {
 	    var standardActions = [
 	      { text: 'No Thanks' },
-	      { text: 'Sure!', onTouchTap: this.shareAssembledTeam, ref: 'submit' }
+	      { text: 'Sure!', onTouchTap: this.shareTeamBanner, ref: 'submit' }
 	    ];
 
-	    if ( this.state.sharingTeam || this.state.shared) {
+	    if ( this.state.sharingTeam || this.state.shared || this.state.preparingShare) {
 	      standardActions = [];
 	    }
 
@@ -41417,6 +41435,16 @@
 	          React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
 	        )
 	      );
+	    } else if ( this.state.preparingShare ) {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "preparing-share-message"}, 
+	            "Preparing to share your Avengers…"
+	          ), 
+	          React.createElement("br", null), 
+	          React.createElement(Progress, {mode: "indeterminate", size: 2})
+	        )
+	      );
 	    } else {
 	      return (
 	        React.createElement("div", null, 
@@ -41447,8 +41475,8 @@
 	      React.createElement("div", {style: {visibility:'hidden', position: 'absolute', top: '0', left: '-1000px', width: 0, height: 0}}, 
 	        React.createElement(TeamBanner, {
 	          ref: "teamBanner", 
-	          visible: this.state.sharingTeam, 
-	          onRenderComplete: this.shareTeamBanner, 
+	          visible: this.state.preparingShare, 
+	          onRenderComplete: this.displayShareTeam, 
 	          team: this.props.team, 
 	          maxStats: this.props.maxStats})
 	      )
