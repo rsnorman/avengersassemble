@@ -40229,8 +40229,7 @@
 	            ref: "modal", 
 	            title: "Sign In", 
 	            actions: standardActions, 
-	            actionFocus: "submit", 
-	            modal: this.state.modal}, 
+	            actionFocus: "submit"}, 
 	            "Please sign in using your Facebook account to assemble your team."
 	          )
 	        )
@@ -40421,7 +40420,10 @@
 	    }
 	    return (
 	      React.createElement("div", {id: "team_creator_feedback"}, 
-	        React.createElement(Dialog, {ref: "modal", title: "Assembling Team"}, 
+	        React.createElement(Dialog, {
+	          ref: "modal", 
+	          title: "Assembling Team", 
+	          modal: true}, 
 	          renderMessage.call(this)
 	        )
 	      )
