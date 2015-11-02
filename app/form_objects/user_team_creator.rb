@@ -13,7 +13,8 @@ class UserTeamCreator
     @team.characters = Character.where(id: team_attributes[:character_ids])
     @team.characters.each do |character|
       Ratings::RATING_NAMES.each { |r| set_rating_value(character, r) }
-      @team.total_experience += character.experience
+      @team.total_experience +=
+        [ALLOWED_CUMULATIVE_EXPERIENCE, character.experience].min
     end
 
     @team.total_camaraderie = team_attributes[:camaraderie] || total_camaraderie
