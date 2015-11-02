@@ -35,8 +35,22 @@ TeamBanner = React.createClass({
     onRenderComplete: React.PropTypes.func
   },
 
+  getInitialState: function() {
+    return {
+      rendered: false
+    };
+  },
+
   getDataURL: function() {
     return this.refs.bannerImage.getDOMNode().toDataURL();
+  },
+
+  componentDidUpdate: function(prevProps) {
+    if ( this.props.visible && !prevProps.visible && this.state.rendered ) {
+      if ( this.props.onRenderComplete ) {
+        this.props.onRenderComplete();
+      }
+    }
   },
 
   render: function() {
@@ -211,12 +225,16 @@ TeamBanner = React.createClass({
     var team = this.props.team;
 
     if (this.props.visible) {
-
-      setTimeout(function() {
-        if ( this.props.onRenderComplete ) {
-          this.props.onRenderComplete();
-        }
-      }.bind(this), 1000);
+      if ( !this.state.rendered ) {
+        setTimeout(function() {
+          this.setState({
+            rendered: true
+          });
+          if ( this.props.onRenderComplete ) {
+            this.props.onRenderComplete();
+          }
+        }.bind(this), 1000);
+      }
 
       return (
         <Surface

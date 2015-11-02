@@ -57,7 +57,6 @@ TeamProfile = React.createClass({
         }
       },
       success: function(data) {
-        console.log(data);
         FB.ui({
           method:        'share',
           href:          data.banner.team.url,
@@ -65,18 +64,15 @@ TeamProfile = React.createClass({
           picture:       data.banner.url,
           description:   data.banner.team.leader.name + '\'s team is currently ranked number ' + data.banner.team.rank + '! Can you assemble a stronger team of Avengers?'
         }, function(response) {
-          console.log(response);
           setTimeout(function() {
             this.refs.modal.dismiss();
             this.setState({
-              shared: false
+              shared: false,
+              sharingTeam: false,
             });
           }.bind(this), 2000);
         }.bind(this));
       }.bind(this),
-      error: function() {
-        console.log(arguments);
-      }
     });
   },
 
@@ -85,8 +81,7 @@ TeamProfile = React.createClass({
       if ( this.props.leaderTeamId === this.props.team.id ) {
         return (
           <div id="edit_team_button" className="team-floating-action-button">
-            <ActionButton
-              onClick={this.shareAssembledTeam} >
+            <ActionButton onClick={this.shareAssembledTeam}>
               <i className="material-icons">share</i>
             </ActionButton>
           </div>

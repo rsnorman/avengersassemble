@@ -41299,7 +41299,6 @@
 	        }
 	      },
 	      success: function(data) {
-	        console.log(data);
 	        FB.ui({
 	          method:        'share',
 	          href:          data.banner.team.url,
@@ -41307,18 +41306,15 @@
 	          picture:       data.banner.url,
 	          description:   data.banner.team.leader.name + '\'s team is currently ranked number ' + data.banner.team.rank + '! Can you assemble a stronger team of Avengers?'
 	        }, function(response) {
-	          console.log(response);
 	          setTimeout(function() {
 	            this.refs.modal.dismiss();
 	            this.setState({
-	              shared: false
+	              shared: false,
+	              sharingTeam: false,
 	            });
 	          }.bind(this), 2000);
 	        }.bind(this));
 	      }.bind(this),
-	      error: function() {
-	        console.log(arguments);
-	      }
 	    });
 	  },
 
@@ -41327,8 +41323,7 @@
 	      if ( this.props.leaderTeamId === this.props.team.id ) {
 	        return (
 	          React.createElement("div", {id: "edit_team_button", className: "team-floating-action-button"}, 
-	            React.createElement(ActionButton, {
-	              onClick: this.shareAssembledTeam}, 
+	            React.createElement(ActionButton, {onClick: this.shareAssembledTeam}, 
 	              React.createElement("i", {className: "material-icons"}, "share")
 	            )
 	          )
@@ -41634,8 +41629,22 @@
 	    onRenderComplete: React.PropTypes.func
 	  },
 
+	  getInitialState: function() {
+	    return {
+	      rendered: false
+	    };
+	  },
+
 	  getDataURL: function() {
 	    return this.refs.bannerImage.getDOMNode().toDataURL();
+	  },
+
+	  componentDidUpdate: function(prevProps) {
+	    if ( this.props.visible && !prevProps.visible && this.state.rendered ) {
+	      if ( this.props.onRenderComplete ) {
+	        this.props.onRenderComplete();
+	      }
+	    }
 	  },
 
 	  render: function() {
@@ -41810,12 +41819,16 @@
 	    var team = this.props.team;
 
 	    if (this.props.visible) {
-
-	      setTimeout(function() {
-	        if ( this.props.onRenderComplete ) {
-	          this.props.onRenderComplete();
-	        }
-	      }.bind(this), 1000);
+	      if ( !this.state.rendered ) {
+	        setTimeout(function() {
+	          this.setState({
+	            rendered: true
+	          });
+	          if ( this.props.onRenderComplete ) {
+	            this.props.onRenderComplete();
+	          }
+	        }.bind(this), 1000);
+	      }
 
 	      return (
 	        React.createElement(Surface, {
