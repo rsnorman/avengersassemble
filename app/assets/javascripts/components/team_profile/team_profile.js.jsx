@@ -63,7 +63,7 @@ TeamProfile = React.createClass({
       success: function(data) {
         this.setState({
           preparingShare: false,
-          banner: data,
+          banner: data.banner,
         });
       }.bind(this)
     });
