@@ -41299,13 +41299,13 @@
 	        }
 	      },
 	      success: function(data) {
-	        
+	        console.log(data);
 	        FB.ui({
 	          method:        'share',
 	          href:          data.banner.team.url,
-	          name:          data.banner.team.name,
+	          name:          data.banner.team.leader.name + '\'s Avengers',
 	          picture:       data.banner.url,
-	          description:   'Currently ranked number ' + data.banner.team.rank + '!'
+	          description:   data.banner.team.leader.name + '\'s team is currently ranked number ' + data.banner.team.rank + '! Can you assemble a stronger team of Avengers?'
 	        }, function(response) {
 	          console.log(response);
 	          setTimeout(function() {
