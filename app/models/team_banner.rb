@@ -12,7 +12,9 @@ class TeamBanner
     fail ArgumentError, 'Need team_id attribute' if attributes[:team_id].nil?
 
     team = Team.find(attributes[:team_id])
-    path = IMAGE_FOLDER_PATH.tap(&:mkdir).join(
+    path = IMAGE_FOLDER_PATH.tap do |dir|
+      dir.mkdir unless File.exists?(dir)
+    end.join(
       IMAGE_NAME_TEMPLATE.gsub(
         TEAM_ID_REPLACE_TOKEN, team.characters.pluck(:id).join('-')
       )

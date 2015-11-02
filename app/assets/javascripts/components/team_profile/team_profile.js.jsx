@@ -57,6 +57,7 @@ TeamProfile = React.createClass({
         }
       },
       success: function(data) {
+        
         FB.ui({
           method:        'share',
           href:          data.banner.team.url,
