@@ -173,7 +173,10 @@ TeamCreatorFeedback = React.createClass({
     }
     return (
       <div id="team_creator_feedback">
-        <Dialog ref="modal" title="Assembling Team">
+        <Dialog
+          ref="modal"
+          title="Assembling Team"
+          modal={true}>
           {renderMessage.call(this)}
         </Dialog>
       </div>

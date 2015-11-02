@@ -196,8 +196,7 @@ TeamBuilder = React.createClass({
             ref="modal"
             title="Sign In"
             actions={standardActions}
-            actionFocus="submit"
-            modal={this.state.modal}>
+            actionFocus="submit">
             Please sign in using your Facebook account to assemble your team.
           </Dialog>
         </div>
