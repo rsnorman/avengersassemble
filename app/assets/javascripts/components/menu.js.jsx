@@ -32,6 +32,11 @@ var Menu = React.createClass({
         payload: '/teams/' + this.props.leaderTeamId,
         text: 'Your Team'
       });
+      menuItems.push({
+        type: MenuItem.Types.LINK,
+        payload: '/teams/' + this.props.leaderTeamId + '/edit',
+        text: 'Reassemble Your Team'
+      });
     } else {
       menuItems.push({
         type: MenuItem.Types.LINK,
@@ -39,6 +44,18 @@ var Menu = React.createClass({
         text: 'Assemble Team'
       });
     }
+
+    menuItems.push({
+      type: MenuItem.Types.LINK,
+      payload: '/about',
+      text: 'About'
+    });
+
+    menuItems.push({
+      type: MenuItem.Types.LINK,
+      payload: '/privacy',
+      text: 'Privacy'
+    });
 
     if ( !this.props.loggedIn ) {
       menuItems.push({

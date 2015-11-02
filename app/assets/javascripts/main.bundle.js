@@ -52,12 +52,14 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React        = __webpack_require__(3);
-	var Notifier     = __webpack_require__(310);
-	var TeamBuilder  = __webpack_require__(311);
-	var TeamRankings = __webpack_require__(2);
-	var TeamProfile  = __webpack_require__(321);
+	var Notifier     = __webpack_require__(346);
+	var TeamBuilder  = __webpack_require__(347);
+	var TeamRankings = __webpack_require__(357);
+	var TeamProfile  = __webpack_require__(2);
+	var PrivacyPage  = __webpack_require__(360);
+	var AboutPage    = __webpack_require__(361);
 
-	var injectTapEventPlugin = __webpack_require__(360);
+	var injectTapEventPlugin = __webpack_require__(362);
 
 	//Needed for onTouchTap
 	//Can go away when react 1.0 release
@@ -114,68 +116,277 @@
 	  }
 	});
 
+	$(document).on('ready page:load', function() {
+	  var aboutPageEl;
+	  aboutPageEl = document.getElementById('about_page');
+
+	  if ( aboutPageEl ) {
+	    React.render(
+	      React.createElement(AboutPage, getProps(aboutPageEl)), aboutPageEl
+	    );
+	  }
+	});
+
+	$(document).on('ready page:load', function() {
+	  var privacyPolicyPageEl;
+	  privacyPolicyPageEl = document.getElementById('privacy_policy_page');
+
+	  if ( privacyPolicyPageEl ) {
+	    React.render(
+	      React.createElement(PrivacyPage, getProps(privacyPolicyPageEl)), privacyPolicyPageEl
+	    );
+	  }
+	});
+
 
 /***/ },
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React        = __webpack_require__(3);
-	var mui          = __webpack_require__(159);
-	var List         = mui.List;
-	var Paper        = mui.Paper;
-	var Menu         = __webpack_require__(306);
-	var Team         = __webpack_require__(307);
-	var MarvelTheme  = __webpack_require__(309);
+	var React          = __webpack_require__(3);
+	var MarvelTheme    = __webpack_require__(159);
+	var Menu           = __webpack_require__(307);
+	var TeamStats      = __webpack_require__(308);
+	var TeamCharacters = __webpack_require__(309);
+	var TeamBanner     = __webpack_require__(310);
+	var mui            = __webpack_require__(160);
+	var Paper          = mui.Paper;
+	var Avatar         = mui.Avatar;
+	var ActionButton   = mui.FloatingActionButton;
+	var IconButton     = mui.IconButton;
+	var Dialog         = mui.Dialog;
+	var Progress       = mui.CircularProgress;
 
-	var TeamRankings = React.createClass({displayName: "TeamRankings",
+	var TeamProfile;
+
+	TeamProfile = React.createClass({displayName: "TeamProfile",
 
 	  mixins: [MarvelTheme],
 
 	  propTypes: {
 	    loggedIn:     React.PropTypes.bool.isRequired,
 	    leaderTeamId: React.PropTypes.number,
-	    teams:        React.PropTypes.array.isRequired
+	    team:         React.PropTypes.object.isRequired,
+	    maxStats:     React.PropTypes.object.isRequired,
+	  },
+
+	  getInitialState: function() {
+	    return {
+	      preparingShare: false,
+	      sharingTeam: false,
+	      shared: false,
+	    };
+	  },
+
+	  editAssembledTeam: function() {
+	    window.location = '/teams/' + this.props.team.id + '/edit';
+	  },
+
+	  showShareAssembledTeamPrompt: function() {
+	    this.refs.modal.show();
+	    this.setState({
+	      preparingShare: true
+	    });
+	  },
+
+	  shareAssembledTeam: function() {
+	    this.setState({
+	      preparingShare: true
+	    });
+	  },
+
+	  displayShareTeam: function() {
+	    jQuery.ajax({
+	      url: '/api/v1/team_banners',
+	      method: 'POST',
+	      dataType: 'json',
+	      data: {
+	        banner: {
+	          data: this.refs.teamBanner.getDataURL()
+	        }
+	      },
+	      success: function(data) {
+	        this.setState({
+	          preparingShare: false,
+	          banner: data.banner,
+	        });
+	      }.bind(this)
+	    });
+	  },
+
+	  shareTeamBanner: function() {
+	    var banner;
+	    banner = this.state.banner;
+
+	    this.setState({
+	      sharingTeam: true,
+	    });
+
+	    FB.ui({
+	      method:        'share',
+	      redirectUri:   banner.team.url,
+	      href:          banner.team.url,
+	      name:          banner.team.leader.name + '\'s Avengers',
+	      picture:       banner.url,
+	      description:   banner.team.leader.name + '\'s team is currently ranked number ' + banner.team.rank + '! Can you assemble a stronger team of Avengers?'
+	    }, function(response) {
+	      console.log(response);
+	      setTimeout(function() {
+	        this.refs.modal.dismiss();
+	        this.setState({
+	          shared: false,
+	          sharingTeam: false,
+	        });
+	      }.bind(this), 2000);
+	    }.bind(this));
 	  },
 
 	  render: function() {
-	    var topTeamScore;
-
-	    function createTeam(team) {
-	      topTeamScore = topTeamScore || this.props.teams[0].score;
-	      return React.createElement(Team, {team: team, maxScore: topTeamScore, key: team.id})
+	    function renderEditButton() {
+	      if ( this.props.leaderTeamId === this.props.team.id ) {
+	        return (
+	          React.createElement("div", {id: "edit_team_button", className: "team-floating-action-button"}, 
+	            React.createElement(ActionButton, {onClick: this.shareAssembledTeam}, 
+	              React.createElement("i", {className: "material-icons"}, "share")
+	            )
+	          )
+	        );
+	      }
 	    }
 
 	    return (
 	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Leaderboard", 
+	        React.createElement(Menu, {title: "Team Profile", 
 	          loggedIn: this.props.loggedIn, 
-	          leaderTeamId: this.props.leaderTeamId}
+	          leaderTeamId: this.props.leaderTeamId, 
+	          rightButton: 
+	            React.createElement(IconButton, null, 
+	              React.createElement("i", {className: "material-icons"}, "build")
+	            ), 
+	          
+	          onRightButtonClick: this.editAssembledTeam}
 	        ), 
 	        React.createElement("div", {id: "main"}, 
-	          (function() {
-	            if ( this.props.teams.length > 0 ) {
-	              return (
-	                React.createElement(List, {id: "ranking_teams"}, 
-	                  this.props.teams.map(createTeam.bind(this))
-	                )
-	              );
-	            } else {
-	              return (
-	                React.createElement(Paper, {zIndex: 1}, 
-	                  React.createElement("p", null, 
-	                    React.createElement("em", null, "No one has created any teams")
-	                  )
-	                )
-	              );
-	            }
-	          }).call(this)
+	          React.createElement(Paper, {id: "team_profile_header"}, 
+	            React.createElement(Avatar, {
+	              id: "leader_avatar", 
+	              src: this.props.team.leader.image + '?type=large', 
+	              size: 100}), 
+	            React.createElement("h4", {id: "team_name"}, this.props.team.name), 
+	            React.createElement("h5", {id: "team_rank"}, "Ranked #", this.props.team.rank), 
+	            React.createElement("div", {className: "clear"})
+	          ), 
+	          React.createElement(TeamStats, {
+	            stats: this.props.team.stats, 
+	            maxStats: this.props.maxStats}), 
+	          React.createElement(TeamCharacters, {characters: this.props.team.characters}), 
+	          renderEditButton.call(this), 
+
+	          this._renderShareActionButton(), 
+
+	          this._renderTeamBanner(), 
+	          this._renderShareDialog()
 	        )
 	      )
 	    );
+	  },
+
+	  _renderShareDialog: function() {
+	    var standardActions = [
+	      { text: 'No Thanks' },
+	      { text: 'Sure!', onTouchTap: this.shareTeamBanner, ref: 'submit' }
+	    ];
+
+	    if ( this.state.sharingTeam || this.state.shared || this.state.preparingShare) {
+	      standardActions = [];
+	    }
+
+	    return (
+	      React.createElement("div", {id: "team_sharing_feedback"}, 
+	        React.createElement(Dialog, {
+	          ref: "modal", 
+	          title: "Share Your Avengers", 
+	          actionFocus: "submit", 
+	          actions: standardActions, 
+	          modal: true}, 
+	          this._renderSharingMessage()
+	        )
+	      )
+	    );
+	  },
+
+	  _renderSharingMessage: function() {
+	    if ( this.state.sharingTeam ) {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "sharing-message"}, 
+	            "Sharing your Avengers…"
+	          ), 
+	          React.createElement("br", null), 
+	          React.createElement(Progress, {mode: "indeterminate", size: 2})
+	        )
+	      );
+	    } else if ( this.state.shared ) {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "success-message"}, 
+	            "Your Avengers Shared!"
+	          ), 
+	          React.createElement("br", null), 
+	          React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
+	        )
+	      );
+	    } else if ( this.state.preparingShare ) {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "preparing-share-message"}, 
+	            "Preparing to share your Avengers…"
+	          ), 
+	          React.createElement("br", null), 
+	          React.createElement(Progress, {mode: "indeterminate", size: 2})
+	        )
+	      );
+	    } else {
+	      return (
+	        React.createElement("div", null, 
+	          React.createElement("p", {className: "facebook-share"}, 
+	            "Share your team on Facebook?"
+	          )
+	        )
+	      );
+	    }
+	  },
+
+	  _renderShareActionButton: function() {
+	    if ( this.props.loggedIn && this.props.leaderTeamId == this.props.team.id ) {
+	      return (
+	        React.createElement("div", {id: "share_team_button", className: "team-floating-action-button"}, 
+	          React.createElement(ActionButton, {onClick: this.showShareAssembledTeamPrompt}, 
+	            React.createElement("i", {className: "material-icons"}, "share")
+	          )
+	        )
+	      );
+	    } else {
+	      return React.createElement("div", null);
+	    }
+	  },
+
+	  _renderTeamBanner: function() {
+	    return (
+	      React.createElement("div", {style: {visibility:'hidden', position: 'absolute', top: '0', left: '-1000px', width: 0, height: 0}}, 
+	        React.createElement(TeamBanner, {
+	          ref: "teamBanner", 
+	          visible: this.state.preparingShare, 
+	          onRenderComplete: this.displayShareTeam, 
+	          team: this.props.team, 
+	          maxStats: this.props.maxStats})
+	      )
+	    );
 	  }
+
 	});
 
-	module.exports = TeamRankings;
+	module.exports = TeamProfile;
 
 
 /***/ },
@@ -20557,86 +20768,130 @@
 /* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	var mui    = __webpack_require__(160);
+	var React  = __webpack_require__(3);
 
-	module.exports = {
-	  AppBar: __webpack_require__(160),
-	  AppCanvas: __webpack_require__(199),
-	  Avatar: __webpack_require__(200),
-	  BeforeAfterWrapper: __webpack_require__(201),
-	  Card: __webpack_require__(202),
-	  CardActions: __webpack_require__(203),
-	  CardHeader: __webpack_require__(204),
-	  CardMedia: __webpack_require__(211),
-	  CardText: __webpack_require__(212),
-	  CardTitle: __webpack_require__(213),
-	  Checkbox: __webpack_require__(214),
-	  CircularProgress: __webpack_require__(222),
-	  ClearFix: __webpack_require__(219),
-	  DatePicker: __webpack_require__(223),
-	  Dialog: __webpack_require__(242),
-	  DropDownIcon: __webpack_require__(247),
-	  DropDownMenu: __webpack_require__(255),
-	  EnhancedButton: __webpack_require__(185),
-	  FlatButton: __webpack_require__(243),
-	  FloatingActionButton: __webpack_require__(257),
-	  FontIcon: __webpack_require__(192),
-	  IconButton: __webpack_require__(161),
-	  IconMenu: __webpack_require__(258),
-	  LeftNav: __webpack_require__(262),
-	  LinearProgress: __webpack_require__(263),
-	  List: __webpack_require__(261),
-	  ListDivider: __webpack_require__(264),
-	  ListItem: __webpack_require__(265),
-	  Menu: __webpack_require__(249),
-	  MenuItem: __webpack_require__(251),
-	  Mixins: __webpack_require__(268),
-	  Overlay: __webpack_require__(244),
-	  Paper: __webpack_require__(198),
-	  RadioButton: __webpack_require__(272),
-	  RadioButtonGroup: __webpack_require__(275),
-	  RaisedButton: __webpack_require__(276),
-	  Ripples: __webpack_require__(277),
-	  SelectField: __webpack_require__(278),
-	  Slider: __webpack_require__(279),
-	  SvgIcon: __webpack_require__(197),
-	  Icons: {
-	    NavigationMenu: __webpack_require__(196),
-	    NavigationChevronLeft: __webpack_require__(233),
-	    NavigationChevronRight: __webpack_require__(237)
+	var ThemeManager = new mui.Styles.ThemeManager();
+	var Colors       = mui.Styles.Colors;
+
+	var redDarkTheme = {
+	  getComponentThemes: function getComponentThemes(palette) {
+	    var componentThemes;
+	    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
+	    return componentThemes;
 	  },
-	  Styles: __webpack_require__(205),
-	  Snackbar: __webpack_require__(281),
-	  Tab: __webpack_require__(282),
-	  Tabs: __webpack_require__(283),
-	  Table: __webpack_require__(286),
-	  TableFooter: __webpack_require__(291),
-	  TableHeader: __webpack_require__(287),
-	  TableHeaderColumn: __webpack_require__(288),
-	  Theme: __webpack_require__(292),
-	  Toggle: __webpack_require__(252),
-	  TimePicker: __webpack_require__(293),
-	  TextField: __webpack_require__(245),
-	  Toolbar: __webpack_require__(234),
-	  ToolbarGroup: __webpack_require__(235),
-	  ToolbarSeparator: __webpack_require__(303),
-	  ToolbarTitle: __webpack_require__(304),
-	  Tooltip: __webpack_require__(193),
-	  Utils: __webpack_require__(305)
+
+	  getPalette: function getPalette() {
+	    var palette;
+	    palette = ThemeManager.types.DARK.getPalette();
+
+	    palette.primary1Color = Colors.red500;
+	    palette.accent1Color  = Colors.red500;
+	    palette.primary3Color = Colors.red50;
+	    return palette;
+	  }
 	};
+
+	ThemeManager.setTheme(redDarkTheme);
+
+	var MarvelTheme = {
+	  getChildContext: function() {
+	    return {
+	      muiTheme: ThemeManager.getCurrentTheme()
+	    };
+	  },
+	  childContextTypes: {
+	    muiTheme: React.PropTypes.object
+	  }
+	};
+
+	module.exports = MarvelTheme;
+
 
 /***/ },
 /* 160 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	module.exports = {
+	  AppBar: __webpack_require__(161),
+	  AppCanvas: __webpack_require__(200),
+	  Avatar: __webpack_require__(201),
+	  BeforeAfterWrapper: __webpack_require__(202),
+	  Card: __webpack_require__(203),
+	  CardActions: __webpack_require__(204),
+	  CardHeader: __webpack_require__(205),
+	  CardMedia: __webpack_require__(212),
+	  CardText: __webpack_require__(213),
+	  CardTitle: __webpack_require__(214),
+	  Checkbox: __webpack_require__(215),
+	  CircularProgress: __webpack_require__(223),
+	  ClearFix: __webpack_require__(220),
+	  DatePicker: __webpack_require__(224),
+	  Dialog: __webpack_require__(243),
+	  DropDownIcon: __webpack_require__(248),
+	  DropDownMenu: __webpack_require__(256),
+	  EnhancedButton: __webpack_require__(186),
+	  FlatButton: __webpack_require__(244),
+	  FloatingActionButton: __webpack_require__(258),
+	  FontIcon: __webpack_require__(193),
+	  IconButton: __webpack_require__(162),
+	  IconMenu: __webpack_require__(259),
+	  LeftNav: __webpack_require__(263),
+	  LinearProgress: __webpack_require__(264),
+	  List: __webpack_require__(262),
+	  ListDivider: __webpack_require__(265),
+	  ListItem: __webpack_require__(266),
+	  Menu: __webpack_require__(250),
+	  MenuItem: __webpack_require__(252),
+	  Mixins: __webpack_require__(269),
+	  Overlay: __webpack_require__(245),
+	  Paper: __webpack_require__(199),
+	  RadioButton: __webpack_require__(273),
+	  RadioButtonGroup: __webpack_require__(276),
+	  RaisedButton: __webpack_require__(277),
+	  Ripples: __webpack_require__(278),
+	  SelectField: __webpack_require__(279),
+	  Slider: __webpack_require__(280),
+	  SvgIcon: __webpack_require__(198),
+	  Icons: {
+	    NavigationMenu: __webpack_require__(197),
+	    NavigationChevronLeft: __webpack_require__(234),
+	    NavigationChevronRight: __webpack_require__(238)
+	  },
+	  Styles: __webpack_require__(206),
+	  Snackbar: __webpack_require__(282),
+	  Tab: __webpack_require__(283),
+	  Tabs: __webpack_require__(284),
+	  Table: __webpack_require__(287),
+	  TableFooter: __webpack_require__(292),
+	  TableHeader: __webpack_require__(288),
+	  TableHeaderColumn: __webpack_require__(289),
+	  Theme: __webpack_require__(293),
+	  Toggle: __webpack_require__(253),
+	  TimePicker: __webpack_require__(294),
+	  TextField: __webpack_require__(246),
+	  Toolbar: __webpack_require__(235),
+	  ToolbarGroup: __webpack_require__(236),
+	  ToolbarSeparator: __webpack_require__(304),
+	  ToolbarTitle: __webpack_require__(305),
+	  Tooltip: __webpack_require__(194),
+	  Utils: __webpack_require__(306)
+	};
+
+/***/ },
+/* 161 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Typography = __webpack_require__(195);
-	var IconButton = __webpack_require__(161);
-	var NavigationMenu = __webpack_require__(196);
-	var Paper = __webpack_require__(198);
+	var StylePropable = __webpack_require__(163);
+	var Typography = __webpack_require__(196);
+	var IconButton = __webpack_require__(162);
+	var NavigationMenu = __webpack_require__(197);
+	var Paper = __webpack_require__(199);
 
 	var AppBar = React.createClass({
 	  displayName: 'AppBar',
@@ -20852,7 +21107,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 161 */
+/* 162 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20862,12 +21117,12 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var EnhancedButton = __webpack_require__(185);
-	var FontIcon = __webpack_require__(192);
-	var Tooltip = __webpack_require__(193);
-	var Children = __webpack_require__(194);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var EnhancedButton = __webpack_require__(186);
+	var FontIcon = __webpack_require__(193);
+	var Tooltip = __webpack_require__(194);
+	var Children = __webpack_require__(195);
 
 	var IconButton = React.createClass({
 	  displayName: 'IconButton',
@@ -21054,14 +21309,14 @@
 	module.exports = IconButton;
 
 /***/ },
-/* 162 */
+/* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(163);
-	var AutoPrefix = __webpack_require__(181);
-	var Extend = __webpack_require__(183);
+	var React = __webpack_require__(164);
+	var AutoPrefix = __webpack_require__(182);
+	var Extend = __webpack_require__(184);
 
 	/**
 	 *	@params:
@@ -21097,14 +21352,14 @@
 	};
 
 /***/ },
-/* 163 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(164);
+	module.exports = __webpack_require__(165);
 
 
 /***/ },
-/* 164 */
+/* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21127,18 +21382,18 @@
 
 	'use strict';
 
-	var LinkedStateMixin = __webpack_require__(165);
+	var LinkedStateMixin = __webpack_require__(166);
 	var React = __webpack_require__(4);
 	var ReactComponentWithPureRenderMixin =
-	  __webpack_require__(168);
-	var ReactCSSTransitionGroup = __webpack_require__(169);
+	  __webpack_require__(169);
+	var ReactCSSTransitionGroup = __webpack_require__(170);
 	var ReactFragment = __webpack_require__(12);
-	var ReactTransitionGroup = __webpack_require__(170);
+	var ReactTransitionGroup = __webpack_require__(171);
 	var ReactUpdates = __webpack_require__(26);
 
-	var cx = __webpack_require__(178);
-	var cloneWithProps = __webpack_require__(172);
-	var update = __webpack_require__(179);
+	var cx = __webpack_require__(179);
+	var cloneWithProps = __webpack_require__(173);
+	var update = __webpack_require__(180);
 
 	React.addons = {
 	  CSSTransitionGroup: ReactCSSTransitionGroup,
@@ -21155,7 +21410,7 @@
 
 	if ("production" !== process.env.NODE_ENV) {
 	  React.addons.Perf = __webpack_require__(152);
-	  React.addons.TestUtils = __webpack_require__(180);
+	  React.addons.TestUtils = __webpack_require__(181);
 	}
 
 	module.exports = React;
@@ -21163,7 +21418,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 165 */
+/* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21180,8 +21435,8 @@
 
 	'use strict';
 
-	var ReactLink = __webpack_require__(166);
-	var ReactStateSetters = __webpack_require__(167);
+	var ReactLink = __webpack_require__(167);
+	var ReactStateSetters = __webpack_require__(168);
 
 	/**
 	 * A simple mixin around ReactLink.forState().
@@ -21208,7 +21463,7 @@
 
 
 /***/ },
-/* 166 */
+/* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21285,7 +21540,7 @@
 
 
 /***/ },
-/* 167 */
+/* 168 */
 /***/ function(module, exports) {
 
 	/**
@@ -21395,7 +21650,7 @@
 
 
 /***/ },
-/* 168 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21448,7 +21703,7 @@
 
 
 /***/ },
-/* 169 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21470,10 +21725,10 @@
 	var assign = __webpack_require__(15);
 
 	var ReactTransitionGroup = React.createFactory(
-	  __webpack_require__(170)
+	  __webpack_require__(171)
 	);
 	var ReactCSSTransitionGroupChild = React.createFactory(
-	  __webpack_require__(175)
+	  __webpack_require__(176)
 	);
 
 	var ReactCSSTransitionGroup = React.createClass({
@@ -21522,7 +21777,7 @@
 
 
 /***/ },
-/* 170 */
+/* 171 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21539,10 +21794,10 @@
 	'use strict';
 
 	var React = __webpack_require__(4);
-	var ReactTransitionChildMapping = __webpack_require__(171);
+	var ReactTransitionChildMapping = __webpack_require__(172);
 
 	var assign = __webpack_require__(15);
-	var cloneWithProps = __webpack_require__(172);
+	var cloneWithProps = __webpack_require__(173);
 	var emptyFunction = __webpack_require__(18);
 
 	var ReactTransitionGroup = React.createClass({
@@ -21756,7 +22011,7 @@
 
 
 /***/ },
-/* 171 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21865,7 +22120,7 @@
 
 
 /***/ },
-/* 172 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21883,7 +22138,7 @@
 	'use strict';
 
 	var ReactElement = __webpack_require__(13);
-	var ReactPropTransferer = __webpack_require__(173);
+	var ReactPropTransferer = __webpack_require__(174);
 
 	var keyOf = __webpack_require__(41);
 	var warning = __webpack_require__(17);
@@ -21927,7 +22182,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 173 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21945,7 +22200,7 @@
 
 	var assign = __webpack_require__(15);
 	var emptyFunction = __webpack_require__(18);
-	var joinClasses = __webpack_require__(174);
+	var joinClasses = __webpack_require__(175);
 
 	/**
 	 * Creates a transfer strategy that will merge prop values using the supplied
@@ -22041,7 +22296,7 @@
 
 
 /***/ },
-/* 174 */
+/* 175 */
 /***/ function(module, exports) {
 
 	/**
@@ -22086,7 +22341,7 @@
 
 
 /***/ },
-/* 175 */
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22105,8 +22360,8 @@
 
 	var React = __webpack_require__(4);
 
-	var CSSCore = __webpack_require__(176);
-	var ReactTransitionEvents = __webpack_require__(177);
+	var CSSCore = __webpack_require__(177);
+	var ReactTransitionEvents = __webpack_require__(178);
 
 	var onlyChild = __webpack_require__(158);
 	var warning = __webpack_require__(17);
@@ -22237,7 +22492,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 176 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22352,7 +22607,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 177 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -22467,7 +22722,7 @@
 
 
 /***/ },
-/* 178 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22526,7 +22781,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 179 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -22700,7 +22955,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 180 */
+/* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -23218,13 +23473,13 @@
 
 
 /***/ },
-/* 181 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var isBrowser = typeof window !== 'undefined';
-	var Modernizr = isBrowser ? __webpack_require__(182) : undefined;
+	var Modernizr = isBrowser ? __webpack_require__(183) : undefined;
 
 	module.exports = {
 
@@ -23255,7 +23510,7 @@
 	};
 
 /***/ },
-/* 182 */
+/* 183 */
 /***/ function(module, exports) {
 
 	/* Modernizr 2.8.3 (Custom Build) | MIT & BSD
@@ -23518,7 +23773,7 @@
 	})(window, window.document);
 
 /***/ },
-/* 183 */
+/* 184 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -23572,12 +23827,12 @@
 	module.exports = extend;
 
 /***/ },
-/* 184 */
+/* 185 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var AutoPrefix = __webpack_require__(181);
+	var AutoPrefix = __webpack_require__(182);
 
 	module.exports = {
 
@@ -23612,7 +23867,7 @@
 	};
 
 /***/ },
-/* 185 */
+/* 186 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -23622,11 +23877,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var KeyCode = __webpack_require__(186);
-	var Colors = __webpack_require__(187);
-	var StylePropable = __webpack_require__(162);
-	var FocusRipple = __webpack_require__(188);
-	var TouchRipple = __webpack_require__(189);
+	var KeyCode = __webpack_require__(187);
+	var Colors = __webpack_require__(188);
+	var StylePropable = __webpack_require__(163);
+	var FocusRipple = __webpack_require__(189);
+	var TouchRipple = __webpack_require__(190);
 
 	var _tabPressed = false;
 
@@ -23871,7 +24126,7 @@
 	module.exports = EnhancedButton;
 
 /***/ },
-/* 186 */
+/* 187 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -23888,7 +24143,7 @@
 	};
 
 /***/ },
-/* 187 */
+/* 188 */
 /***/ function(module, exports) {
 
 	// To include this file in your project:
@@ -24188,16 +24443,16 @@
 	};
 
 /***/ },
-/* 188 */
+/* 189 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var Colors = __webpack_require__(187);
-	var AutoPrefix = __webpack_require__(181);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var Colors = __webpack_require__(188);
+	var AutoPrefix = __webpack_require__(182);
 
 	var pulsateDuration = 750;
 
@@ -24285,15 +24540,15 @@
 	module.exports = FocusRipple;
 
 /***/ },
-/* 189 */
+/* 190 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Dom = __webpack_require__(190);
-	var RippleCircle = __webpack_require__(191);
+	var StylePropable = __webpack_require__(163);
+	var Dom = __webpack_require__(191);
+	var RippleCircle = __webpack_require__(192);
 
 	var TouchRipple = React.createClass({
 	  displayName: 'TouchRipple',
@@ -24489,7 +24744,7 @@
 	module.exports = TouchRipple;
 
 /***/ },
-/* 190 */
+/* 191 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -24567,7 +24822,7 @@
 	};
 
 /***/ },
-/* 191 */
+/* 192 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24577,9 +24832,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var Colors = __webpack_require__(187);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var Colors = __webpack_require__(188);
 
 	var CircleRipple = React.createClass({
 	  displayName: 'CircleRipple',
@@ -24629,7 +24884,7 @@
 	module.exports = CircleRipple;
 
 /***/ },
-/* 192 */
+/* 193 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24639,8 +24894,8 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
 
 	var FontIcon = React.createClass({
 	  displayName: 'FontIcon',
@@ -24712,7 +24967,7 @@
 	module.exports = FontIcon;
 
 /***/ },
-/* 193 */
+/* 194 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24722,9 +24977,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var Colors = __webpack_require__(187);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var Colors = __webpack_require__(188);
 
 	var Tooltip = React.createClass({
 	  displayName: 'Tooltip',
@@ -24864,7 +25119,7 @@
 	module.exports = Tooltip;
 
 /***/ },
-/* 194 */
+/* 195 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24888,14 +25143,14 @@
 	};
 
 /***/ },
-/* 195 */
+/* 196 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var Colors = __webpack_require__(187);
+	var Colors = __webpack_require__(188);
 
 	var Typography = function Typography() {
 	  _classCallCheck(this, Typography);
@@ -24920,13 +25175,13 @@
 	module.exports = new Typography();
 
 /***/ },
-/* 196 */
+/* 197 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var NavigationMenu = React.createClass({
 	  displayName: 'NavigationMenu',
@@ -24944,7 +25199,7 @@
 	module.exports = NavigationMenu;
 
 /***/ },
-/* 197 */
+/* 198 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -24953,9 +25208,9 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
+	var React = __webpack_require__(164);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
 
 	var SvgIcon = React.createClass({
 	  displayName: 'SvgIcon',
@@ -25038,7 +25293,7 @@
 	module.exports = SvgIcon;
 
 /***/ },
-/* 198 */
+/* 199 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25048,8 +25303,8 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
 
 	var Paper = React.createClass({
 	  displayName: 'Paper',
@@ -25121,13 +25376,13 @@
 	module.exports = Paper;
 
 /***/ },
-/* 199 */
+/* 200 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var AppCanvas = React.createClass({
 	  displayName: 'AppCanvas',
@@ -25177,7 +25432,7 @@
 	module.exports = AppCanvas;
 
 /***/ },
-/* 200 */
+/* 201 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25186,9 +25441,9 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
-	var StylePropable = __webpack_require__(162);
-	var Colors = __webpack_require__(187);
+	var React = __webpack_require__(164);
+	var StylePropable = __webpack_require__(163);
+	var Colors = __webpack_require__(188);
 
 	var Avatar = React.createClass({
 	  displayName: 'Avatar',
@@ -25273,7 +25528,7 @@
 	module.exports = Avatar;
 
 /***/ },
-/* 201 */
+/* 202 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25281,8 +25536,8 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var AutoPrefix = __webpack_require__(181);
+	var StylePropable = __webpack_require__(163);
+	var AutoPrefix = __webpack_require__(182);
 
 	/**
 	 *  BeforeAfterWrapper
@@ -25377,7 +25632,7 @@
 	module.exports = BeforeAfterWrapper;
 
 /***/ },
-/* 202 */
+/* 203 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25387,8 +25642,8 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var Paper = __webpack_require__(198);
-	var StylePropable = __webpack_require__(162);
+	var Paper = __webpack_require__(199);
+	var StylePropable = __webpack_require__(163);
 
 	var Card = React.createClass({
 	  displayName: 'Card',
@@ -25430,7 +25685,7 @@
 	module.exports = Card;
 
 /***/ },
-/* 203 */
+/* 204 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25470,7 +25725,7 @@
 	module.exports = CardActions;
 
 /***/ },
-/* 204 */
+/* 205 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -25478,9 +25733,9 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var Styles = __webpack_require__(205);
-	var Avatar = __webpack_require__(200);
-	var StylePropable = __webpack_require__(162);
+	var Styles = __webpack_require__(206);
+	var Avatar = __webpack_require__(201);
+	var StylePropable = __webpack_require__(163);
 
 	var CardHeader = React.createClass({
 	  displayName: 'CardHeader',
@@ -25570,31 +25825,31 @@
 	module.exports = CardHeader;
 
 /***/ },
-/* 205 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = {
-	  AutoPrefix: __webpack_require__(181),
-	  Colors: __webpack_require__(187),
-	  Spacing: __webpack_require__(208),
-	  ThemeManager: __webpack_require__(206),
-	  Transitions: __webpack_require__(184),
-	  Typography: __webpack_require__(195)
-	};
-
-/***/ },
 /* 206 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Extend = __webpack_require__(183);
+	module.exports = {
+	  AutoPrefix: __webpack_require__(182),
+	  Colors: __webpack_require__(188),
+	  Spacing: __webpack_require__(209),
+	  ThemeManager: __webpack_require__(207),
+	  Transitions: __webpack_require__(185),
+	  Typography: __webpack_require__(196)
+	};
+
+/***/ },
+/* 207 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var Extend = __webpack_require__(184);
 
 	var Types = {
-	  LIGHT: __webpack_require__(207),
-	  DARK: __webpack_require__(210)
+	  LIGHT: __webpack_require__(208),
+	  DARK: __webpack_require__(211)
 	};
 
 	var ThemeManager = function ThemeManager() {
@@ -25638,14 +25893,14 @@
 	module.exports = ThemeManager;
 
 /***/ },
-/* 207 */
+/* 208 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Colors = __webpack_require__(187);
-	var Spacing = __webpack_require__(208);
-	var ColorManipulator = __webpack_require__(209);
+	var Colors = __webpack_require__(188);
+	var Spacing = __webpack_require__(209);
+	var ColorManipulator = __webpack_require__(210);
 
 	/**
 	 *  Light Theme is the default theme used in material-ui. It is guaranteed to
@@ -25859,7 +26114,7 @@
 	module.exports = LightTheme;
 
 /***/ },
-/* 208 */
+/* 209 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -25880,7 +26135,7 @@
 	};
 
 /***/ },
-/* 209 */
+/* 210 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -26059,13 +26314,13 @@
 	};
 
 /***/ },
-/* 210 */
+/* 211 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Colors = __webpack_require__(187);
-	var ColorManipulator = __webpack_require__(209);
+	var Colors = __webpack_require__(188);
+	var ColorManipulator = __webpack_require__(210);
 
 	var DarkTheme = {
 	  getPalette: function getPalette() {
@@ -26124,7 +26379,7 @@
 	module.exports = DarkTheme;
 
 /***/ },
-/* 211 */
+/* 212 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26132,8 +26387,8 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var Styles = __webpack_require__(205);
-	var StylePropable = __webpack_require__(162);
+	var Styles = __webpack_require__(206);
+	var StylePropable = __webpack_require__(163);
 
 	var CardMedia = React.createClass({
 	  displayName: 'CardMedia',
@@ -26238,7 +26493,7 @@
 	module.exports = CardMedia;
 
 /***/ },
-/* 212 */
+/* 213 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26246,8 +26501,8 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var Styles = __webpack_require__(205);
-	var StylePropable = __webpack_require__(162);
+	var Styles = __webpack_require__(206);
+	var StylePropable = __webpack_require__(163);
 
 	var CardText = React.createClass({
 	  displayName: 'CardText',
@@ -26290,7 +26545,7 @@
 	module.exports = CardText;
 
 /***/ },
-/* 213 */
+/* 214 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26298,8 +26553,8 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var Styles = __webpack_require__(205);
-	var StylePropable = __webpack_require__(162);
+	var Styles = __webpack_require__(206);
+	var StylePropable = __webpack_require__(163);
 
 	var CardTitle = React.createClass({
 	  displayName: 'CardTitle',
@@ -26367,7 +26622,7 @@
 	module.exports = CardTitle;
 
 /***/ },
-/* 214 */
+/* 215 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -26377,11 +26632,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var EnhancedSwitch = __webpack_require__(215);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var CheckboxOutline = __webpack_require__(220);
-	var CheckboxChecked = __webpack_require__(221);
+	var EnhancedSwitch = __webpack_require__(216);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var CheckboxOutline = __webpack_require__(221);
+	var CheckboxChecked = __webpack_require__(222);
 
 	var Checkbox = React.createClass({
 	  displayName: 'Checkbox',
@@ -26529,7 +26784,7 @@
 	module.exports = Checkbox;
 
 /***/ },
-/* 215 */
+/* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -26539,15 +26794,15 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var KeyCode = __webpack_require__(186);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var UniqueId = __webpack_require__(218);
-	var WindowListenable = __webpack_require__(216);
-	var ClearFix = __webpack_require__(219);
-	var FocusRipple = __webpack_require__(188);
-	var TouchRipple = __webpack_require__(189);
-	var Paper = __webpack_require__(198);
+	var KeyCode = __webpack_require__(187);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var UniqueId = __webpack_require__(219);
+	var WindowListenable = __webpack_require__(217);
+	var ClearFix = __webpack_require__(220);
+	var FocusRipple = __webpack_require__(189);
+	var TouchRipple = __webpack_require__(190);
+	var Paper = __webpack_require__(199);
 
 	var EnhancedSwitch = React.createClass({
 	  displayName: 'EnhancedSwitch',
@@ -26945,12 +27200,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 216 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Events = __webpack_require__(217);
+	var Events = __webpack_require__(218);
 
 	module.exports = {
 
@@ -26975,7 +27230,7 @@
 	};
 
 /***/ },
-/* 217 */
+/* 218 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -27020,7 +27275,7 @@
 	};
 
 /***/ },
-/* 218 */
+/* 219 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -27034,7 +27289,7 @@
 	};
 
 /***/ },
-/* 219 */
+/* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27044,7 +27299,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var BeforeAfterWrapper = __webpack_require__(201);
+	var BeforeAfterWrapper = __webpack_require__(202);
 
 	var ClearFix = React.createClass({
 	  displayName: 'ClearFix',
@@ -27079,13 +27334,13 @@
 	module.exports = ClearFix;
 
 /***/ },
-/* 220 */
+/* 221 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var ToggleCheckBoxOutlineBlank = React.createClass({
 	  displayName: 'ToggleCheckBoxOutlineBlank',
@@ -27103,13 +27358,13 @@
 	module.exports = ToggleCheckBoxOutlineBlank;
 
 /***/ },
-/* 221 */
+/* 222 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var ToggleCheckBox = React.createClass({
 	  displayName: 'ToggleCheckBox',
@@ -27127,7 +27382,7 @@
 	module.exports = ToggleCheckBox;
 
 /***/ },
-/* 222 */
+/* 223 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27137,9 +27392,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var AutoPrefix = __webpack_require__(181);
-	var Transitions = __webpack_require__(184);
+	var StylePropable = __webpack_require__(163);
+	var AutoPrefix = __webpack_require__(182);
+	var Transitions = __webpack_require__(185);
 
 	var CircularProgress = React.createClass({
 	  displayName: 'CircularProgress',
@@ -27314,7 +27569,7 @@
 	//webkitTransitionTimingFunction: "linear",
 
 /***/ },
-/* 223 */
+/* 224 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27324,11 +27579,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var WindowListenable = __webpack_require__(216);
-	var DateTime = __webpack_require__(224);
-	var DatePickerDialog = __webpack_require__(225);
-	var TextField = __webpack_require__(245);
+	var StylePropable = __webpack_require__(163);
+	var WindowListenable = __webpack_require__(217);
+	var DateTime = __webpack_require__(225);
+	var DatePickerDialog = __webpack_require__(226);
+	var TextField = __webpack_require__(246);
 
 	var DatePicker = React.createClass({
 	  displayName: 'DatePicker',
@@ -27470,7 +27725,7 @@
 	//TO DO: open the dialog if input has focus
 
 /***/ },
-/* 224 */
+/* 225 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -27671,7 +27926,7 @@
 	};
 
 /***/ },
-/* 225 */
+/* 226 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -27681,13 +27936,13 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var WindowListenable = __webpack_require__(216);
-	var CssEvent = __webpack_require__(226);
-	var KeyCode = __webpack_require__(186);
-	var Calendar = __webpack_require__(227);
-	var Dialog = __webpack_require__(242);
-	var FlatButton = __webpack_require__(243);
+	var StylePropable = __webpack_require__(163);
+	var WindowListenable = __webpack_require__(217);
+	var CssEvent = __webpack_require__(227);
+	var KeyCode = __webpack_require__(187);
+	var Calendar = __webpack_require__(228);
+	var Dialog = __webpack_require__(243);
+	var FlatButton = __webpack_require__(244);
 
 	var DatePickerDialog = React.createClass({
 	  displayName: 'DatePickerDialog',
@@ -27866,12 +28121,12 @@
 	module.exports = DatePickerDialog;
 
 /***/ },
-/* 226 */
+/* 227 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Events = __webpack_require__(217);
+	var Events = __webpack_require__(218);
 
 	module.exports = {
 
@@ -27923,23 +28178,23 @@
 	};
 
 /***/ },
-/* 227 */
+/* 228 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var WindowListenable = __webpack_require__(216);
-	var DateTime = __webpack_require__(224);
-	var KeyCode = __webpack_require__(186);
-	var Transitions = __webpack_require__(184);
-	var CalendarMonth = __webpack_require__(228);
-	var CalendarYear = __webpack_require__(230);
-	var CalendarToolbar = __webpack_require__(232);
-	var DateDisplay = __webpack_require__(241);
-	var SlideInTransitionGroup = __webpack_require__(239);
-	var ClearFix = __webpack_require__(219);
+	var StylePropable = __webpack_require__(163);
+	var WindowListenable = __webpack_require__(217);
+	var DateTime = __webpack_require__(225);
+	var KeyCode = __webpack_require__(187);
+	var Transitions = __webpack_require__(185);
+	var CalendarMonth = __webpack_require__(229);
+	var CalendarYear = __webpack_require__(231);
+	var CalendarToolbar = __webpack_require__(233);
+	var DateDisplay = __webpack_require__(242);
+	var SlideInTransitionGroup = __webpack_require__(240);
+	var ClearFix = __webpack_require__(220);
 
 	var Calendar = React.createClass({
 	  displayName: 'Calendar',
@@ -28290,15 +28545,15 @@
 	module.exports = Calendar;
 
 /***/ },
-/* 228 */
+/* 229 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var DateTime = __webpack_require__(224);
-	var DayButton = __webpack_require__(229);
-	var ClearFix = __webpack_require__(219);
+	var DateTime = __webpack_require__(225);
+	var DayButton = __webpack_require__(230);
+	var ClearFix = __webpack_require__(220);
 
 	var CalendarMonth = React.createClass({
 	  displayName: 'CalendarMonth',
@@ -28387,7 +28642,7 @@
 	module.exports = CalendarMonth;
 
 /***/ },
-/* 229 */
+/* 230 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28397,10 +28652,10 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transition = __webpack_require__(184);
-	var DateTime = __webpack_require__(224);
-	var EnhancedButton = __webpack_require__(185);
+	var StylePropable = __webpack_require__(163);
+	var Transition = __webpack_require__(185);
+	var DateTime = __webpack_require__(225);
+	var EnhancedButton = __webpack_require__(186);
 
 	var DayButton = React.createClass({
 	  displayName: 'DayButton',
@@ -28530,7 +28785,7 @@
 	module.exports = DayButton;
 
 /***/ },
-/* 230 */
+/* 231 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28538,10 +28793,10 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Colors = __webpack_require__(187);
-	var DateTime = __webpack_require__(224);
-	var YearButton = __webpack_require__(231);
+	var StylePropable = __webpack_require__(163);
+	var Colors = __webpack_require__(188);
+	var DateTime = __webpack_require__(225);
+	var YearButton = __webpack_require__(232);
 
 	var CalendarYear = React.createClass({
 	  displayName: 'CalendarYear',
@@ -28634,7 +28889,7 @@
 	module.exports = CalendarYear;
 
 /***/ },
-/* 231 */
+/* 232 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -28644,8 +28899,8 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var EnhancedButton = __webpack_require__(185);
+	var StylePropable = __webpack_require__(163);
+	var EnhancedButton = __webpack_require__(186);
 
 	var YearButton = React.createClass({
 	  displayName: 'YearButton',
@@ -28767,21 +29022,21 @@
 	module.exports = YearButton;
 
 /***/ },
-/* 232 */
+/* 233 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var DateTime = __webpack_require__(224);
-	var IconButton = __webpack_require__(161);
-	var Toolbar = __webpack_require__(234);
-	var ToolbarGroup = __webpack_require__(235);
-	var NavigationChevronLeft = __webpack_require__(233);
-	var NavigationChevronLeftDouble = __webpack_require__(236);
-	var NavigationChevronRight = __webpack_require__(237);
-	var NavigationChevronRightDouble = __webpack_require__(238);
-	var SlideInTransitionGroup = __webpack_require__(239);
+	var DateTime = __webpack_require__(225);
+	var IconButton = __webpack_require__(162);
+	var Toolbar = __webpack_require__(235);
+	var ToolbarGroup = __webpack_require__(236);
+	var NavigationChevronLeft = __webpack_require__(234);
+	var NavigationChevronLeftDouble = __webpack_require__(237);
+	var NavigationChevronRight = __webpack_require__(238);
+	var NavigationChevronRightDouble = __webpack_require__(239);
+	var SlideInTransitionGroup = __webpack_require__(240);
 
 	var CalendarToolbar = React.createClass({
 	  displayName: 'CalendarToolbar',
@@ -28948,13 +29203,13 @@
 	module.exports = CalendarToolbar;
 
 /***/ },
-/* 233 */
+/* 234 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var NavigationChevronLeft = React.createClass({
 	  displayName: 'NavigationChevronLeft',
@@ -28972,13 +29227,13 @@
 	module.exports = NavigationChevronLeft;
 
 /***/ },
-/* 234 */
+/* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var Toolbar = React.createClass({
 	  displayName: 'Toolbar',
@@ -29022,14 +29277,14 @@
 	module.exports = Toolbar;
 
 /***/ },
-/* 235 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var Colors = __webpack_require__(187);
-	var StylePropable = __webpack_require__(162);
+	var Colors = __webpack_require__(188);
+	var StylePropable = __webpack_require__(163);
 
 	var ToolbarGroup = React.createClass({
 	  displayName: 'ToolbarGroup',
@@ -29185,13 +29440,13 @@
 	module.exports = ToolbarGroup;
 
 /***/ },
-/* 236 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var NavigationChevronLeftDouble = React.createClass({
 	  displayName: 'NavigationChevronLeftDouble',
@@ -29210,13 +29465,13 @@
 	module.exports = NavigationChevronLeftDouble;
 
 /***/ },
-/* 237 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var NavigationChevronRight = React.createClass({
 	  displayName: 'NavigationChevronRight',
@@ -29234,13 +29489,13 @@
 	module.exports = NavigationChevronRight;
 
 /***/ },
-/* 238 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var NavigationChevronRightDouble = React.createClass({
 	  displayName: 'NavigationChevronRightDouble',
@@ -29259,7 +29514,7 @@
 	module.exports = NavigationChevronRightDouble;
 
 /***/ },
-/* 239 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29268,10 +29523,10 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
+	var React = __webpack_require__(164);
 	var ReactTransitionGroup = React.addons.TransitionGroup;
-	var StylePropable = __webpack_require__(162);
-	var SlideInChild = __webpack_require__(240);
+	var StylePropable = __webpack_require__(163);
+	var SlideInChild = __webpack_require__(241);
 
 	var SlideIn = React.createClass({
 	  displayName: 'SlideIn',
@@ -29333,7 +29588,7 @@
 	module.exports = SlideIn;
 
 /***/ },
-/* 240 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29342,10 +29597,10 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
-	var StylePropable = __webpack_require__(162);
-	var AutoPrefix = __webpack_require__(181);
-	var Transitions = __webpack_require__(184);
+	var React = __webpack_require__(164);
+	var StylePropable = __webpack_require__(163);
+	var AutoPrefix = __webpack_require__(182);
+	var Transitions = __webpack_require__(185);
 
 	var SlideInChild = React.createClass({
 	  displayName: 'SlideInChild',
@@ -29415,7 +29670,7 @@
 	module.exports = SlideInChild;
 
 /***/ },
-/* 241 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29425,11 +29680,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var DateTime = __webpack_require__(224);
-	var Transitions = __webpack_require__(184);
-	var AutoPrefix = __webpack_require__(181);
-	var SlideInTransitionGroup = __webpack_require__(239);
+	var StylePropable = __webpack_require__(163);
+	var DateTime = __webpack_require__(225);
+	var Transitions = __webpack_require__(185);
+	var AutoPrefix = __webpack_require__(182);
+	var SlideInTransitionGroup = __webpack_require__(240);
 
 	var DateDisplay = React.createClass({
 	  displayName: 'DateDisplay',
@@ -29686,7 +29941,7 @@
 	module.exports = DateDisplay;
 
 /***/ },
-/* 242 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -29696,14 +29951,14 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var WindowListenable = __webpack_require__(216);
-	var CssEvent = __webpack_require__(226);
-	var KeyCode = __webpack_require__(186);
-	var Transitions = __webpack_require__(184);
-	var StylePropable = __webpack_require__(162);
-	var FlatButton = __webpack_require__(243);
-	var Overlay = __webpack_require__(244);
-	var Paper = __webpack_require__(198);
+	var WindowListenable = __webpack_require__(217);
+	var CssEvent = __webpack_require__(227);
+	var KeyCode = __webpack_require__(187);
+	var Transitions = __webpack_require__(185);
+	var StylePropable = __webpack_require__(163);
+	var FlatButton = __webpack_require__(244);
+	var Overlay = __webpack_require__(245);
+	var Paper = __webpack_require__(199);
 
 	var ReactTransitionGroup = React.addons.TransitionGroup;
 
@@ -30071,7 +30326,7 @@
 	module.exports = Dialog;
 
 /***/ },
-/* 243 */
+/* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30081,11 +30336,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var ColorManipulator = __webpack_require__(209);
-	var Typography = __webpack_require__(195);
-	var EnhancedButton = __webpack_require__(185);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var ColorManipulator = __webpack_require__(210);
+	var Typography = __webpack_require__(196);
+	var EnhancedButton = __webpack_require__(186);
 
 	function validateLabel(props, propName, componentName) {
 	  if (!props.children && !props.label) {
@@ -30235,7 +30490,7 @@
 	module.exports = FlatButton;
 
 /***/ },
-/* 244 */
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30245,9 +30500,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var Colors = __webpack_require__(187);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var Colors = __webpack_require__(188);
 
 	var Overlay = React.createClass({
 	  displayName: 'Overlay',
@@ -30349,7 +30604,7 @@
 	module.exports = Overlay;
 
 /***/ },
-/* 245 */
+/* 246 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -30359,11 +30614,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var ColorManipulator = __webpack_require__(209);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var UniqueId = __webpack_require__(218);
-	var EnhancedTextarea = __webpack_require__(246);
+	var ColorManipulator = __webpack_require__(210);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var UniqueId = __webpack_require__(219);
+	var EnhancedTextarea = __webpack_require__(247);
 
 	/**
 	 * Check if a value is valid to be displayed inside an input.
@@ -30737,7 +30992,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 246 */
+/* 247 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30747,8 +31002,8 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var AutoPrefix = __webpack_require__(181);
+	var StylePropable = __webpack_require__(163);
+	var AutoPrefix = __webpack_require__(182);
 
 	var EnhancedTextarea = React.createClass({
 	  displayName: 'EnhancedTextarea',
@@ -30901,7 +31156,7 @@
 	module.exports = EnhancedTextarea;
 
 /***/ },
-/* 247 */
+/* 248 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -30911,11 +31166,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var ClickAwayable = __webpack_require__(248);
-	var FontIcon = __webpack_require__(192);
-	var Menu = __webpack_require__(249);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var ClickAwayable = __webpack_require__(249);
+	var FontIcon = __webpack_require__(193);
+	var Menu = __webpack_require__(250);
 
 	var DropDownIcon = React.createClass({
 	  displayName: 'DropDownIcon',
@@ -31040,14 +31295,14 @@
 	// }
 
 /***/ },
-/* 248 */
+/* 249 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var Events = __webpack_require__(217);
-	var Dom = __webpack_require__(190);
+	var Events = __webpack_require__(218);
+	var Dom = __webpack_require__(191);
 
 	module.exports = {
 
@@ -31086,7 +31341,7 @@
 	};
 
 /***/ },
-/* 249 */
+/* 250 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31096,16 +31351,16 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var CssEvent = __webpack_require__(226);
-	var KeyLine = __webpack_require__(250);
-	var KeyCode = __webpack_require__(186);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var ClickAwayable = __webpack_require__(248);
-	var Paper = __webpack_require__(198);
-	var MenuItem = __webpack_require__(251);
-	var LinkMenuItem = __webpack_require__(253);
-	var SubheaderMenuItem = __webpack_require__(254);
+	var CssEvent = __webpack_require__(227);
+	var KeyLine = __webpack_require__(251);
+	var KeyCode = __webpack_require__(187);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var ClickAwayable = __webpack_require__(249);
+	var Paper = __webpack_require__(199);
+	var MenuItem = __webpack_require__(252);
+	var LinkMenuItem = __webpack_require__(254);
+	var SubheaderMenuItem = __webpack_require__(255);
 
 	/***********************
 	* Nested Menu Component
@@ -31700,7 +31955,7 @@
 	module.exports = Menu;
 
 /***/ },
-/* 250 */
+/* 251 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -31720,7 +31975,7 @@
 	};
 
 /***/ },
-/* 251 */
+/* 252 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31730,9 +31985,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var FontIcon = __webpack_require__(192);
-	var Toggle = __webpack_require__(252);
+	var StylePropable = __webpack_require__(163);
+	var FontIcon = __webpack_require__(193);
+	var Toggle = __webpack_require__(253);
 
 	var Types = {
 	  LINK: 'LINK',
@@ -31928,7 +32183,7 @@
 	module.exports = MenuItem;
 
 /***/ },
-/* 252 */
+/* 253 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -31938,10 +32193,10 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var Paper = __webpack_require__(198);
-	var EnhancedSwitch = __webpack_require__(215);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var Paper = __webpack_require__(199);
+	var EnhancedSwitch = __webpack_require__(216);
 
 	var Toggle = React.createClass({
 	  displayName: 'Toggle',
@@ -32099,7 +32354,7 @@
 	module.exports = Toggle;
 
 /***/ },
-/* 253 */
+/* 254 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32107,7 +32362,7 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var LinkMenuItem = React.createClass({
 	  displayName: 'LinkMenuItem',
@@ -32213,14 +32468,14 @@
 	module.exports = LinkMenuItem;
 
 /***/ },
-/* 254 */
+/* 255 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Typography = __webpack_require__(195);
+	var StylePropable = __webpack_require__(163);
+	var Typography = __webpack_require__(196);
 
 	var SubheaderMenuItem = React.createClass({
 	  displayName: 'SubheaderMenuItem',
@@ -32290,20 +32545,20 @@
 	module.exports = SubheaderMenuItem;
 
 /***/ },
-/* 255 */
+/* 256 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var ClickAwayable = __webpack_require__(248);
-	var KeyCode = __webpack_require__(186);
-	var DropDownArrow = __webpack_require__(256);
-	var Paper = __webpack_require__(198);
-	var Menu = __webpack_require__(249);
-	var ClearFix = __webpack_require__(219);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var ClickAwayable = __webpack_require__(249);
+	var KeyCode = __webpack_require__(187);
+	var DropDownArrow = __webpack_require__(257);
+	var Paper = __webpack_require__(199);
+	var Menu = __webpack_require__(250);
+	var ClearFix = __webpack_require__(220);
 
 	var DropDownMenu = React.createClass({
 	  displayName: 'DropDownMenu',
@@ -32612,13 +32867,13 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 256 */
+/* 257 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var NavigationArrowDropDown = React.createClass({
 	  displayName: 'NavigationArrowDropDown',
@@ -32636,7 +32891,7 @@
 	module.exports = NavigationArrowDropDown;
 
 /***/ },
-/* 257 */
+/* 258 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -32646,13 +32901,13 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var ColorManipulator = __webpack_require__(209);
-	var EnhancedButton = __webpack_require__(185);
-	var FontIcon = __webpack_require__(192);
-	var Paper = __webpack_require__(198);
-	var Children = __webpack_require__(194);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var ColorManipulator = __webpack_require__(210);
+	var EnhancedButton = __webpack_require__(186);
+	var FontIcon = __webpack_require__(193);
+	var Paper = __webpack_require__(199);
+	var Children = __webpack_require__(195);
 
 	var getZDepth = function getZDepth(disabled) {
 	  var zDepth = disabled ? 0 : 2;
@@ -32887,7 +33142,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 258 */
+/* 259 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -32896,12 +33151,12 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
+	var React = __webpack_require__(164);
 	var ReactTransitionGroup = React.addons.TransitionGroup;
-	var ClickAwayable = __webpack_require__(248);
-	var StylePropable = __webpack_require__(162);
-	var Events = __webpack_require__(217);
-	var Menu = __webpack_require__(259);
+	var ClickAwayable = __webpack_require__(249);
+	var StylePropable = __webpack_require__(163);
+	var Events = __webpack_require__(218);
+	var Menu = __webpack_require__(260);
 
 	var IconMenu = React.createClass({
 	  displayName: 'IconMenu',
@@ -33084,7 +33339,7 @@
 	module.exports = IconMenu;
 
 /***/ },
-/* 259 */
+/* 260 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33093,15 +33348,15 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
+	var React = __webpack_require__(164);
 	var update = React.addons.update;
-	var Controllable = __webpack_require__(260);
-	var StylePropable = __webpack_require__(162);
-	var AutoPrefix = __webpack_require__(181);
-	var Transitions = __webpack_require__(184);
-	var KeyCode = __webpack_require__(186);
-	var List = __webpack_require__(261);
-	var Paper = __webpack_require__(198);
+	var Controllable = __webpack_require__(261);
+	var StylePropable = __webpack_require__(163);
+	var AutoPrefix = __webpack_require__(182);
+	var Transitions = __webpack_require__(185);
+	var KeyCode = __webpack_require__(187);
+	var List = __webpack_require__(262);
+	var Paper = __webpack_require__(199);
 
 	var Menu = React.createClass({
 	  displayName: 'Menu',
@@ -33513,12 +33768,12 @@
 	module.exports = Menu;
 
 /***/ },
-/* 260 */
+/* 261 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(163);
+	var React = __webpack_require__(164);
 
 	module.exports = {
 
@@ -33547,7 +33802,7 @@
 	};
 
 /***/ },
-/* 261 */
+/* 262 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33556,10 +33811,10 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
-	var StylePropable = __webpack_require__(162);
-	var Typography = __webpack_require__(195);
-	var Paper = __webpack_require__(198);
+	var React = __webpack_require__(164);
+	var StylePropable = __webpack_require__(163);
+	var Typography = __webpack_require__(196);
+	var Paper = __webpack_require__(199);
 
 	var List = React.createClass({
 	  displayName: 'List',
@@ -33632,20 +33887,20 @@
 	module.exports = List;
 
 /***/ },
-/* 262 */
+/* 263 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var KeyCode = __webpack_require__(186);
-	var StylePropable = __webpack_require__(162);
-	var AutoPrefix = __webpack_require__(181);
-	var Transitions = __webpack_require__(184);
-	var WindowListenable = __webpack_require__(216);
-	var Overlay = __webpack_require__(244);
-	var Paper = __webpack_require__(198);
-	var Menu = __webpack_require__(249);
+	var KeyCode = __webpack_require__(187);
+	var StylePropable = __webpack_require__(163);
+	var AutoPrefix = __webpack_require__(182);
+	var Transitions = __webpack_require__(185);
+	var WindowListenable = __webpack_require__(217);
+	var Overlay = __webpack_require__(245);
+	var Paper = __webpack_require__(199);
+	var Menu = __webpack_require__(250);
 
 	var openNavEventHandler = null;
 
@@ -33956,7 +34211,7 @@
 	module.exports = LeftNav;
 
 /***/ },
-/* 263 */
+/* 264 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -33966,8 +34221,8 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
 
 	var LinearProgress = React.createClass({
 	  displayName: 'LinearProgress',
@@ -34112,7 +34367,7 @@
 	module.exports = LinearProgress;
 
 /***/ },
-/* 264 */
+/* 265 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34121,8 +34376,8 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
-	var StylePropable = __webpack_require__(162);
+	var React = __webpack_require__(164);
+	var StylePropable = __webpack_require__(163);
 
 	var ListDivider = React.createClass({
 	  displayName: 'ListDivider',
@@ -34160,7 +34415,7 @@
 	module.exports = ListDivider;
 
 /***/ },
-/* 265 */
+/* 266 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34169,17 +34424,17 @@
 
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
-	var React = __webpack_require__(163);
-	var ColorManipulator = __webpack_require__(209);
-	var StylePropable = __webpack_require__(162);
-	var Colors = __webpack_require__(187);
-	var Transitions = __webpack_require__(184);
-	var Typography = __webpack_require__(195);
-	var EnhancedButton = __webpack_require__(185);
-	var IconButton = __webpack_require__(161);
-	var OpenIcon = __webpack_require__(266);
-	var CloseIcon = __webpack_require__(256);
-	var ListNested = __webpack_require__(267);
+	var React = __webpack_require__(164);
+	var ColorManipulator = __webpack_require__(210);
+	var StylePropable = __webpack_require__(163);
+	var Colors = __webpack_require__(188);
+	var Transitions = __webpack_require__(185);
+	var Typography = __webpack_require__(196);
+	var EnhancedButton = __webpack_require__(186);
+	var IconButton = __webpack_require__(162);
+	var OpenIcon = __webpack_require__(267);
+	var CloseIcon = __webpack_require__(257);
+	var ListNested = __webpack_require__(268);
 
 	var ListItem = React.createClass({
 	  displayName: 'ListItem',
@@ -34588,13 +34843,13 @@
 	module.exports = ListItem;
 
 /***/ },
-/* 266 */
+/* 267 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var NavigationArrowDropUp = React.createClass({
 	  displayName: 'NavigationArrowDropUp',
@@ -34612,13 +34867,13 @@
 	module.exports = NavigationArrowDropUp;
 
 /***/ },
-/* 267 */
+/* 268 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var List = __webpack_require__(261);
+	var List = __webpack_require__(262);
 
 	var ListNested = React.createClass({
 	  displayName: 'ListNested',
@@ -34662,27 +34917,27 @@
 	module.exports = ListNested;
 
 /***/ },
-/* 268 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = {
-	  Classable: __webpack_require__(269),
-	  ClickAwayable: __webpack_require__(248),
-	  WindowListenable: __webpack_require__(216),
-	  StylePropable: __webpack_require__(162),
-	  StyleResizable: __webpack_require__(271)
-	};
-
-/***/ },
 /* 269 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
+	module.exports = {
+	  Classable: __webpack_require__(270),
+	  ClickAwayable: __webpack_require__(249),
+	  WindowListenable: __webpack_require__(217),
+	  StylePropable: __webpack_require__(163),
+	  StyleResizable: __webpack_require__(272)
+	};
+
+/***/ },
+/* 270 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var React = __webpack_require__(3);
-	var classNames = __webpack_require__(270);
+	var classNames = __webpack_require__(271);
 
 	module.exports = {
 
@@ -34731,7 +34986,7 @@
 	};
 
 /***/ },
-/* 270 */
+/* 271 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -34780,12 +35035,12 @@
 
 
 /***/ },
-/* 271 */
+/* 272 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Events = __webpack_require__(217);
+	var Events = __webpack_require__(218);
 
 	var Sizes = {
 	  SMALL: 1,
@@ -34833,7 +35088,7 @@
 	};
 
 /***/ },
-/* 272 */
+/* 273 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -34843,11 +35098,11 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var EnhancedSwitch = __webpack_require__(215);
-	var RadioButtonOff = __webpack_require__(273);
-	var RadioButtonOn = __webpack_require__(274);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var EnhancedSwitch = __webpack_require__(216);
+	var RadioButtonOff = __webpack_require__(274);
+	var RadioButtonOn = __webpack_require__(275);
 
 	var RadioButton = React.createClass({
 	  displayName: 'RadioButton',
@@ -34976,13 +35231,13 @@
 	module.exports = RadioButton;
 
 /***/ },
-/* 273 */
+/* 274 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var ToggleRadioButtonUnchecked = React.createClass({
 	  displayName: 'ToggleRadioButtonUnchecked',
@@ -35000,13 +35255,13 @@
 	module.exports = ToggleRadioButtonUnchecked;
 
 /***/ },
-/* 274 */
+/* 275 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var SvgIcon = __webpack_require__(197);
+	var SvgIcon = __webpack_require__(198);
 
 	var ToggleRadioButtonChecked = React.createClass({
 	  displayName: 'ToggleRadioButtonChecked',
@@ -35024,7 +35279,7 @@
 	module.exports = ToggleRadioButtonChecked;
 
 /***/ },
-/* 275 */
+/* 276 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -35034,7 +35289,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var RadioButton = __webpack_require__(272);
+	var RadioButton = __webpack_require__(273);
 
 	var RadioButtonGroup = React.createClass({
 	  displayName: 'RadioButtonGroup',
@@ -35144,7 +35399,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 276 */
+/* 277 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35154,12 +35409,12 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var ColorManipulator = __webpack_require__(209);
-	var Typography = __webpack_require__(195);
-	var EnhancedButton = __webpack_require__(185);
-	var Paper = __webpack_require__(198);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var ColorManipulator = __webpack_require__(210);
+	var Typography = __webpack_require__(196);
+	var EnhancedButton = __webpack_require__(186);
+	var Paper = __webpack_require__(199);
 
 	function validateLabel(props, propName, componentName) {
 	  if (!props.children && !props.label) {
@@ -35392,19 +35647,19 @@
 	module.exports = RaisedButton;
 
 /***/ },
-/* 277 */
+/* 278 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = {
-	  CircleRipple: __webpack_require__(191),
-	  FocusRipple: __webpack_require__(188),
-	  TouchRipple: __webpack_require__(189)
+	  CircleRipple: __webpack_require__(192),
+	  FocusRipple: __webpack_require__(189),
+	  TouchRipple: __webpack_require__(190)
 	};
 
 /***/ },
-/* 278 */
+/* 279 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35414,9 +35669,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var TextField = __webpack_require__(245);
-	var DropDownMenu = __webpack_require__(255);
+	var StylePropable = __webpack_require__(163);
+	var TextField = __webpack_require__(246);
+	var DropDownMenu = __webpack_require__(256);
 
 	var SelectField = React.createClass({
 	  displayName: 'SelectField',
@@ -35551,7 +35806,7 @@
 	module.exports = SelectField;
 
 /***/ },
-/* 279 */
+/* 280 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -35561,10 +35816,10 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Draggable = __webpack_require__(280);
-	var Transitions = __webpack_require__(184);
-	var FocusRipple = __webpack_require__(188);
+	var StylePropable = __webpack_require__(163);
+	var Draggable = __webpack_require__(281);
+	var Transitions = __webpack_require__(185);
+	var FocusRipple = __webpack_require__(189);
 
 	/**
 	  * Verifies min/max range.
@@ -36016,12 +36271,12 @@
 	module.exports = Slider;
 
 /***/ },
-/* 280 */
+/* 281 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(163);
+	var React = __webpack_require__(164);
 	var emptyFunction = function () {};
 
 	// for accessing browser globals
@@ -36691,17 +36946,17 @@
 
 
 /***/ },
-/* 281 */
+/* 282 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var CssEvent = __webpack_require__(226);
-	var StylePropable = __webpack_require__(162);
-	var Transitions = __webpack_require__(184);
-	var ClickAwayable = __webpack_require__(248);
-	var FlatButton = __webpack_require__(243);
+	var CssEvent = __webpack_require__(227);
+	var StylePropable = __webpack_require__(163);
+	var Transitions = __webpack_require__(185);
+	var ClickAwayable = __webpack_require__(249);
+	var FlatButton = __webpack_require__(244);
 
 	var Snackbar = React.createClass({
 	  displayName: 'Snackbar',
@@ -36857,14 +37112,14 @@
 	module.exports = Snackbar;
 
 /***/ },
-/* 282 */
+/* 283 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Colors = __webpack_require__(187);
+	var StylePropable = __webpack_require__(163);
+	var Colors = __webpack_require__(188);
 
 	var Tab = React.createClass({
 	  displayName: 'Tab',
@@ -36916,16 +37171,16 @@
 	module.exports = Tab;
 
 /***/ },
-/* 283 */
+/* 284 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var React = __webpack_require__(163);
-	var TabTemplate = __webpack_require__(284);
-	var InkBar = __webpack_require__(285);
-	var StylePropable = __webpack_require__(162);
-	var Events = __webpack_require__(217);
+	var React = __webpack_require__(164);
+	var TabTemplate = __webpack_require__(285);
+	var InkBar = __webpack_require__(286);
+	var StylePropable = __webpack_require__(163);
+	var Events = __webpack_require__(218);
 
 	var Tabs = React.createClass({
 	  displayName: 'Tabs',
@@ -37076,7 +37331,7 @@
 	module.exports = Tabs;
 
 /***/ },
-/* 284 */
+/* 285 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37111,14 +37366,14 @@
 	module.exports = TabTemplate;
 
 /***/ },
-/* 285 */
+/* 286 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var Transitions = __webpack_require__(184);
-	var StylePropable = __webpack_require__(162);
+	var Transitions = __webpack_require__(185);
+	var StylePropable = __webpack_require__(163);
 
 	var InkBar = React.createClass({
 	  displayName: 'InkBar',
@@ -37161,17 +37416,17 @@
 	module.exports = InkBar;
 
 /***/ },
-/* 286 */
+/* 287 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var ClickAwayable = __webpack_require__(248);
-	var TableHeader = __webpack_require__(287);
-	var TableRow = __webpack_require__(289);
-	var TableFooter = __webpack_require__(291);
+	var StylePropable = __webpack_require__(163);
+	var ClickAwayable = __webpack_require__(249);
+	var TableHeader = __webpack_require__(288);
+	var TableRow = __webpack_require__(290);
+	var TableFooter = __webpack_require__(292);
 
 	var Table = React.createClass({
 	  displayName: 'Table',
@@ -37566,7 +37821,7 @@
 	module.exports = Table;
 
 /***/ },
-/* 287 */
+/* 288 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37576,9 +37831,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var Checkbox = __webpack_require__(214);
-	var StylePropable = __webpack_require__(162);
-	var TableHeaderColumn = __webpack_require__(288);
+	var Checkbox = __webpack_require__(215);
+	var StylePropable = __webpack_require__(163);
+	var TableHeaderColumn = __webpack_require__(289);
 
 	var TableHeader = React.createClass({
 	  displayName: 'TableHeader',
@@ -37715,7 +37970,7 @@
 	module.exports = TableHeader;
 
 /***/ },
-/* 288 */
+/* 289 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -37723,8 +37978,8 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var Tooltip = __webpack_require__(193);
+	var StylePropable = __webpack_require__(163);
+	var Tooltip = __webpack_require__(194);
 
 	var TableHeaderColumn = React.createClass({
 	  displayName: 'TableHeaderColumn',
@@ -37821,15 +38076,15 @@
 	module.exports = TableHeaderColumn;
 
 /***/ },
-/* 289 */
+/* 290 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var Checkbox = __webpack_require__(214);
-	var StylePropable = __webpack_require__(162);
-	var TableRowColumn = __webpack_require__(290);
+	var Checkbox = __webpack_require__(215);
+	var StylePropable = __webpack_require__(163);
+	var TableRowColumn = __webpack_require__(291);
 
 	var TableRow = React.createClass({
 	  displayName: 'TableRow',
@@ -38012,7 +38267,7 @@
 	module.exports = TableRow;
 
 /***/ },
-/* 290 */
+/* 291 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38020,7 +38275,7 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var TableRowColumn = React.createClass({
 	  displayName: 'TableRowColumn',
@@ -38118,7 +38373,7 @@
 	module.exports = TableRowColumn;
 
 /***/ },
-/* 291 */
+/* 292 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38128,7 +38383,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var TableFooter = React.createClass({
 	  displayName: 'TableFooter',
@@ -38213,7 +38468,7 @@
 	module.exports = TableFooter;
 
 /***/ },
-/* 292 */
+/* 293 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38221,7 +38476,7 @@
 	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	var React = __webpack_require__(3);
-	var ThemeManager = __webpack_require__(206);
+	var ThemeManager = __webpack_require__(207);
 
 	var Theme = React.createClass({
 	  displayName: 'Theme',
@@ -38285,15 +38540,15 @@
 	module.exports.theme = theme;
 
 /***/ },
-/* 293 */
+/* 294 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	module.exports = __webpack_require__(294);
+	module.exports = __webpack_require__(295);
 
 /***/ },
-/* 294 */
+/* 295 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38303,10 +38558,10 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var WindowListenable = __webpack_require__(216);
-	var TimePickerDialog = __webpack_require__(295);
-	var TextField = __webpack_require__(245);
+	var StylePropable = __webpack_require__(163);
+	var WindowListenable = __webpack_require__(217);
+	var TimePickerDialog = __webpack_require__(296);
+	var TextField = __webpack_require__(246);
 
 	var emptyTime = new Date();
 	emptyTime.setHours(0);
@@ -38436,7 +38691,7 @@
 	module.exports = TimePicker;
 
 /***/ },
-/* 295 */
+/* 296 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38446,12 +38701,12 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var WindowListenable = __webpack_require__(216);
-	var KeyCode = __webpack_require__(186);
-	var Clock = __webpack_require__(296);
-	var Dialog = __webpack_require__(242);
-	var FlatButton = __webpack_require__(243);
+	var StylePropable = __webpack_require__(163);
+	var WindowListenable = __webpack_require__(217);
+	var KeyCode = __webpack_require__(187);
+	var Clock = __webpack_require__(297);
+	var Dialog = __webpack_require__(243);
+	var FlatButton = __webpack_require__(244);
 
 	var TimePickerDialog = React.createClass({
 	  displayName: 'TimePickerDialog',
@@ -38572,17 +38827,17 @@
 	module.exports = TimePickerDialog;
 
 /***/ },
-/* 296 */
+/* 297 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var TimeDisplay = __webpack_require__(298);
-	var ClockButton = __webpack_require__(297);
-	var ClockHours = __webpack_require__(299);
-	var ClockMinutes = __webpack_require__(302);
+	var StylePropable = __webpack_require__(163);
+	var TimeDisplay = __webpack_require__(299);
+	var ClockButton = __webpack_require__(298);
+	var ClockHours = __webpack_require__(300);
+	var ClockMinutes = __webpack_require__(303);
 
 	var Clock = React.createClass({
 	  displayName: 'Clock',
@@ -38748,7 +39003,7 @@
 	module.exports = Clock;
 
 /***/ },
-/* 297 */
+/* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38758,9 +39013,9 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var EnhancedButton = __webpack_require__(185);
-	var Transitions = __webpack_require__(184);
+	var StylePropable = __webpack_require__(163);
+	var EnhancedButton = __webpack_require__(186);
+	var Transitions = __webpack_require__(185);
 
 	var ClockButton = React.createClass({
 	  displayName: 'ClockButton',
@@ -38860,7 +39115,7 @@
 	module.exports = ClockButton;
 
 /***/ },
-/* 298 */
+/* 299 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -38872,7 +39127,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var TimeDisplay = React.createClass({
 	  displayName: 'TimeDisplay',
@@ -39016,15 +39271,15 @@
 	module.exports = TimeDisplay;
 
 /***/ },
-/* 299 */
+/* 300 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var ClockNumber = __webpack_require__(300);
-	var ClockPointer = __webpack_require__(301);
+	var StylePropable = __webpack_require__(163);
+	var ClockNumber = __webpack_require__(301);
+	var ClockPointer = __webpack_require__(302);
 
 	function rad2deg(rad) {
 	  return rad * 57.29577951308232;
@@ -39215,7 +39470,7 @@
 	module.exports = ClockHours;
 
 /***/ },
-/* 300 */
+/* 301 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39223,7 +39478,7 @@
 	var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var ClockNumber = React.createClass({
 	  displayName: 'ClockNumber',
@@ -39318,13 +39573,13 @@
 	module.exports = ClockNumber;
 
 /***/ },
-/* 301 */
+/* 302 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var ClockPointer = React.createClass({
 	  displayName: 'ClockPointer',
@@ -39435,15 +39690,15 @@
 	module.exports = ClockPointer;
 
 /***/ },
-/* 302 */
+/* 303 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
-	var ClockNumber = __webpack_require__(300);
-	var ClockPointer = __webpack_require__(301);
+	var StylePropable = __webpack_require__(163);
+	var ClockNumber = __webpack_require__(301);
+	var ClockPointer = __webpack_require__(302);
 
 	function rad2deg(rad) {
 	  return rad * 57.29577951308232;
@@ -39608,13 +39863,13 @@
 	module.exports = ClockMinutes;
 
 /***/ },
-/* 303 */
+/* 304 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var ToolbarSeparator = React.createClass({
 	  displayName: 'ToolbarSeparator',
@@ -39652,7 +39907,7 @@
 	module.exports = ToolbarSeparator;
 
 /***/ },
-/* 304 */
+/* 305 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -39662,7 +39917,7 @@
 	function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 	var React = __webpack_require__(3);
-	var StylePropable = __webpack_require__(162);
+	var StylePropable = __webpack_require__(163);
 
 	var ToolbarTitle = React.createClass({
 	  displayName: 'ToolbarTitle',
@@ -39708,28 +39963,28 @@
 	module.exports = ToolbarTitle;
 
 /***/ },
-/* 305 */
+/* 306 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	module.exports = {
-	  CssEvent: __webpack_require__(226),
-	  Dom: __webpack_require__(190),
-	  Events: __webpack_require__(217),
-	  KeyCode: __webpack_require__(186),
-	  KeyLine: __webpack_require__(250),
-	  ColorManipulator: __webpack_require__(209),
-	  Extend: __webpack_require__(183),
-	  UniqueId: __webpack_require__(218)
+	  CssEvent: __webpack_require__(227),
+	  Dom: __webpack_require__(191),
+	  Events: __webpack_require__(218),
+	  KeyCode: __webpack_require__(187),
+	  KeyLine: __webpack_require__(251),
+	  ColorManipulator: __webpack_require__(210),
+	  Extend: __webpack_require__(184),
+	  UniqueId: __webpack_require__(219)
 	};
 
 /***/ },
-/* 306 */
+/* 307 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React    = __webpack_require__(3);
-	var mui      = __webpack_require__(159);
+	var mui      = __webpack_require__(160);
 	var AppBar   = mui.AppBar;
 	var LeftNav  = mui.LeftNav;
 	var MenuItem = mui.MenuItem;
@@ -39762,6 +40017,11 @@
 	        payload: '/teams/' + this.props.leaderTeamId,
 	        text: 'Your Team'
 	      });
+	      menuItems.push({
+	        type: MenuItem.Types.LINK,
+	        payload: '/teams/' + this.props.leaderTeamId + '/edit',
+	        text: 'Reassemble Your Team'
+	      });
 	    } else {
 	      menuItems.push({
 	        type: MenuItem.Types.LINK,
@@ -39769,6 +40029,18 @@
 	        text: 'Assemble Team'
 	      });
 	    }
+
+	    menuItems.push({
+	      type: MenuItem.Types.LINK,
+	      payload: '/about',
+	      text: 'About'
+	    });
+
+	    menuItems.push({
+	      type: MenuItem.Types.LINK,
+	      payload: '/privacy',
+	      text: 'Privacy'
+	    });
 
 	    if ( !this.props.loggedIn ) {
 	      menuItems.push({
@@ -39802,1702 +40074,11 @@
 
 
 /***/ },
-/* 307 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React  = __webpack_require__(3);
-	var mui    = __webpack_require__(159);
-
-	var List           = mui.List;
-	var ListItem       = mui.ListItem;
-	var FontIcon       = mui.FontIcon;
-	var Paper          = mui.Paper;
-	var LinearProgress = mui.LinearProgress;
-	var Avatar         = mui.Avatar;
-	var Character      = __webpack_require__(308);
-
-
-	var Team = React.createClass({displayName: "Team",
-
-	  propTypes: {
-	    team:     React.PropTypes.object.isRequired,
-	    maxScore: React.PropTypes.number.isRequired
-	  },
-
-	  render: function() {
-	    var scorePercent, team;
-	    team = this.props.team;
-	    scorePercent = Math.round(team.score / this.props.maxScore * 100);
-
-	    function createCharacter(character, index) {
-	      return React.createElement(Character, {character: character, key: index})
-	    }
-
-	    return (
-	      React.createElement(Paper, {zDepth: 1, className: "ranking-team-container"}, 
-	        React.createElement(ListItem, {href: '/teams/' + team.id}, 
-	          React.createElement("div", {className: "ranking-team"}, 
-	            React.createElement("div", {className: "leader-icon"}, 
-	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 60})
-	            ), 
-	            React.createElement("div", {className: "team-details"}, 
-	              React.createElement("div", {className: "team-name"}, team.rank, ". ", team.name), 
-	              React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
-	              React.createElement("div", {className: "team-characters"}, 
-	                team.characters.map(createCharacter.bind(this))
-	              )
-	            )
-	          )
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = Team;
-
-
-/***/ },
 /* 308 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var React  = __webpack_require__(3);
-	var mui    = __webpack_require__(159);
-	var Avatar = mui.Avatar;
-
-
-	var Character = React.createClass({displayName: "Character",
-
-	  propTypes: {
-	    character: React.PropTypes.object.isRequired
-	  },
-
-	  render: function() {
-	    var character;
-	    character = this.props.character;
-
-	    return (
-	      React.createElement("div", {className: "team-character"}, 
-	        React.createElement(Avatar, {src: character.thumbnail_url, size: 40, key: character.id})
-	      )
-	    );
-	  }
-	});
-
-	module.exports = Character;
-
-
-/***/ },
-/* 309 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var mui    = __webpack_require__(159);
-	var React  = __webpack_require__(3);
-
-	var ThemeManager = new mui.Styles.ThemeManager();
-	var Colors       = mui.Styles.Colors;
-
-	var redDarkTheme = {
-	  getComponentThemes: function getComponentThemes(palette) {
-	    var componentThemes;
-	    componentThemes = ThemeManager.types.DARK.getComponentThemes(palette);
-	    return componentThemes;
-	  },
-
-	  getPalette: function getPalette() {
-	    var palette;
-	    palette = ThemeManager.types.DARK.getPalette();
-
-	    palette.primary1Color = Colors.red500;
-	    palette.accent1Color  = Colors.red500;
-	    palette.primary3Color = Colors.red50;
-	    return palette;
-	  }
-	};
-
-	ThemeManager.setTheme(redDarkTheme);
-
-	var MarvelTheme = {
-	  getChildContext: function() {
-	    return {
-	      muiTheme: ThemeManager.getCurrentTheme()
-	    };
-	  },
-	  childContextTypes: {
-	    muiTheme: React.PropTypes.object
-	  }
-	};
-
-	module.exports = MarvelTheme;
-
-
-/***/ },
-/* 310 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(3);
-
-	var Notifier, removeTimer;
-
-	Notifier = React.createClass({displayName: "Notifier",
-
-	  getInitialState: function() {
-	    return {
-	      message: null,
-	      type:    null,
-	      visible: false
-	    };
-	  },
-
-	  componentDidMount: function() {
-
-	    PubSub.subscribe( 'notification', function(eventName, message) {
-
-	      this.setState({
-	        message: message.text,
-	        type:    message.type,
-	        visible: true,
-	        remove:  false
-	      });
-
-	      removeTimer = setTimeout(function() {
-	        this.setState({
-	          remove: true
-	        });
-
-	      }.bind(this), 5000)
-
-	    }.bind(this) );
-
-	  },
-
-	  close: function(event) {
-	    event.preventDefault();
-
-	    if (removeTimer) {
-	      clearTimeout(removeTimer);
-	    }
-
-	    this.setState({
-	      remove: true
-	    });
-	  },
-
-	  render: function() {
-	    var classes, animatedClasses;
-
-	    classes = this.state.type;
-
-	    if ( this.state.visible && !this.state.remove ) {
-
-	      if (removeTimer) {
-	        clearTimeout(removeTimer);
-	      }
-
-	      classes        += ' visible';
-	      animatedClasses = 'animated flipInX';
-
-	    } else if ( this.state.remove ) {
-
-	      classes        += ' visible';
-	      animatedClasses = 'animated flipOutX';
-
-	      setTimeout(function() {
-	        this.setState({
-	          visible: false,
-	          remove:  false
-	        });
-	      }.bind(this), 750);
-
-	    }
-
-	    return (
-	      React.createElement("div", {id: "notifications", className: classes}, 
-	        React.createElement("div", {id: "notifications-top-center", className: animatedClasses}, 
-	          this.state.message, 
-	          React.createElement("a", {id: "notifications-top-center-close", href: "#", onClick: this.close}, 
-	            React.createElement("i", {className: "fi-x"})
-	          )
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = Notifier;
-
-
-/***/ },
-/* 311 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React            = __webpack_require__(3);
-	var CharacterSearch  = __webpack_require__(314);
-	var CharacterResults = __webpack_require__(317);
-	var NewTeam          = __webpack_require__(319);
-	var TeamCreator      = __webpack_require__(312);
-	var MarvelTheme      = __webpack_require__(309);
-	var Menu             = __webpack_require__(306);
-	var mui              = __webpack_require__(159);
-	var ActionButton     = mui.FloatingActionButton;
-	var Dialog           = mui.Dialog;
-
-
-	var TeamBuilder, feedbackMessages;
-	feedbackMessages = [];
-	TeamBuilder = React.createClass({displayName: "TeamBuilder",
-
-	  mixins: [MarvelTheme],
-
-	  propTypes: {
-	    maxExperience: React.PropTypes.number,
-	    maxTeamSize:   React.PropTypes.number,
-	    loggedIn:      React.PropTypes.bool.isRequired,
-	    leaderTeamId:  React.PropTypes.number,
-	    team:          React.PropTypes.object
-	  },
-
-	  getDefaultProps: function() {
-	    loggedIn: false
-	  },
-
-	  getInitialState: function() {
-	    if ( !!this.props.team ) {
-	      localStorage.team = JSON.stringify(this.props.team);
-	    }
-
-	    if ( !localStorage.team ) {
-	      return {
-	        characters: [],
-	        team: {
-	          characters: [],
-	          experience: 0
-	        }
-	      };
-	    } else {
-	      return {
-	        characters:[],
-	        team: {
-	          characters: [],
-	          experience: 0
-	        },
-	        team: JSON.parse(localStorage.team)
-	      };
-	    }
-	  },
-
-	  showCharacters: function(characters) {
-	    this.setState({
-	      characters: characters
-	    });
-	  },
-
-	  addCharacterToTeam: function(character) {
-	    var team;
-	    team = JSON.parse(JSON.stringify(this.state.team));
-
-	    if ( this.props.maxTeamSize <= team.characters.length ) {
-	      PubSub.publish('notification', {
-	        text: 'Your team has too many superheroes',
-	        type: 'error'
-	      });
-	      return;
-	    }
-
-	    var alreadyAdded = !!team.characters
-	      .find(function(ch) { return ch.id == character.id; });
-
-	    if ( alreadyAdded ) {
-	      PubSub.publish('notification', {
-	        text: 'You already added ' + character.name,
-	        type: 'error'
-	      });
-	      return;
-	    }
-
-	    if ( this.props.maxExperience <= team.experience + character.experience ) {
-	      PubSub.publish( 'notification', {
-	        text: 'Your team is too powerful',
-	        type: 'error'
-	      });
-	      return;
-	    }
-
-	    team.characters.push(character);
-	    team.experience += character.experience;
-
-	    PubSub.publish( 'notification', {
-	      text: 'Added ' + character.name + ' to team',
-	      type: 'success'
-	    } );
-
-	    if ( this.props.maxTeamSize === team.characters.length ) {
-	      team.isValid = true
-	    }
-
-	    try {
-	      localStorage.team = JSON.stringify(team);
-	    } catch(e) {
-	      // Can't use local storage in private mode in Safari
-	    }
-
-	    this.setState({
-	      team: team
-	    });
-
-	    this.refs.search.reset();
-	  },
-
-	  startAssemblingTeam: function() {
-	    if ( this.props.loggedIn ) {
-	      this.refs.creator.create();
-	    } else {
-	      this.refs.modal.show();
-	    }
-	  },
-
-	  teamAssembled: function(team) {
-	    this.setState({
-	      creatingTeam: false
-	    });
-	    PubSub.publish('notification', {
-	      text: 'Team create successfully',
-	      type: 'success'
-	    });
-	  },
-
-	  removeCharacterFromTeam: function(removeCharacter) {
-	    var team;
-	    team = JSON.parse(JSON.stringify(this.state.team));
-	    team.characters = team.characters.filter(function(character) {
-	      return character.id !== removeCharacter.id;
-	    });
-
-	    team.experience  -= removeCharacter.experience;
-	    team.isValid      = false
-	    localStorage.team = JSON.stringify(team);
-
-	    this.setState({
-	      team: team
-	    });
-	  },
-
-	  goToProfile: function(team) {
-	    setTimeout(function() {
-	      window.location = '/teams/' + team.id;
-	    }, 2000);
-	  },
-
-	  signIn: function() {
-	    window.location = '/auth/facebook';
-	  },
-
-	  hideModal: function() {
-	    this.refs.modal.dismiss();
-	  },
-
-	  render: function() {
-	    var standardActions = [
-	      { text: 'No Thanks' },
-	      { text: 'Sure!', onTouchTap: this.signIn, ref: 'submit' }
-	    ];
-
-	    return (
-	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Assemble Team", 
-	          loggedIn: this.props.loggedIn, 
-	          leaderTeamId: this.props.leaderTeamId}
-	        ), 
-	        React.createElement("div", {id: "main"}, 
-	          React.createElement(NewTeam, {
-	            team: this.state.team, 
-	            allowedExperience: this.props.maxExperience, 
-	            maxTeamSize: this.props.maxTeamSize, 
-	            onRemoveCharacter: this.removeCharacterFromTeam}), 
-	          React.createElement(CharacterSearch, {ref: "search", onSearchSuccess: this.showCharacters}), 
-	          React.createElement(CharacterResults, {
-	            onCharacterSelect: this.addCharacterToTeam, 
-	            characters: this.state.characters}), 
-	          React.createElement(TeamCreatorFeedback, {
-	            ref: "creator", 
-	            onCreate: this.goToProfile, 
-	            team: this.state.team}), 
-	          React.createElement("div", {id: "create_team_button", className: "team-floating-action-button"}, 
-	            React.createElement(ActionButton, {
-	              onClick: this.startAssemblingTeam, 
-	              disabled: !this.state.team.isValid}, 
-	              React.createElement("i", {className: "material-icons"}, "build")
-	            )
-	          ), 
-	          React.createElement(Dialog, {
-	            ref: "modal", 
-	            title: "Sign In", 
-	            actions: standardActions, 
-	            actionFocus: "submit"}, 
-	            "Please sign in using your Facebook account to assemble your team."
-	          )
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = TeamBuilder;
-
-
-/***/ },
-/* 312 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React      = __webpack_require__(3);
-	var Continuity = __webpack_require__(313);
-	var mui        = __webpack_require__(159);
-	var Dialog     = mui.Dialog;
-	var Progress   = mui.CircularProgress;
-
-	var TeamCreator, continuityTeamBuilder, matchedCharacters;
-	matchedCharacters = {};
-
-	continuityTeamBuilder = new Continuity([], function(characters, resolve, reject) {
-	  $.ajax({
-	    url: '/api/v1/characters/camaraderie',
-	    type: 'GET',
-	    dataType: 'json',
-	    data: {
-	      character_id: characters[0].id,
-	      other_character_id: characters[1].id
-	    },
-	    success: function(data) {
-	      resolve(data.total);
-	    },
-	    error: reject
-	  });
-	});
-
-	function alreadyMatched(matches, character, otherCharacter) {
-	  return character.id == otherCharacter.id ||
-	           (matches[character.id] && matches[character.id].indexOf(otherCharacter.id) != -1) ||
-	           (matches[otherCharacter.id] && [otherCharacter.id].indexOf(character.id) != -1)
-	}
-
-	function primeCharacterCamaraderie(character, characters) {
-	  var _i, _len, _char;
-	  for ( _i = 0, _len = characters.length; _i < _len; _i++ ) {
-	    _char = characters[_i];
-
-	    if ( !alreadyMatched(matchedCharacters, _char, character) ) {
-	      matchedCharacters[_char.id] = matchedCharacters[_char.id] || [];
-	      matchedCharacters[_char.id].push(character.id);
-	      continuityTeamBuilder.queue([_char, character]);
-	    }
-	  }
-	}
-
-	function getTeamCamaraderie() {
-	  return continuityTeamBuilder;
-	}
-
-	function createTeam(teamAttributes) {
-	  return $.Deferred(function(defer) {
-	    var characterIds;
-	    characterIds = teamAttributes.characters.map(function(c) {
-	      return c.id
-	    });
-	    delete teamAttributes.characters;
-
-	    teamAttributes.character_ids = characterIds;
-
-	    if ( teamAttributes.id ) {
-	      url    = '/api/v1/teams/' + teamAttributes.id;
-	      method = 'PUT';
-	    } else {
-	      url    = '/api/v1/teams';
-	      method = 'POST';
-	    }
-
-	    $.ajax({
-	      url: url,
-	      type: method,
-	      dataType: 'json',
-	      data: {
-	        team: teamAttributes
-	      },
-	      success: function(team) {
-	        defer.resolve(team);
-	      },
-	      error: function(data) {
-	        defer.reject(data);
-	      }
-	    });
-	  }).promise();
-	}
-
-	TeamCreatorFeedback = React.createClass({displayName: "TeamCreatorFeedback",
-
-	  getInitialState: function() {
-	    return {
-	      creating: false,
-	      created: false
-	    };
-	  },
-
-	  assembleTeam: function() {
-	    var team;
-	    team = JSON.parse(JSON.stringify(this.props.team));
-
-	    this.setState({
-	      creating: true,
-	      created: false
-	    });
-
-	    getTeamCamaraderie()
-	      .then(function(camaraderieValues) {
-	        createTeam(team)
-	         .then(function(team) {
-	           this.setState({
-	             creating: false,
-	             created: true
-	           });
-
-	           if ( this.props.onCreate ) {
-	             this.props.onCreate(team);
-	           }
-	         }.bind(this))
-
-	         .fail(function(errorData) {
-	           this.setState({
-	             creating: false,
-	             created: false
-	           });
-	           console.warn('There was an error saving team', errorData);
-	         });
-
-	      }.bind(this))
-
-	      .progress(function(camaraderieValue, characters) {
-	        if ( !!this.props.onAssembleTeamProgress ) {
-	          this.props.onAssembleTeamProgress(characters);
-	        }
-	      }.bind(this))
-
-	      .catch(function(error) {
-	        console.error(error);
-	      });
-	  },
-
-	  componentDidUpdate: function(prevProps) {
-	    var newCharacter;
-	    if ( this.props.team.characters.length > prevProps.team.characters.length ) {
-	      newCharacter = this.props.team.characters[this.props.team.characters.length - 1];
-	      primeCharacterCamaraderie(newCharacter, this.props.team.characters);
-	    }
-	  },
-
-	  create: function() {
-	    this.refs.modal.show();
-	    this.assembleTeam();
-	  },
-
-	  render: function() {
-	    function renderMessage() {
-	      if ( this.state.creating ) {
-	        return (
-	          React.createElement("div", null, 
-	            React.createElement("p", {className: "creating-message"}, 
-	              "Give us a second while we assemble your Avengers…"
-	            ), 
-	            React.createElement("br", null), 
-	            React.createElement(Progress, {mode: "indeterminate", size: 2})
-	          )
-	        );
-	      } else if ( this.state.created ) {
-	        return (
-	          React.createElement("div", null, 
-	            React.createElement("p", {className: "success-message"}, 
-	              "Avengers Assembled!"
-	            ), 
-	            React.createElement("br", null), 
-	            React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
-	          )
-	        );
-	      }
-	    }
-	    return (
-	      React.createElement("div", {id: "team_creator_feedback"}, 
-	        React.createElement(Dialog, {
-	          ref: "modal", 
-	          title: "Assembling Team", 
-	          modal: true}, 
-	          renderMessage.call(this)
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = TeamCreator;
-
-
-/***/ },
-/* 313 */
-/***/ function(module, exports) {
-
-	/*!
-	 * Continuity
-	 * Copyright(c) 2015 Ryan Scott Norman
-	 * MIT Licensed
-	 */
-
-	'use strict';
-
-	/**
-	 * Creates an object that iterates over a collection and passing values
-	 * into asynchronous functions that resolve or reject promises. Each function
-	 * must wait until the previous one has finished before starting.
-	 *
-	 * To create a Continuity object:
-	 *
-	 *       new Continuity([1, 2], function(value, resolve, reject) {
-	 *
-	 *         setTimeout(function() {
-	 *           if ( isNaN(value) ) {
-	 *             reject('Cannot operate on ' + value + ' because it\'s not a number');
-	 *           } else {
-	 *             resolve(value + 1);
-	 *           }
-	 *         }, 1000);
-	 *
-	 *       });
-	 *
-	 * The `then` method will return all the values resolved by the promises:
-	 *
-	 *       new Continuity([1, 2], function(value, resolve) {
-	 *
-	 *         setTimeout(function() {
-	 *           resolve(value + 1);
-	 *         }, 1000);
-	 *
-	 *       }).then(function(values) {
-	 *
-	 *         assert(values == [2, 3]);
-	 *
-	 *       });
-	 *
-	 * The `progress` method will return the value resolved by the current
-	 * executing promise along with the original value, all the returned
-	 * values and progress:
-	 *
-	 *       new Continuity([1, 2], function(value, resolve) {
-	 *
-	 *         setTimeout(function() {
-	 *           resolve(value + 1);
-	 *         }, 1000);
-	 *
-	 *       }).progress(function(value, originalValue, values, progress) {
-	 *
-	 *         // First iteration
-	 *         if ( progress == 1 ) {
-	 *           assert(value == 2);
-	 *           assert(originalValue == 1);
-	 *           assert(values == [2]);
-	 *           assert(progress == 1);
-	 *         }
-	 *
-	 *         // Second iteration
-	 *         else {
-	 *           assert(value == 3);
-	 *           assert(originalValue == 2);
-	 *           assert(values == [2, 3]);
-	 *           assert(progress == 2);
-	 *         }
-	 *
-	 *       });
-	 *
-	 * The `catch` method behaves like a Promise in that it returns the object that
-	 * that caused the promise to reject, effectively stopping the iterator.
-	 *
-	 *       new Continuity([1, 2], function(value, resolve, reject) {
-	 *
-	 *         setTimeout(function() {
-	 *           reject('Dislike this value: ' + value);
-	 *         }, 1000);
-	 *
-	 *       }).catch(function(error) {
-	 *
-	 *         assert(error == 'Dislike this value: 1');
-	 *
-	 *       });
-	 *
-	 * @param {Array} collection that will be used to call function
-	 * @param {Function} asynchronous function that will be called for each value
-	 *                   in the collection
-	 * @return {Continuity} for thenable methods and progress callback
-	 * @public
-	 */
-	var Continuity = function(originalCollection, iterationFn) {
-	  var continuityPromise,
-	      continuityResolve,
-	      continuityReject,
-	      progressCallbacks,
-	      valueQueue,
-	      resolvedValues,
-	      isRunningPromise,
-	      errorValue,
-	      _continuity;
-
-	  // Store scope
-	  _continuity = this;
-
-	  // Empty array of progress callbacks
-	  progressCallbacks = [];
-
-	  // Initialize empty array of values
-	  resolvedValues = [];
-
-	  // Clone collection to create queue of values to call iteration function
-	  valueQueue = Array.prototype.slice.call(originalCollection);
-
-
-	  /**
-	   * Returns whether or not there are any values left in the queue
-	   *
-	   * @return {Bool} true if valueQueue length is greater than zero,
-	   *                false otherwise
-	   * @private
-	   */
-	  function isFinishedIterating() {
-	    return valueQueue.length == 0 && !isRunningPromise;
-	  }
-
-	  /**
-	   * Pushes new value into values array and fires all progress callbacks
-	   *
-	   * @param {Any} The value that is resolved from asynchronous function
-	   * @private
-	   */
-	  function onSuccessIteration(resolvedValue) {
-	    isRunningPromise = false;
-
-	    resolvedValues.push(resolvedValue); // push newest value
-
-	    // fire all progress callbacks on each iteration
-	    progressCallbacks.map(function(callback) {
-	      callback(
-	        resolvedValue,
-	        originalCollection[resolvedValues.length -1],
-	        resolvedValues,
-	        resolvedValues.length
-	      );
-	    });
-	  }
-
-	  /**
-	   * Recursive function that queues up functions that resolve or reject promises
-	   * with values in collection
-	   *
-	   * @private
-	   */
-	  function collectionIterator() {
-	    var iterationPromise;
-
-	    isRunningPromise = true;
-
-	    // Create iteration promise to pass resolver and rejecter into function. The
-	    // iteration function is called with the first element of the collection.
-	    iterationPromise = new Promise(function(iterationResolve, iterationReject) {
-	      iterationFn(valueQueue.shift(), iterationResolve, iterationReject)
-	    });
-
-	    // Resolved iteration
-	    iterationPromise.then(function(resolvedValue) {
-	      onSuccessIteration(resolvedValue);
-
-	      if ( !isFinishedIterating() ) {
-	        collectionIterator();
-	      } else {
-	        if ( !!continuityResolve ) {
-	          continuityResolve(resolvedValues);
-	        }
-	      }
-
-	    });
-
-	    // Rejected iteration
-	    iterationPromise.catch(function(_errorValue) {
-	      errorValue = _errorValue;
-	      isRunningPromise = false;
-
-	      if ( !!continuityReject ) {
-	        continuityReject(errorValue);
-	      }
-	    });
-
-	  }
-
-	  /**
-	   * Create promise to resolve once all other promises are resolved.
-	   * Store resolve and reject functions so we can chain with a Promise-like
-	   * object.
-	   */
-	  function createContinuityPromise() {
-	    continuityPromise = new Promise(function(resolve, reject) {
-	      continuityResolve = resolve;
-	      continuityReject = reject;
-	    });
-	  }
-
-
-	  /**
-	   * @method then
-	   *
-	   * Adds resolve and reject callbacks that behave exactly like Promise
-	   * `then` method
-	   *
-	   * Without reject callback:
-	   *
-	   *       new Continuity([1, 2], function(value, resolve) {
-	   *
-	   *         setTimeout(function() {
-	   *           resolve(value + 1);
-	   *         }, 1000);
-	   *
-	   *       }).then(function(values) {
-	   *
-	   *         assert(values == [2, 3]);
-	   *
-	   *       });
-	   *
-	   * With reject callback:
-	   *
-	   *       new Continuity([1, 2, 'George'], function(value, resolve, reject) {
-	   *
-	   *         setTimeout(function() {
-	   *           if ( isNaN(value) ) {
-	   *             reject('Cannot operate on ' + value + ' because it\'s not a number');
-	   *           } else {
-	   *             resolve(value + 1);
-	   *           }
-	   *         }, 1000);
-	   *
-	   *       }).then(function(values) {
-	   *
-	   *         assert(values == [2, 3]);
-	   *
-	   *       }, function(error) {
-	   *
-	   *         console.warn("There was an error!", error);
-	   *
-	   *       });
-	   *
-	   * @param {Function} asynchronous function that will be called with
-	   *                   resolved value
-	   * @param {Function} asynchronous function that will be called with
-	   *                   error value
-	   * @return {Continuity} for thenable methods and progress callback
-	   * @public
-	   */
-	  this.then = function(resolveCallback, rejectCallback) {
-	    if ( !continuityPromise ) {
-	      createContinuityPromise();
-	    }
-
-	    continuityPromise.then(resolveCallback, rejectCallback);
-
-	    if ( isFinishedIterating() ) {
-	      continuityResolve(resolvedValues);
-	    }
-
-	    return _continuity;
-	  };
-
-	  /**
-	   * @method catch
-	   *
-	   * Adds reject callback that behave exactly like Promise `catch` method
-	   *
-	   *       new Continuity([1, 2], function(value, resolve, reject) {
-	   *
-	   *         setTimeout(function() {
-	   *           if ( isNaN(value) ) {
-	   *             reject('Cannot operate on ' + value + ' because it\'s not a number');
-	   *           } else {
-	   *             resolve(value + 1);
-	   *           }
-	   *         }, 1000);
-	   *
-	   *       }).catch(function(error) {
-	   *
-	   *         console.warn("There was an error!", error);
-	   *
-	   *       });
-	   *
-	   * @param {Function} asynchronous function that will be called with
-	   *                   error value
-	   * @return {Continuity} for thenable methods and progress callback
-	   * @public
-	   */
-	  this.catch = function(callback) {
-	    if ( !continuityPromise ) {
-	      createContinuityPromise();
-	    }
-	    continuityPromise.catch(callback);
-
-	    if ( !!errorValue ) {
-	      continuityReject(errorValue);
-	    }
-
-	    return _continuity;
-	  };
-
-	  /**
-	   * @method progress
-	   *
-	   * Adds progress callback that is called for each iteration of collection.
-	   * The callback will be called with resolved value, original value, all
-	   * resolved values, and the current progress.
-	   *
-	   *       new Continuity([1, 2], function(value, resolve) {
-	   *
-	   *         setTimeout(function() {
-	   *           resolve(value + 1);
-	   *         }, 1000);
-	   *
-	   *       }).progress(function(value, originalValue, values, progress) {
-	   *
-	   *         // First iteration
-	   *         if ( progress == 1 ) {
-	   *           assert(value == 2);
-	   *           assert(originalValue == 1);
-	   *           assert(values == [2]);
-	   *           assert(progress == 1);
-	   *         }
-	   *
-	   *         // Second iteration
-	   *         else {
-	   *           assert(value == 3);
-	   *           assert(originalValue == 2);
-	   *           assert(values == [2, 3]);
-	   *           assert(progress == 2);
-	   *         }
-	   *
-	   *       });
-	   *
-	   * @param {Function} asynchronous function that will be called with resolved
-	   *                   value, original value, all resolved values, and the
-	   *                   current progress
-	   * @return {Continuity} for thenable methods and progress callback
-	   * @public
-	   */
-	  this.progress = function(callback) {
-	    resolvedValues.map(function(resolvedValue, index) {
-	      callback(
-	        resolvedValue,
-	        originalCollection[index],
-	        resolvedValues.slice(0, index + 1),
-	        index + 1
-	      );
-	    });
-
-	    progressCallbacks.push(callback);
-	    return _continuity;
-	  };
-
-	  /**
-	   * @method queue
-	   *
-	   * Queues value that will trigger another asynchronous function.
-	   * Cannot queue another value if then or catch callback have been
-	   * attached since promise can only be resolved once.
-	   *
-	   * @param {Any} value that will trigger another asynchronous function
-	   * @public
-	   */
-	  this.queue = function(value) {
-	    var hasResolvedAllValues;
-
-	    if ( !!continuityPromise ) {
-	      throw new Error('All values resolved, cannot push another value');
-	    }
-
-	    hasResolvedAllValues = isFinishedIterating();
-
-	    valueQueue.push(value);
-	    originalCollection.push(value);
-
-	    if ( hasResolvedAllValues ) {
-	      collectionIterator();
-	    }
-
-	    return _continuity;
-	  };
-
-
-	  // Start iterating through collection
-	  if ( valueQueue.length > 0 ) {
-	    collectionIterator();
-	  }
-
-	};
-
-	/**
-	 * Module exports
-	 * @public
-	 */
-	module.exports = Continuity;
-
-
-/***/ },
-/* 314 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React     = __webpack_require__(3);
-	var debounce  = __webpack_require__(315);
-	var mui       = __webpack_require__(159);
-	var Paper     = mui.Paper;
-	var TextField = mui.TextField;
-
-	var MIN_QUERY_LENGTH = 3;
-
-	var CharacterSearch = React.createClass({displayName: "CharacterSearch",
-	  getInitialState: function() {
-	    return {
-	      clearSearch: false
-	    };
-	  },
-
-	  searchCharacters: function searchCharacters() {
-	    var characterQuery;
-	    characterQuery = this.refs.searchField.getValue();
-
-	    if ( characterQuery.length < MIN_QUERY_LENGTH ) {
-	      return;
-	    }
-
-	    $.ajax({
-	      url: '/api/v1/characters',
-	      type: 'GET',
-	      dataType: 'json',
-	      data: {
-	        query: this.refs.searchField.getValue()
-	      },
-	      success: function(matchingCharacters) {
-	        this.props.onSearchSuccess(matchingCharacters);
-	      }.bind(this)
-	    });
-	  },
-
-	  reset: function() {
-	    this.setState({
-	      clearSearch: true
-	    });
-	  },
-
-	  clearText: function() {
-	    if ( this.state.clearSearch ) {
-	      this.setState({
-	        clearSearch: false
-	      });
-	      this.refs.searchField.setValue('');
-	    }
-	  },
-
-	  render: function() {
-	      return (
-	        React.createElement(Paper, {zIndex: 1}, 
-	          React.createElement(TextField, {
-	            name: "character-search", 
-	            className: "character-search-field", 
-	            ref: "searchField", 
-	            hintText: "Search Marvel Characters", 
-	            fullWidth: true, 
-	            onChange: debounce(this.searchCharacters, 500), 
-	            onFocus: this.clearText})
-	        )
-	      );
-	  }
-	});
-
-	module.exports = CharacterSearch;
-
-
-/***/ },
-/* 315 */
-/***/ function(module, exports, __webpack_require__) {
-
-	
-	/**
-	 * Module dependencies.
-	 */
-
-	var now = __webpack_require__(316);
-
-	/**
-	 * Returns a function, that, as long as it continues to be invoked, will not
-	 * be triggered. The function will be called after it stops being called for
-	 * N milliseconds. If `immediate` is passed, trigger the function on the
-	 * leading edge, instead of the trailing.
-	 *
-	 * @source underscore.js
-	 * @see http://unscriptable.com/2009/03/20/debouncing-javascript-methods/
-	 * @param {Function} function to wrap
-	 * @param {Number} timeout in ms (`100`)
-	 * @param {Boolean} whether to execute at the beginning (`false`)
-	 * @api public
-	 */
-
-	module.exports = function debounce(func, wait, immediate){
-	  var timeout, args, context, timestamp, result;
-	  if (null == wait) wait = 100;
-
-	  function later() {
-	    var last = now() - timestamp;
-
-	    if (last < wait && last > 0) {
-	      timeout = setTimeout(later, wait - last);
-	    } else {
-	      timeout = null;
-	      if (!immediate) {
-	        result = func.apply(context, args);
-	        if (!timeout) context = args = null;
-	      }
-	    }
-	  };
-
-	  return function debounced() {
-	    context = this;
-	    args = arguments;
-	    timestamp = now();
-	    var callNow = immediate && !timeout;
-	    if (!timeout) timeout = setTimeout(later, wait);
-	    if (callNow) {
-	      result = func.apply(context, args);
-	      context = args = null;
-	    }
-
-	    return result;
-	  };
-	};
-
-
-/***/ },
-/* 316 */
-/***/ function(module, exports) {
-
-	module.exports = Date.now || now
-
-	function now() {
-	    return new Date().getTime()
-	}
-
-
-/***/ },
-/* 317 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React           = __webpack_require__(3);
-	var CharacterResult = __webpack_require__(318);
-	var mui             = __webpack_require__(159);
-	var List            = mui.List;
-
-	var CharacterResults = React.createClass({displayName: "CharacterResults",
-
-	  selectCharacter: function(character) {
-	    if (this.props.onCharacterSelect) {
-	      this.props.onCharacterSelect(character);
-	    }
-	  },
-
-	  render: function() {
-	    var createItem = function(character, index) {
-	      return (
-	        React.createElement(CharacterResult, {
-	          key: character.id, 
-	          character: character, 
-	          onCharacterSelect: this.selectCharacter})
-	      );
-	    };
-
-	    return (
-	      React.createElement(List, {id: "character_results"}, 
-	        this.props.characters.map(createItem.bind(this))
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = CharacterResults;
-
-
-/***/ },
-/* 318 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React      = __webpack_require__(3);
-	var mui        = __webpack_require__(159);
-	var ListItem   = mui.ListItem;
-	var Paper      = mui.Paper;
-	var Avatar     = mui.Avatar;
-	var IconButton = mui.IconButton;
-
-
-	var Character = React.createClass({displayName: "Character",
-
-	  selectCharacter: function(event) {
-	    event.preventDefault();
-
-	    if (this.props.onCharacterSelect) {
-	      this.props.onCharacterSelect(this.props.character);
-	    }
-	  },
-
-	  render: function() {
-	    var characterId;
-	    characterId = 'character_result_' + this.props.character.id;
-
-	    return (
-	      React.createElement(Paper, {zDepth: 1, className: "character-result", id: characterId}, 
-	        React.createElement(ListItem, {
-	          leftAvatar: 
-	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
-	          
-	          rightIconButton: 
-	            React.createElement(IconButton, null, 
-	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
-	            ), 
-	          
-	          primaryText: 
-	            React.createElement("span", {className: "character-name"}, 
-	              this.props.character.name
-	            ), 
-	          
-	          secondaryText: 
-	            React.createElement("p", null, 
-	              React.createElement("span", {className: "real-name"}, 
-	                this.props.character.real_name
-	              ), 
-	              React.createElement("br", null), 
-	              React.createElement("span", {className: "description"}, 
-	                this.props.character.description
-	              )
-	            ), 
-	          
-	          secondaryTextLines: 2, 
-	          onClick: this.selectCharacter})
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = Character;
-
-
-/***/ },
-/* 319 */
-/***/ function(module, exports, __webpack_require__) {
-
 	var React          = __webpack_require__(3);
-	var CharacterSlot  = __webpack_require__(320);
-	var mui            = __webpack_require__(159);
-	var Avatar         = mui.Avatar;
-	var Paper          = mui.Paper;
-	var LinearProgress = mui.LinearProgress;
-
-	var NewTeam;
-
-	function getCharacterSlots(characters, maxTeamSize) {
-	  var characterSlots, _i, _len
-	  characterSlots = [];
-	  for (_i = 0, _len = characters.length; _i < _len; _i++) {
-	    characterSlots.push(characters[_i]);
-	  }
-
-	  while ( characterSlots.length < maxTeamSize ) {
-	    characterSlots.push(false);
-	  }
-
-	  return characterSlots;
-	}
-
-	NewTeam = React.createClass({displayName: "NewTeam",
-
-	  propTypes: {
-	    team:              React.PropTypes.object.isRequired,
-	    allowedExperience: React.PropTypes.number.isRequired,
-	    maxTeamSize:       React.PropTypes.number,
-	    onRemoveCharacter: React.PropTypes.func
-	  },
-
-	  getDefaultProps: function() {
-	    return {
-	      maxTeamSize: 5
-	    };
-	  },
-
-	  assembleTeam: function(event) {
-	    event.preventDefault();
-
-	    if ( this.props.onAssembleTeam ) {
-	      this.props.onAssembleTeam();
-	    }
-	  },
-
-	  removeCharacter: function(character) {
-	    if ( !!this.props.onRemoveCharacter ) {
-	      this.props.onRemoveCharacter(character);
-	    }
-	  },
-
-	  render: function() {
-	    var totalPercentExperience;
-	    totalPercentExperience = Math.round(
-	      this.props.team.experience / this.props.allowedExperience * 100
-	    );
-
-	    function createItem(character, index) {
-	      return (
-	        React.createElement(CharacterSlot, {
-	          character: character, 
-	          key: index, 
-	          onRemove: this.removeCharacter})
-	      );
-	    };
-
-	    return (
-	      React.createElement(Paper, {id: "new_team", zIndex: 2}, 
-	        React.createElement("div", {id: "team_characters"}, 
-	          
-	            getCharacterSlots(
-	              this.props.team.characters,
-	              this.props.maxTeamSize
-	            ).map(createItem.bind(this))
-	          
-	        ), 
-	        React.createElement(LinearProgress, {mode: "determinate", value: totalPercentExperience})
-	      )
-	    );
-	  }
-	});
-
-	module.exports = NewTeam;
-
-
-/***/ },
-/* 320 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React  = __webpack_require__(3);
-	var mui    = __webpack_require__(159);
-	var Avatar = mui.Avatar;
-
-	var CharacterSlot;
-
-	CharacterSlot = React.createClass({displayName: "CharacterSlot",
-
-	  propTypes: {
-	    character: React.PropTypes.any,
-	    onRemove:  React.PropTypes.func
-	  },
-
-	  removeCharacter: function() {
-	    if ( !!this.props.onRemove ) {
-	      this.props.onRemove(this.props.character);
-	    }
-	  },
-
-	  render: function() {
-	    var character, characterId;
-	    character = this.props.character;
-	    if ( !!character ) {
-	      characterId = 'team_character_' + character.id;
-
-	      return (
-	        React.createElement("div", {className: "team-character", id: characterId, onClick: this.removeCharacter}, 
-	          React.createElement("div", {className: "character-avatar"}, 
-	            React.createElement(Avatar, {src: character.thumbnail_url}), 
-	            React.createElement("a", {href: "javascript:;", className: "remove-character", onClick: this.removeCharacter}, 
-	              React.createElement(Avatar, {icon: 
-	                React.createElement("i", {className: "material-icons md-dark"}, 
-	                  "clear"
-	                )
-	              })
-	            )
-	          )
-	        )
-	      );
-	    } else {
-	      return (
-	        React.createElement("div", {className: "team-character"}, 
-	          React.createElement(Avatar, {
-	            icon: 
-	              React.createElement("i", {className: "material-icons md-dark"}, "flash_on")
-	            })
-	        )
-	      );
-	    }
-	  }
-	});
-
-	module.exports = CharacterSlot;
-
-
-/***/ },
-/* 321 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React          = __webpack_require__(3);
-	var MarvelTheme    = __webpack_require__(309);
-	var Menu           = __webpack_require__(306);
-	var TeamStats      = __webpack_require__(322);
-	var TeamCharacters = __webpack_require__(323);
-	var TeamBanner     = __webpack_require__(324);
-	var mui            = __webpack_require__(159);
-	var Paper          = mui.Paper;
-	var Avatar         = mui.Avatar;
-	var ActionButton   = mui.FloatingActionButton;
-	var IconButton     = mui.IconButton;
-	var Dialog         = mui.Dialog;
-	var Progress       = mui.CircularProgress;
-
-	var TeamProfile;
-
-	TeamProfile = React.createClass({displayName: "TeamProfile",
-
-	  mixins: [MarvelTheme],
-
-	  propTypes: {
-	    loggedIn:     React.PropTypes.bool.isRequired,
-	    leaderTeamId: React.PropTypes.number,
-	    team:         React.PropTypes.object.isRequired,
-	    maxStats:     React.PropTypes.object.isRequired,
-	  },
-
-	  getInitialState: function() {
-	    return {
-	      preparingShare: false,
-	      sharingTeam: false,
-	      shared: false,
-	    };
-	  },
-
-	  editAssembledTeam: function() {
-	    window.location = '/teams/' + this.props.team.id + '/edit';
-	  },
-
-	  showShareAssembledTeamPrompt: function() {
-	    this.refs.modal.show();
-	    this.setState({
-	      preparingShare: true
-	    });
-	  },
-
-	  shareAssembledTeam: function() {
-	    this.setState({
-	      preparingShare: true
-	    });
-	  },
-
-	  displayShareTeam: function() {
-	    jQuery.ajax({
-	      url: '/api/v1/team_banners',
-	      method: 'POST',
-	      dataType: 'json',
-	      data: {
-	        banner: {
-	          data: this.refs.teamBanner.getDataURL()
-	        }
-	      },
-	      success: function(data) {
-	        this.setState({
-	          preparingShare: false,
-	          banner: data.banner,
-	        });
-	      }.bind(this)
-	    });
-	  },
-
-	  shareTeamBanner: function() {
-	    var banner;
-	    banner = this.state.banner;
-
-	    this.setState({
-	      sharingTeam: true,
-	    });
-
-	    FB.ui({
-	      method:        'share',
-	      redirectUri:   banner.team.url,
-	      href:          banner.team.url,
-	      name:          banner.team.leader.name + '\'s Avengers',
-	      picture:       banner.url,
-	      description:   banner.team.leader.name + '\'s team is currently ranked number ' + banner.team.rank + '! Can you assemble a stronger team of Avengers?'
-	    }, function(response) {
-	      console.log(response);
-	      setTimeout(function() {
-	        this.refs.modal.dismiss();
-	        this.setState({
-	          shared: false,
-	          sharingTeam: false,
-	        });
-	      }.bind(this), 2000);
-	    }.bind(this));
-	  },
-
-	  render: function() {
-	    function renderEditButton() {
-	      if ( this.props.leaderTeamId === this.props.team.id ) {
-	        return (
-	          React.createElement("div", {id: "edit_team_button", className: "team-floating-action-button"}, 
-	            React.createElement(ActionButton, {onClick: this.shareAssembledTeam}, 
-	              React.createElement("i", {className: "material-icons"}, "share")
-	            )
-	          )
-	        );
-	      }
-	    }
-
-	    return (
-	      React.createElement("div", null, 
-	        React.createElement(Menu, {title: "Team Profile", 
-	          loggedIn: this.props.loggedIn, 
-	          leaderTeamId: this.props.leaderTeamId, 
-	          rightButton: 
-	            React.createElement(IconButton, null, 
-	              React.createElement("i", {className: "material-icons"}, "build")
-	            ), 
-	          
-	          onRightButtonClick: this.editAssembledTeam}
-	        ), 
-	        React.createElement("div", {id: "main"}, 
-	          React.createElement(Paper, {id: "team_profile_header"}, 
-	            React.createElement(Avatar, {
-	              id: "leader_avatar", 
-	              src: this.props.team.leader.image + '?type=large', 
-	              size: 100}), 
-	            React.createElement("h4", {id: "team_name"}, this.props.team.name), 
-	            React.createElement("h5", {id: "team_rank"}, "Ranked #", this.props.team.rank), 
-	            React.createElement("div", {className: "clear"})
-	          ), 
-	          React.createElement(TeamStats, {
-	            stats: this.props.team.stats, 
-	            maxStats: this.props.maxStats}), 
-	          React.createElement(TeamCharacters, {characters: this.props.team.characters}), 
-	          renderEditButton.call(this), 
-
-	          this._renderShareActionButton(), 
-
-	          this._renderTeamBanner(), 
-	          this._renderShareDialog()
-	        )
-	      )
-	    );
-	  },
-
-	  _renderShareDialog: function() {
-	    var standardActions = [
-	      { text: 'No Thanks' },
-	      { text: 'Sure!', onTouchTap: this.shareTeamBanner, ref: 'submit' }
-	    ];
-
-	    if ( this.state.sharingTeam || this.state.shared || this.state.preparingShare) {
-	      standardActions = [];
-	    }
-
-	    return (
-	      React.createElement("div", {id: "team_sharing_feedback"}, 
-	        React.createElement(Dialog, {
-	          ref: "modal", 
-	          title: "Share Your Avengers", 
-	          actionFocus: "submit", 
-	          actions: standardActions, 
-	          modal: true}, 
-	          this._renderSharingMessage()
-	        )
-	      )
-	    );
-	  },
-
-	  _renderSharingMessage: function() {
-	    if ( this.state.sharingTeam ) {
-	      return (
-	        React.createElement("div", null, 
-	          React.createElement("p", {className: "sharing-message"}, 
-	            "Sharing your Avengers…"
-	          ), 
-	          React.createElement("br", null), 
-	          React.createElement(Progress, {mode: "indeterminate", size: 2})
-	        )
-	      );
-	    } else if ( this.state.shared ) {
-	      return (
-	        React.createElement("div", null, 
-	          React.createElement("p", {className: "success-message"}, 
-	            "Your Avengers Shared!"
-	          ), 
-	          React.createElement("br", null), 
-	          React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
-	        )
-	      );
-	    } else if ( this.state.preparingShare ) {
-	      return (
-	        React.createElement("div", null, 
-	          React.createElement("p", {className: "preparing-share-message"}, 
-	            "Preparing to share your Avengers…"
-	          ), 
-	          React.createElement("br", null), 
-	          React.createElement(Progress, {mode: "indeterminate", size: 2})
-	        )
-	      );
-	    } else {
-	      return (
-	        React.createElement("div", null, 
-	          React.createElement("p", {className: "facebook-share"}, 
-	            "Share your team on Facebook?"
-	          )
-	        )
-	      );
-	    }
-	  },
-
-	  _renderShareActionButton: function() {
-	    if ( this.props.loggedIn && this.props.leaderTeamId == this.props.team.id ) {
-	      return (
-	        React.createElement("div", {id: "share_team_button", className: "team-floating-action-button"}, 
-	          React.createElement(ActionButton, {onClick: this.showShareAssembledTeamPrompt}, 
-	            React.createElement("i", {className: "material-icons"}, "share")
-	          )
-	        )
-	      );
-	    } else {
-	      return React.createElement("div", null);
-	    }
-	  },
-
-	  _renderTeamBanner: function() {
-	    return (
-	      React.createElement("div", {style: {visibility:'hidden', position: 'absolute', top: '0', left: '-1000px', width: 0, height: 0}}, 
-	        React.createElement(TeamBanner, {
-	          ref: "teamBanner", 
-	          visible: this.state.preparingShare, 
-	          onRenderComplete: this.displayShareTeam, 
-	          team: this.props.team, 
-	          maxStats: this.props.maxStats})
-	      )
-	    );
-	  }
-
-	});
-
-	module.exports = TeamProfile;
-
-
-/***/ },
-/* 322 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var React          = __webpack_require__(3);
-	var mui            = __webpack_require__(159);
+	var mui            = __webpack_require__(160);
 	var List           = mui.List;
 	var Paper          = mui.Paper;
 	var ListItem       = mui.ListItem;
@@ -41559,11 +40140,11 @@
 
 
 /***/ },
-/* 323 */
+/* 309 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React    = __webpack_require__(3);
-	var mui      = __webpack_require__(159);
+	var mui      = __webpack_require__(160);
 	var List     = mui.List;
 	var Paper    = mui.Paper;
 	var ListItem = mui.ListItem;
@@ -41625,13 +40206,13 @@
 
 
 /***/ },
-/* 324 */
+/* 310 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React       = __webpack_require__(3);
-	var Dicer       = __webpack_require__(325);
-	var ReactCanvas = __webpack_require__(331);
-	var mui         = __webpack_require__(159);
+	var Dicer       = __webpack_require__(311);
+	var ReactCanvas = __webpack_require__(317);
+	var mui         = __webpack_require__(160);
 	var Surface     = ReactCanvas.Surface;
 	var Image       = ReactCanvas.Image;
 	var Text        = ReactCanvas.Text;
@@ -41914,7 +40495,7 @@
 
 
 /***/ },
-/* 325 */
+/* 311 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -41925,11 +40506,11 @@
 
 	'use strict';
 
-	var DEFAULT_DIRECTION = __webpack_require__(326).DEFAULT_DIRECTION;
-	var Slice             = __webpack_require__(327);
-	var Circle            = __webpack_require__(328);
-	var SlicePosition     = __webpack_require__(329);
-	var SliceCreator      = __webpack_require__(330);
+	var DEFAULT_DIRECTION = __webpack_require__(312).DEFAULT_DIRECTION;
+	var Slice             = __webpack_require__(313);
+	var Circle            = __webpack_require__(314);
+	var SlicePosition     = __webpack_require__(315);
+	var SliceCreator      = __webpack_require__(316);
 
 	/**
 	 */
@@ -42058,7 +40639,7 @@
 
 
 /***/ },
-/* 326 */
+/* 312 */
 /***/ function(module, exports) {
 
 	/*!
@@ -42077,7 +40658,7 @@
 
 
 /***/ },
-/* 327 */
+/* 313 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -42088,7 +40669,7 @@
 
 	'use strict';
 
-	var TOTAL_CIRCLE_DEGREES = __webpack_require__(326).TOTAL_CIRCLE_DEGREES;
+	var TOTAL_CIRCLE_DEGREES = __webpack_require__(312).TOTAL_CIRCLE_DEGREES;
 
 	var Slice = function(totalAngle, options) {
 	  var startAngle;
@@ -42123,7 +40704,7 @@
 
 
 /***/ },
-/* 328 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -42134,7 +40715,7 @@
 
 	'use strict';
 
-	var TOTAL_CIRCLE_DEGREES = __webpack_require__(326).TOTAL_CIRCLE_DEGREES;
+	var TOTAL_CIRCLE_DEGREES = __webpack_require__(312).TOTAL_CIRCLE_DEGREES;
 
 	var Circle = function(radius) {
 
@@ -42156,7 +40737,7 @@
 
 
 /***/ },
-/* 329 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -42167,7 +40748,7 @@
 
 	'use strict';
 
-	var HALF_CIRCLE_DEGREES = __webpack_require__(326).HALF_CIRCLE_DEGREES;
+	var HALF_CIRCLE_DEGREES = __webpack_require__(312).HALF_CIRCLE_DEGREES;
 
 	var SlicePosition = function(circle, slice) {
 
@@ -42196,7 +40777,7 @@
 
 
 /***/ },
-/* 330 */
+/* 316 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*!
@@ -42207,10 +40788,10 @@
 
 	'use strict';
 
-	var DEFAULT_DIRECTION    = __webpack_require__(326).DEFAULT_DIRECTION;
-	var TOTAL_CIRCLE_DEGREES = __webpack_require__(326).TOTAL_CIRCLE_DEGREES;
-	var HALF_CIRCLE_DEGREES  = __webpack_require__(326).HALF_CIRCLE_DEGREES;
-	var Slice                = __webpack_require__(327);
+	var DEFAULT_DIRECTION    = __webpack_require__(312).DEFAULT_DIRECTION;
+	var TOTAL_CIRCLE_DEGREES = __webpack_require__(312).TOTAL_CIRCLE_DEGREES;
+	var HALF_CIRCLE_DEGREES  = __webpack_require__(312).HALF_CIRCLE_DEGREES;
+	var Slice                = __webpack_require__(313);
 
 	var SliceCreator = function(circle, direction) {
 
@@ -42286,35 +40867,35 @@
 
 
 /***/ },
-/* 331 */
+/* 317 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var ReactCanvas = {
-	  Surface: __webpack_require__(347),
+	  Surface: __webpack_require__(333),
 
-	  Layer: __webpack_require__(352),
-	  Group: __webpack_require__(353),
-	  Image: __webpack_require__(354),
-	  Text: __webpack_require__(332),
-	  ListView: __webpack_require__(356),
+	  Layer: __webpack_require__(338),
+	  Group: __webpack_require__(339),
+	  Image: __webpack_require__(340),
+	  Text: __webpack_require__(318),
+	  ListView: __webpack_require__(342),
 
-	  FontFace: __webpack_require__(340),
-	  measureText: __webpack_require__(343)
+	  FontFace: __webpack_require__(326),
+	  measureText: __webpack_require__(329)
 	};
 
 	module.exports = ReactCanvas;
 
 
 /***/ },
-/* 332 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createComponent = __webpack_require__(333);
-	var LayerMixin = __webpack_require__(346);
+	var createComponent = __webpack_require__(319);
+	var LayerMixin = __webpack_require__(332);
 
 	var Text = createComponent('Text', LayerMixin, {
 
@@ -42366,7 +40947,7 @@
 	module.exports = Text;
 
 /***/ },
-/* 333 */
+/* 319 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -42375,7 +40956,7 @@
 	// https://github.com/reactjs/react-art
 
 	var assign = __webpack_require__(15);
-	var RenderLayer = __webpack_require__(334);
+	var RenderLayer = __webpack_require__(320);
 
 	function createComponent (name) {
 	  var ReactCanvasComponent = function (props) {
@@ -42399,14 +40980,14 @@
 
 
 /***/ },
-/* 334 */
+/* 320 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var FrameUtils = __webpack_require__(335);
-	var DrawingUtils = __webpack_require__(336);
-	var EventTypes = __webpack_require__(345);
+	var FrameUtils = __webpack_require__(321);
+	var DrawingUtils = __webpack_require__(322);
+	var EventTypes = __webpack_require__(331);
 
 	function RenderLayer () {
 	  this.children = [];
@@ -42593,7 +41174,7 @@
 
 
 /***/ },
-/* 335 */
+/* 321 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -42730,17 +41311,17 @@
 
 
 /***/ },
-/* 336 */
+/* 322 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var ImageCache = __webpack_require__(337);
-	var FontUtils = __webpack_require__(339);
-	var FontFace = __webpack_require__(340);
-	var FrameUtils = __webpack_require__(335);
-	var CanvasUtils = __webpack_require__(341);
-	var Canvas = __webpack_require__(344);
+	var ImageCache = __webpack_require__(323);
+	var FontUtils = __webpack_require__(325);
+	var FontFace = __webpack_require__(326);
+	var FrameUtils = __webpack_require__(321);
+	var CanvasUtils = __webpack_require__(327);
+	var Canvas = __webpack_require__(330);
 
 	// Global backing store <canvas> cache
 	var _backingStores = [];
@@ -43154,12 +41735,12 @@
 
 
 /***/ },
-/* 337 */
+/* 323 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var EventEmitter = __webpack_require__(338);
+	var EventEmitter = __webpack_require__(324);
 	var assign = __webpack_require__(15);
 
 	var NOOP = function () {};
@@ -43273,7 +41854,7 @@
 
 
 /***/ },
-/* 338 */
+/* 324 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -43580,12 +42161,12 @@
 
 
 /***/ },
-/* 339 */
+/* 325 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var FontFace = __webpack_require__(340);
+	var FontFace = __webpack_require__(326);
 
 	var _useNativeImpl = (typeof window.FontFace !== 'undefined');
 	var _pendingFonts = {};
@@ -43771,7 +42352,7 @@
 
 
 /***/ },
-/* 340 */
+/* 326 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -43830,14 +42411,14 @@
 
 
 /***/ },
-/* 341 */
+/* 327 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var FontFace = __webpack_require__(340);
-	var clamp = __webpack_require__(342);
-	var measureText = __webpack_require__(343);
+	var FontFace = __webpack_require__(326);
+	var clamp = __webpack_require__(328);
+	var measureText = __webpack_require__(329);
 
 	/**
 	 * Draw an image into a <canvas>. This operation requires that the image
@@ -44041,7 +42622,7 @@
 
 
 /***/ },
-/* 342 */
+/* 328 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -44060,13 +42641,13 @@
 
 
 /***/ },
-/* 343 */
+/* 329 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var FontFace = __webpack_require__(340);
-	var FontUtils = __webpack_require__(339);
+	var FontFace = __webpack_require__(326);
+	var FontUtils = __webpack_require__(325);
 
 	var canvas = document.createElement('canvas');
 	var ctx = canvas.getContext('2d');
@@ -44159,7 +42740,7 @@
 
 
 /***/ },
-/* 344 */
+/* 330 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44206,7 +42787,7 @@
 
 
 /***/ },
-/* 345 */
+/* 331 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -44223,7 +42804,7 @@
 
 
 /***/ },
-/* 346 */
+/* 332 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44231,9 +42812,9 @@
 	// Adapted from ReactART:
 	// https://github.com/reactjs/react-art
 
-	var FrameUtils = __webpack_require__(335);
-	var DrawingUtils = __webpack_require__(336);
-	var EventTypes = __webpack_require__(345);
+	var FrameUtils = __webpack_require__(321);
+	var DrawingUtils = __webpack_require__(322);
+	var EventTypes = __webpack_require__(331);
 
 	var LAYER_GUID = 0;
 
@@ -44322,7 +42903,7 @@
 
 
 /***/ },
-/* 347 */
+/* 333 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
@@ -44330,12 +42911,12 @@
 	var React = __webpack_require__(3);
 	var ReactUpdates = __webpack_require__(26);
 	var invariant = __webpack_require__(9);
-	var ContainerMixin = __webpack_require__(348);
-	var RenderLayer = __webpack_require__(334);
-	var FrameUtils = __webpack_require__(335);
-	var DrawingUtils = __webpack_require__(336);
-	var hitTest = __webpack_require__(349);
-	var layoutNode = __webpack_require__(350);
+	var ContainerMixin = __webpack_require__(334);
+	var RenderLayer = __webpack_require__(320);
+	var FrameUtils = __webpack_require__(321);
+	var DrawingUtils = __webpack_require__(322);
+	var hitTest = __webpack_require__(335);
+	var layoutNode = __webpack_require__(336);
 
 	/**
 	 * Surface is a standard React component and acts as the main drawing canvas.
@@ -44548,7 +43129,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ },
-/* 348 */
+/* 334 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -44683,13 +43264,13 @@
 
 
 /***/ },
-/* 349 */
+/* 335 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var FrameUtils = __webpack_require__(335);
-	var EventTypes = __webpack_require__(345);
+	var FrameUtils = __webpack_require__(321);
+	var EventTypes = __webpack_require__(331);
 
 	/**
 	 * RenderLayer hit testing
@@ -44780,12 +43361,12 @@
 
 
 /***/ },
-/* 350 */
+/* 336 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var computeLayout = __webpack_require__(351);
+	var computeLayout = __webpack_require__(337);
 
 	/**
 	 * This computes the CSS layout for a RenderLayer tree and mutates the frame
@@ -44831,7 +43412,7 @@
 
 
 /***/ },
-/* 351 */
+/* 337 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// https://github.com/facebook/css-layout
@@ -45497,13 +44078,13 @@
 
 
 /***/ },
-/* 352 */
+/* 338 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createComponent = __webpack_require__(333);
-	var LayerMixin = __webpack_require__(346);
+	var createComponent = __webpack_require__(319);
+	var LayerMixin = __webpack_require__(332);
 
 	var Layer = createComponent('Layer', LayerMixin, {
 
@@ -45527,15 +44108,15 @@
 
 
 /***/ },
-/* 353 */
+/* 339 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createComponent = __webpack_require__(333);
-	var ContainerMixin = __webpack_require__(348);
-	var LayerMixin = __webpack_require__(346);
-	var RenderLayer = __webpack_require__(334);
+	var createComponent = __webpack_require__(319);
+	var ContainerMixin = __webpack_require__(334);
+	var LayerMixin = __webpack_require__(332);
+	var RenderLayer = __webpack_require__(320);
 
 	var Group = createComponent('Group', LayerMixin, ContainerMixin, {
 
@@ -45568,20 +44149,20 @@
 
 
 /***/ },
-/* 354 */
+/* 340 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
 	var assign = __webpack_require__(15);
-	var createComponent = __webpack_require__(333);
-	var LayerMixin = __webpack_require__(346);
-	var Layer = __webpack_require__(352);
-	var Group = __webpack_require__(353);
-	var ImageCache = __webpack_require__(337);
-	var Easing = __webpack_require__(355);
-	var clamp = __webpack_require__(342);
+	var createComponent = __webpack_require__(319);
+	var LayerMixin = __webpack_require__(332);
+	var Layer = __webpack_require__(338);
+	var Group = __webpack_require__(339);
+	var ImageCache = __webpack_require__(323);
+	var Easing = __webpack_require__(341);
+	var clamp = __webpack_require__(328);
 
 	var FADE_DURATION = 200;
 
@@ -45687,7 +44268,7 @@
 
 
 /***/ },
-/* 355 */
+/* 341 */
 /***/ function(module, exports) {
 
 	// Penner easing equations
@@ -45729,16 +44310,16 @@
 
 
 /***/ },
-/* 356 */
+/* 342 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(3);
 	var assign = __webpack_require__(15);
-	var Scroller = __webpack_require__(357);
-	var Group = __webpack_require__(353);
-	var clamp = __webpack_require__(342);
+	var Scroller = __webpack_require__(343);
+	var Group = __webpack_require__(339);
+	var clamp = __webpack_require__(328);
 
 	var ListView = React.createClass({displayName: "ListView",
 
@@ -45921,13 +44502,13 @@
 
 
 /***/ },
-/* 357 */
+/* 343 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(358);
+	module.exports = __webpack_require__(344);
 
 /***/ },
-/* 358 */
+/* 344 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
@@ -45944,7 +44525,7 @@
 	 * License: MIT + Apache (V2)
 	 */
 
-	var core = __webpack_require__(359);
+	var core = __webpack_require__(345);
 	var Scroller;
 
 	(function() {
@@ -47297,7 +45878,7 @@
 
 
 /***/ },
-/* 359 */
+/* 345 */
 /***/ function(module, exports) {
 
 	/*
@@ -47542,7 +46123,1738 @@
 
 
 /***/ },
+/* 346 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(3);
+
+	var Notifier, removeTimer;
+
+	Notifier = React.createClass({displayName: "Notifier",
+
+	  getInitialState: function() {
+	    return {
+	      message: null,
+	      type:    null,
+	      visible: false
+	    };
+	  },
+
+	  componentDidMount: function() {
+
+	    PubSub.subscribe( 'notification', function(eventName, message) {
+
+	      this.setState({
+	        message: message.text,
+	        type:    message.type,
+	        visible: true,
+	        remove:  false
+	      });
+
+	      removeTimer = setTimeout(function() {
+	        this.setState({
+	          remove: true
+	        });
+
+	      }.bind(this), 5000)
+
+	    }.bind(this) );
+
+	  },
+
+	  close: function(event) {
+	    event.preventDefault();
+
+	    if (removeTimer) {
+	      clearTimeout(removeTimer);
+	    }
+
+	    this.setState({
+	      remove: true
+	    });
+	  },
+
+	  render: function() {
+	    var classes, animatedClasses;
+
+	    classes = this.state.type;
+
+	    if ( this.state.visible && !this.state.remove ) {
+
+	      if (removeTimer) {
+	        clearTimeout(removeTimer);
+	      }
+
+	      classes        += ' visible';
+	      animatedClasses = 'animated flipInX';
+
+	    } else if ( this.state.remove ) {
+
+	      classes        += ' visible';
+	      animatedClasses = 'animated flipOutX';
+
+	      setTimeout(function() {
+	        this.setState({
+	          visible: false,
+	          remove:  false
+	        });
+	      }.bind(this), 750);
+
+	    }
+
+	    return (
+	      React.createElement("div", {id: "notifications", className: classes}, 
+	        React.createElement("div", {id: "notifications-top-center", className: animatedClasses}, 
+	          this.state.message, 
+	          React.createElement("a", {id: "notifications-top-center-close", href: "#", onClick: this.close}, 
+	            React.createElement("i", {className: "fi-x"})
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Notifier;
+
+
+/***/ },
+/* 347 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React            = __webpack_require__(3);
+	var CharacterSearch  = __webpack_require__(350);
+	var CharacterResults = __webpack_require__(353);
+	var NewTeam          = __webpack_require__(355);
+	var TeamCreator      = __webpack_require__(348);
+	var MarvelTheme      = __webpack_require__(159);
+	var Menu             = __webpack_require__(307);
+	var mui              = __webpack_require__(160);
+	var ActionButton     = mui.FloatingActionButton;
+	var Dialog           = mui.Dialog;
+
+
+	var TeamBuilder, feedbackMessages;
+	feedbackMessages = [];
+	TeamBuilder = React.createClass({displayName: "TeamBuilder",
+
+	  mixins: [MarvelTheme],
+
+	  propTypes: {
+	    maxExperience: React.PropTypes.number,
+	    maxTeamSize:   React.PropTypes.number,
+	    loggedIn:      React.PropTypes.bool.isRequired,
+	    leaderTeamId:  React.PropTypes.number,
+	    team:          React.PropTypes.object
+	  },
+
+	  getDefaultProps: function() {
+	    loggedIn: false
+	  },
+
+	  getInitialState: function() {
+	    if ( !!this.props.team ) {
+	      localStorage.team = JSON.stringify(this.props.team);
+	    }
+
+	    if ( !localStorage.team ) {
+	      return {
+	        characters: [],
+	        team: {
+	          characters: [],
+	          experience: 0
+	        }
+	      };
+	    } else {
+	      return {
+	        characters:[],
+	        team: {
+	          characters: [],
+	          experience: 0
+	        },
+	        team: JSON.parse(localStorage.team)
+	      };
+	    }
+	  },
+
+	  showCharacters: function(characters) {
+	    this.setState({
+	      characters: characters
+	    });
+	  },
+
+	  addCharacterToTeam: function(character) {
+	    var team;
+	    team = JSON.parse(JSON.stringify(this.state.team));
+
+	    if ( this.props.maxTeamSize <= team.characters.length ) {
+	      PubSub.publish('notification', {
+	        text: 'Your team has too many superheroes',
+	        type: 'error'
+	      });
+	      return;
+	    }
+
+	    var alreadyAdded = !!team.characters
+	      .find(function(ch) { return ch.id == character.id; });
+
+	    if ( alreadyAdded ) {
+	      PubSub.publish('notification', {
+	        text: 'You already added ' + character.name,
+	        type: 'error'
+	      });
+	      return;
+	    }
+
+	    if ( this.props.maxExperience <= team.experience + character.experience ) {
+	      PubSub.publish( 'notification', {
+	        text: 'Your team is too powerful',
+	        type: 'error'
+	      });
+	      return;
+	    }
+
+	    team.characters.push(character);
+	    team.experience += character.experience;
+
+	    PubSub.publish( 'notification', {
+	      text: 'Added ' + character.name + ' to team',
+	      type: 'success'
+	    } );
+
+	    if ( this.props.maxTeamSize === team.characters.length ) {
+	      team.isValid = true
+	    }
+
+	    try {
+	      localStorage.team = JSON.stringify(team);
+	    } catch(e) {
+	      // Can't use local storage in private mode in Safari
+	    }
+
+	    this.setState({
+	      team: team
+	    });
+
+	    this.refs.search.reset();
+	  },
+
+	  startAssemblingTeam: function() {
+	    if ( this.props.loggedIn ) {
+	      this.refs.creator.create();
+	    } else {
+	      this.refs.modal.show();
+	    }
+	  },
+
+	  teamAssembled: function(team) {
+	    this.setState({
+	      creatingTeam: false
+	    });
+	    PubSub.publish('notification', {
+	      text: 'Team create successfully',
+	      type: 'success'
+	    });
+	  },
+
+	  removeCharacterFromTeam: function(removeCharacter) {
+	    var team;
+	    team = JSON.parse(JSON.stringify(this.state.team));
+	    team.characters = team.characters.filter(function(character) {
+	      return character.id !== removeCharacter.id;
+	    });
+
+	    team.experience  -= removeCharacter.experience;
+	    team.isValid      = false
+	    localStorage.team = JSON.stringify(team);
+
+	    this.setState({
+	      team: team
+	    });
+	  },
+
+	  goToProfile: function(team) {
+	    setTimeout(function() {
+	      window.location = '/teams/' + team.id;
+	    }, 2000);
+	  },
+
+	  signIn: function() {
+	    window.location = '/auth/facebook';
+	  },
+
+	  hideModal: function() {
+	    this.refs.modal.dismiss();
+	  },
+
+	  render: function() {
+	    var standardActions = [
+	      { text: 'No Thanks' },
+	      { text: 'Sure!', onTouchTap: this.signIn, ref: 'submit' }
+	    ];
+
+	    return (
+	      React.createElement("div", null, 
+	        React.createElement(Menu, {title: "Assemble Team", 
+	          loggedIn: this.props.loggedIn, 
+	          leaderTeamId: this.props.leaderTeamId}
+	        ), 
+	        React.createElement("div", {id: "main"}, 
+	          React.createElement(NewTeam, {
+	            team: this.state.team, 
+	            allowedExperience: this.props.maxExperience, 
+	            maxTeamSize: this.props.maxTeamSize, 
+	            onRemoveCharacter: this.removeCharacterFromTeam}), 
+	          React.createElement(CharacterSearch, {ref: "search", onSearchSuccess: this.showCharacters}), 
+	          React.createElement(CharacterResults, {
+	            onCharacterSelect: this.addCharacterToTeam, 
+	            characters: this.state.characters}), 
+	          React.createElement(TeamCreatorFeedback, {
+	            ref: "creator", 
+	            onCreate: this.goToProfile, 
+	            team: this.state.team}), 
+	          React.createElement("div", {id: "create_team_button", className: "team-floating-action-button"}, 
+	            React.createElement(ActionButton, {
+	              onClick: this.startAssemblingTeam, 
+	              disabled: !this.state.team.isValid}, 
+	              React.createElement("i", {className: "material-icons"}, "build")
+	            )
+	          ), 
+	          React.createElement(Dialog, {
+	            ref: "modal", 
+	            title: "Sign In", 
+	            actions: standardActions, 
+	            actionFocus: "submit"}, 
+	            "Please sign in using your Facebook account to assemble your team."
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = TeamBuilder;
+
+
+/***/ },
+/* 348 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React      = __webpack_require__(3);
+	var Continuity = __webpack_require__(349);
+	var mui        = __webpack_require__(160);
+	var Dialog     = mui.Dialog;
+	var Progress   = mui.CircularProgress;
+
+	var TeamCreator, continuityTeamBuilder, matchedCharacters;
+	matchedCharacters = {};
+
+	continuityTeamBuilder = new Continuity([], function(characters, resolve, reject) {
+	  $.ajax({
+	    url: '/api/v1/characters/camaraderie',
+	    type: 'GET',
+	    dataType: 'json',
+	    data: {
+	      character_id: characters[0].id,
+	      other_character_id: characters[1].id
+	    },
+	    success: function(data) {
+	      resolve(data.total);
+	    },
+	    error: reject
+	  });
+	});
+
+	function alreadyMatched(matches, character, otherCharacter) {
+	  return character.id == otherCharacter.id ||
+	           (matches[character.id] && matches[character.id].indexOf(otherCharacter.id) != -1) ||
+	           (matches[otherCharacter.id] && [otherCharacter.id].indexOf(character.id) != -1)
+	}
+
+	function primeCharacterCamaraderie(character, characters) {
+	  var _i, _len, _char;
+	  for ( _i = 0, _len = characters.length; _i < _len; _i++ ) {
+	    _char = characters[_i];
+
+	    if ( !alreadyMatched(matchedCharacters, _char, character) ) {
+	      matchedCharacters[_char.id] = matchedCharacters[_char.id] || [];
+	      matchedCharacters[_char.id].push(character.id);
+	      continuityTeamBuilder.queue([_char, character]);
+	    }
+	  }
+	}
+
+	function getTeamCamaraderie() {
+	  return continuityTeamBuilder;
+	}
+
+	function createTeam(teamAttributes) {
+	  return $.Deferred(function(defer) {
+	    var characterIds;
+	    characterIds = teamAttributes.characters.map(function(c) {
+	      return c.id
+	    });
+	    delete teamAttributes.characters;
+
+	    teamAttributes.character_ids = characterIds;
+
+	    if ( teamAttributes.id ) {
+	      url    = '/api/v1/teams/' + teamAttributes.id;
+	      method = 'PUT';
+	    } else {
+	      url    = '/api/v1/teams';
+	      method = 'POST';
+	    }
+
+	    $.ajax({
+	      url: url,
+	      type: method,
+	      dataType: 'json',
+	      data: {
+	        team: teamAttributes
+	      },
+	      success: function(team) {
+	        defer.resolve(team);
+	      },
+	      error: function(data) {
+	        defer.reject(data);
+	      }
+	    });
+	  }).promise();
+	}
+
+	TeamCreatorFeedback = React.createClass({displayName: "TeamCreatorFeedback",
+
+	  getInitialState: function() {
+	    return {
+	      creating: false,
+	      created: false
+	    };
+	  },
+
+	  assembleTeam: function() {
+	    var team;
+	    team = JSON.parse(JSON.stringify(this.props.team));
+
+	    this.setState({
+	      creating: true,
+	      created: false
+	    });
+
+	    getTeamCamaraderie()
+	      .then(function(camaraderieValues) {
+	        createTeam(team)
+	         .then(function(team) {
+	           this.setState({
+	             creating: false,
+	             created: true
+	           });
+
+	           if ( this.props.onCreate ) {
+	             this.props.onCreate(team);
+	           }
+	         }.bind(this))
+
+	         .fail(function(errorData) {
+	           this.setState({
+	             creating: false,
+	             created: false
+	           });
+	           console.warn('There was an error saving team', errorData);
+	         });
+
+	      }.bind(this))
+
+	      .progress(function(camaraderieValue, characters) {
+	        if ( !!this.props.onAssembleTeamProgress ) {
+	          this.props.onAssembleTeamProgress(characters);
+	        }
+	      }.bind(this))
+
+	      .catch(function(error) {
+	        console.error(error);
+	      });
+	  },
+
+	  componentDidUpdate: function(prevProps) {
+	    var newCharacter;
+	    if ( this.props.team.characters.length > prevProps.team.characters.length ) {
+	      newCharacter = this.props.team.characters[this.props.team.characters.length - 1];
+	      primeCharacterCamaraderie(newCharacter, this.props.team.characters);
+	    }
+	  },
+
+	  create: function() {
+	    this.refs.modal.show();
+	    this.assembleTeam();
+	  },
+
+	  render: function() {
+	    function renderMessage() {
+	      if ( this.state.creating ) {
+	        return (
+	          React.createElement("div", null, 
+	            React.createElement("p", {className: "creating-message"}, 
+	              "Give us a second while we assemble your Avengers…"
+	            ), 
+	            React.createElement("br", null), 
+	            React.createElement(Progress, {mode: "indeterminate", size: 2})
+	          )
+	        );
+	      } else if ( this.state.created ) {
+	        return (
+	          React.createElement("div", null, 
+	            React.createElement("p", {className: "success-message"}, 
+	              "Avengers Assembled!"
+	            ), 
+	            React.createElement("br", null), 
+	            React.createElement(Progress, {mode: "determinate", value: 100, size: 2})
+	          )
+	        );
+	      }
+	    }
+	    return (
+	      React.createElement("div", {id: "team_creator_feedback"}, 
+	        React.createElement(Dialog, {
+	          ref: "modal", 
+	          title: "Assembling Team", 
+	          modal: true}, 
+	          renderMessage.call(this)
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = TeamCreator;
+
+
+/***/ },
+/* 349 */
+/***/ function(module, exports) {
+
+	/*!
+	 * Continuity
+	 * Copyright(c) 2015 Ryan Scott Norman
+	 * MIT Licensed
+	 */
+
+	'use strict';
+
+	/**
+	 * Creates an object that iterates over a collection and passing values
+	 * into asynchronous functions that resolve or reject promises. Each function
+	 * must wait until the previous one has finished before starting.
+	 *
+	 * To create a Continuity object:
+	 *
+	 *       new Continuity([1, 2], function(value, resolve, reject) {
+	 *
+	 *         setTimeout(function() {
+	 *           if ( isNaN(value) ) {
+	 *             reject('Cannot operate on ' + value + ' because it\'s not a number');
+	 *           } else {
+	 *             resolve(value + 1);
+	 *           }
+	 *         }, 1000);
+	 *
+	 *       });
+	 *
+	 * The `then` method will return all the values resolved by the promises:
+	 *
+	 *       new Continuity([1, 2], function(value, resolve) {
+	 *
+	 *         setTimeout(function() {
+	 *           resolve(value + 1);
+	 *         }, 1000);
+	 *
+	 *       }).then(function(values) {
+	 *
+	 *         assert(values == [2, 3]);
+	 *
+	 *       });
+	 *
+	 * The `progress` method will return the value resolved by the current
+	 * executing promise along with the original value, all the returned
+	 * values and progress:
+	 *
+	 *       new Continuity([1, 2], function(value, resolve) {
+	 *
+	 *         setTimeout(function() {
+	 *           resolve(value + 1);
+	 *         }, 1000);
+	 *
+	 *       }).progress(function(value, originalValue, values, progress) {
+	 *
+	 *         // First iteration
+	 *         if ( progress == 1 ) {
+	 *           assert(value == 2);
+	 *           assert(originalValue == 1);
+	 *           assert(values == [2]);
+	 *           assert(progress == 1);
+	 *         }
+	 *
+	 *         // Second iteration
+	 *         else {
+	 *           assert(value == 3);
+	 *           assert(originalValue == 2);
+	 *           assert(values == [2, 3]);
+	 *           assert(progress == 2);
+	 *         }
+	 *
+	 *       });
+	 *
+	 * The `catch` method behaves like a Promise in that it returns the object that
+	 * that caused the promise to reject, effectively stopping the iterator.
+	 *
+	 *       new Continuity([1, 2], function(value, resolve, reject) {
+	 *
+	 *         setTimeout(function() {
+	 *           reject('Dislike this value: ' + value);
+	 *         }, 1000);
+	 *
+	 *       }).catch(function(error) {
+	 *
+	 *         assert(error == 'Dislike this value: 1');
+	 *
+	 *       });
+	 *
+	 * @param {Array} collection that will be used to call function
+	 * @param {Function} asynchronous function that will be called for each value
+	 *                   in the collection
+	 * @return {Continuity} for thenable methods and progress callback
+	 * @public
+	 */
+	var Continuity = function(originalCollection, iterationFn) {
+	  var continuityPromise,
+	      continuityResolve,
+	      continuityReject,
+	      progressCallbacks,
+	      valueQueue,
+	      resolvedValues,
+	      isRunningPromise,
+	      errorValue,
+	      _continuity;
+
+	  // Store scope
+	  _continuity = this;
+
+	  // Empty array of progress callbacks
+	  progressCallbacks = [];
+
+	  // Initialize empty array of values
+	  resolvedValues = [];
+
+	  // Clone collection to create queue of values to call iteration function
+	  valueQueue = Array.prototype.slice.call(originalCollection);
+
+
+	  /**
+	   * Returns whether or not there are any values left in the queue
+	   *
+	   * @return {Bool} true if valueQueue length is greater than zero,
+	   *                false otherwise
+	   * @private
+	   */
+	  function isFinishedIterating() {
+	    return valueQueue.length == 0 && !isRunningPromise;
+	  }
+
+	  /**
+	   * Pushes new value into values array and fires all progress callbacks
+	   *
+	   * @param {Any} The value that is resolved from asynchronous function
+	   * @private
+	   */
+	  function onSuccessIteration(resolvedValue) {
+	    isRunningPromise = false;
+
+	    resolvedValues.push(resolvedValue); // push newest value
+
+	    // fire all progress callbacks on each iteration
+	    progressCallbacks.map(function(callback) {
+	      callback(
+	        resolvedValue,
+	        originalCollection[resolvedValues.length -1],
+	        resolvedValues,
+	        resolvedValues.length
+	      );
+	    });
+	  }
+
+	  /**
+	   * Recursive function that queues up functions that resolve or reject promises
+	   * with values in collection
+	   *
+	   * @private
+	   */
+	  function collectionIterator() {
+	    var iterationPromise;
+
+	    isRunningPromise = true;
+
+	    // Create iteration promise to pass resolver and rejecter into function. The
+	    // iteration function is called with the first element of the collection.
+	    iterationPromise = new Promise(function(iterationResolve, iterationReject) {
+	      iterationFn(valueQueue.shift(), iterationResolve, iterationReject)
+	    });
+
+	    // Resolved iteration
+	    iterationPromise.then(function(resolvedValue) {
+	      onSuccessIteration(resolvedValue);
+
+	      if ( !isFinishedIterating() ) {
+	        collectionIterator();
+	      } else {
+	        if ( !!continuityResolve ) {
+	          continuityResolve(resolvedValues);
+	        }
+	      }
+
+	    });
+
+	    // Rejected iteration
+	    iterationPromise.catch(function(_errorValue) {
+	      errorValue = _errorValue;
+	      isRunningPromise = false;
+
+	      if ( !!continuityReject ) {
+	        continuityReject(errorValue);
+	      }
+	    });
+
+	  }
+
+	  /**
+	   * Create promise to resolve once all other promises are resolved.
+	   * Store resolve and reject functions so we can chain with a Promise-like
+	   * object.
+	   */
+	  function createContinuityPromise() {
+	    continuityPromise = new Promise(function(resolve, reject) {
+	      continuityResolve = resolve;
+	      continuityReject = reject;
+	    });
+	  }
+
+
+	  /**
+	   * @method then
+	   *
+	   * Adds resolve and reject callbacks that behave exactly like Promise
+	   * `then` method
+	   *
+	   * Without reject callback:
+	   *
+	   *       new Continuity([1, 2], function(value, resolve) {
+	   *
+	   *         setTimeout(function() {
+	   *           resolve(value + 1);
+	   *         }, 1000);
+	   *
+	   *       }).then(function(values) {
+	   *
+	   *         assert(values == [2, 3]);
+	   *
+	   *       });
+	   *
+	   * With reject callback:
+	   *
+	   *       new Continuity([1, 2, 'George'], function(value, resolve, reject) {
+	   *
+	   *         setTimeout(function() {
+	   *           if ( isNaN(value) ) {
+	   *             reject('Cannot operate on ' + value + ' because it\'s not a number');
+	   *           } else {
+	   *             resolve(value + 1);
+	   *           }
+	   *         }, 1000);
+	   *
+	   *       }).then(function(values) {
+	   *
+	   *         assert(values == [2, 3]);
+	   *
+	   *       }, function(error) {
+	   *
+	   *         console.warn("There was an error!", error);
+	   *
+	   *       });
+	   *
+	   * @param {Function} asynchronous function that will be called with
+	   *                   resolved value
+	   * @param {Function} asynchronous function that will be called with
+	   *                   error value
+	   * @return {Continuity} for thenable methods and progress callback
+	   * @public
+	   */
+	  this.then = function(resolveCallback, rejectCallback) {
+	    if ( !continuityPromise ) {
+	      createContinuityPromise();
+	    }
+
+	    continuityPromise.then(resolveCallback, rejectCallback);
+
+	    if ( isFinishedIterating() ) {
+	      continuityResolve(resolvedValues);
+	    }
+
+	    return _continuity;
+	  };
+
+	  /**
+	   * @method catch
+	   *
+	   * Adds reject callback that behave exactly like Promise `catch` method
+	   *
+	   *       new Continuity([1, 2], function(value, resolve, reject) {
+	   *
+	   *         setTimeout(function() {
+	   *           if ( isNaN(value) ) {
+	   *             reject('Cannot operate on ' + value + ' because it\'s not a number');
+	   *           } else {
+	   *             resolve(value + 1);
+	   *           }
+	   *         }, 1000);
+	   *
+	   *       }).catch(function(error) {
+	   *
+	   *         console.warn("There was an error!", error);
+	   *
+	   *       });
+	   *
+	   * @param {Function} asynchronous function that will be called with
+	   *                   error value
+	   * @return {Continuity} for thenable methods and progress callback
+	   * @public
+	   */
+	  this.catch = function(callback) {
+	    if ( !continuityPromise ) {
+	      createContinuityPromise();
+	    }
+	    continuityPromise.catch(callback);
+
+	    if ( !!errorValue ) {
+	      continuityReject(errorValue);
+	    }
+
+	    return _continuity;
+	  };
+
+	  /**
+	   * @method progress
+	   *
+	   * Adds progress callback that is called for each iteration of collection.
+	   * The callback will be called with resolved value, original value, all
+	   * resolved values, and the current progress.
+	   *
+	   *       new Continuity([1, 2], function(value, resolve) {
+	   *
+	   *         setTimeout(function() {
+	   *           resolve(value + 1);
+	   *         }, 1000);
+	   *
+	   *       }).progress(function(value, originalValue, values, progress) {
+	   *
+	   *         // First iteration
+	   *         if ( progress == 1 ) {
+	   *           assert(value == 2);
+	   *           assert(originalValue == 1);
+	   *           assert(values == [2]);
+	   *           assert(progress == 1);
+	   *         }
+	   *
+	   *         // Second iteration
+	   *         else {
+	   *           assert(value == 3);
+	   *           assert(originalValue == 2);
+	   *           assert(values == [2, 3]);
+	   *           assert(progress == 2);
+	   *         }
+	   *
+	   *       });
+	   *
+	   * @param {Function} asynchronous function that will be called with resolved
+	   *                   value, original value, all resolved values, and the
+	   *                   current progress
+	   * @return {Continuity} for thenable methods and progress callback
+	   * @public
+	   */
+	  this.progress = function(callback) {
+	    resolvedValues.map(function(resolvedValue, index) {
+	      callback(
+	        resolvedValue,
+	        originalCollection[index],
+	        resolvedValues.slice(0, index + 1),
+	        index + 1
+	      );
+	    });
+
+	    progressCallbacks.push(callback);
+	    return _continuity;
+	  };
+
+	  /**
+	   * @method queue
+	   *
+	   * Queues value that will trigger another asynchronous function.
+	   * Cannot queue another value if then or catch callback have been
+	   * attached since promise can only be resolved once.
+	   *
+	   * @param {Any} value that will trigger another asynchronous function
+	   * @public
+	   */
+	  this.queue = function(value) {
+	    var hasResolvedAllValues;
+
+	    if ( !!continuityPromise ) {
+	      throw new Error('All values resolved, cannot push another value');
+	    }
+
+	    hasResolvedAllValues = isFinishedIterating();
+
+	    valueQueue.push(value);
+	    originalCollection.push(value);
+
+	    if ( hasResolvedAllValues ) {
+	      collectionIterator();
+	    }
+
+	    return _continuity;
+	  };
+
+
+	  // Start iterating through collection
+	  if ( valueQueue.length > 0 ) {
+	    collectionIterator();
+	  }
+
+	};
+
+	/**
+	 * Module exports
+	 * @public
+	 */
+	module.exports = Continuity;
+
+
+/***/ },
+/* 350 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React     = __webpack_require__(3);
+	var debounce  = __webpack_require__(351);
+	var mui       = __webpack_require__(160);
+	var Paper     = mui.Paper;
+	var TextField = mui.TextField;
+
+	var MIN_QUERY_LENGTH = 3;
+
+	var CharacterSearch = React.createClass({displayName: "CharacterSearch",
+	  getInitialState: function() {
+	    return {
+	      clearSearch: false
+	    };
+	  },
+
+	  searchCharacters: function searchCharacters() {
+	    var characterQuery;
+	    characterQuery = this.refs.searchField.getValue();
+
+	    if ( characterQuery.length < MIN_QUERY_LENGTH ) {
+	      return;
+	    }
+
+	    $.ajax({
+	      url: '/api/v1/characters',
+	      type: 'GET',
+	      dataType: 'json',
+	      data: {
+	        query: this.refs.searchField.getValue()
+	      },
+	      success: function(matchingCharacters) {
+	        this.props.onSearchSuccess(matchingCharacters);
+	      }.bind(this)
+	    });
+	  },
+
+	  reset: function() {
+	    this.setState({
+	      clearSearch: true
+	    });
+	  },
+
+	  clearText: function() {
+	    if ( this.state.clearSearch ) {
+	      this.setState({
+	        clearSearch: false
+	      });
+	      this.refs.searchField.setValue('');
+	    }
+	  },
+
+	  render: function() {
+	      return (
+	        React.createElement(Paper, {zIndex: 1}, 
+	          React.createElement(TextField, {
+	            name: "character-search", 
+	            className: "character-search-field", 
+	            ref: "searchField", 
+	            hintText: "Search Marvel Characters", 
+	            fullWidth: true, 
+	            onChange: debounce(this.searchCharacters, 500), 
+	            onFocus: this.clearText})
+	        )
+	      );
+	  }
+	});
+
+	module.exports = CharacterSearch;
+
+
+/***/ },
+/* 351 */
+/***/ function(module, exports, __webpack_require__) {
+
+	
+	/**
+	 * Module dependencies.
+	 */
+
+	var now = __webpack_require__(352);
+
+	/**
+	 * Returns a function, that, as long as it continues to be invoked, will not
+	 * be triggered. The function will be called after it stops being called for
+	 * N milliseconds. If `immediate` is passed, trigger the function on the
+	 * leading edge, instead of the trailing.
+	 *
+	 * @source underscore.js
+	 * @see http://unscriptable.com/2009/03/20/debouncing-javascript-methods/
+	 * @param {Function} function to wrap
+	 * @param {Number} timeout in ms (`100`)
+	 * @param {Boolean} whether to execute at the beginning (`false`)
+	 * @api public
+	 */
+
+	module.exports = function debounce(func, wait, immediate){
+	  var timeout, args, context, timestamp, result;
+	  if (null == wait) wait = 100;
+
+	  function later() {
+	    var last = now() - timestamp;
+
+	    if (last < wait && last > 0) {
+	      timeout = setTimeout(later, wait - last);
+	    } else {
+	      timeout = null;
+	      if (!immediate) {
+	        result = func.apply(context, args);
+	        if (!timeout) context = args = null;
+	      }
+	    }
+	  };
+
+	  return function debounced() {
+	    context = this;
+	    args = arguments;
+	    timestamp = now();
+	    var callNow = immediate && !timeout;
+	    if (!timeout) timeout = setTimeout(later, wait);
+	    if (callNow) {
+	      result = func.apply(context, args);
+	      context = args = null;
+	    }
+
+	    return result;
+	  };
+	};
+
+
+/***/ },
+/* 352 */
+/***/ function(module, exports) {
+
+	module.exports = Date.now || now
+
+	function now() {
+	    return new Date().getTime()
+	}
+
+
+/***/ },
+/* 353 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React           = __webpack_require__(3);
+	var CharacterResult = __webpack_require__(354);
+	var mui             = __webpack_require__(160);
+	var List            = mui.List;
+
+	var CharacterResults = React.createClass({displayName: "CharacterResults",
+
+	  selectCharacter: function(character) {
+	    if (this.props.onCharacterSelect) {
+	      this.props.onCharacterSelect(character);
+	    }
+	  },
+
+	  render: function() {
+	    var createItem = function(character, index) {
+	      return (
+	        React.createElement(CharacterResult, {
+	          key: character.id, 
+	          character: character, 
+	          onCharacterSelect: this.selectCharacter})
+	      );
+	    };
+
+	    return (
+	      React.createElement(List, {id: "character_results"}, 
+	        this.props.characters.map(createItem.bind(this))
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = CharacterResults;
+
+
+/***/ },
+/* 354 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React      = __webpack_require__(3);
+	var mui        = __webpack_require__(160);
+	var ListItem   = mui.ListItem;
+	var Paper      = mui.Paper;
+	var Avatar     = mui.Avatar;
+	var IconButton = mui.IconButton;
+
+
+	var Character = React.createClass({displayName: "Character",
+
+	  selectCharacter: function(event) {
+	    event.preventDefault();
+
+	    if (this.props.onCharacterSelect) {
+	      this.props.onCharacterSelect(this.props.character);
+	    }
+	  },
+
+	  render: function() {
+	    var characterId;
+	    characterId = 'character_result_' + this.props.character.id;
+
+	    return (
+	      React.createElement(Paper, {zDepth: 1, className: "character-result", id: characterId}, 
+	        React.createElement(ListItem, {
+	          leftAvatar: 
+	            React.createElement(Avatar, {src: this.props.character.thumbnail_url}), 
+	          
+	          rightIconButton: 
+	            React.createElement(IconButton, null, 
+	              React.createElement("i", {className: "material-icons md-light"}, "add_box")
+	            ), 
+	          
+	          primaryText: 
+	            React.createElement("span", {className: "character-name"}, 
+	              this.props.character.name
+	            ), 
+	          
+	          secondaryText: 
+	            React.createElement("p", null, 
+	              React.createElement("span", {className: "real-name"}, 
+	                this.props.character.real_name
+	              ), 
+	              React.createElement("br", null), 
+	              React.createElement("span", {className: "description"}, 
+	                this.props.character.description
+	              )
+	            ), 
+	          
+	          secondaryTextLines: 2, 
+	          onClick: this.selectCharacter})
+	      )
+	    );
+	  }
+
+	});
+
+	module.exports = Character;
+
+
+/***/ },
+/* 355 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React          = __webpack_require__(3);
+	var CharacterSlot  = __webpack_require__(356);
+	var mui            = __webpack_require__(160);
+	var Avatar         = mui.Avatar;
+	var Paper          = mui.Paper;
+	var LinearProgress = mui.LinearProgress;
+
+	var NewTeam;
+
+	function getCharacterSlots(characters, maxTeamSize) {
+	  var characterSlots, _i, _len
+	  characterSlots = [];
+	  for (_i = 0, _len = characters.length; _i < _len; _i++) {
+	    characterSlots.push(characters[_i]);
+	  }
+
+	  while ( characterSlots.length < maxTeamSize ) {
+	    characterSlots.push(false);
+	  }
+
+	  return characterSlots;
+	}
+
+	NewTeam = React.createClass({displayName: "NewTeam",
+
+	  propTypes: {
+	    team:              React.PropTypes.object.isRequired,
+	    allowedExperience: React.PropTypes.number.isRequired,
+	    maxTeamSize:       React.PropTypes.number,
+	    onRemoveCharacter: React.PropTypes.func
+	  },
+
+	  getDefaultProps: function() {
+	    return {
+	      maxTeamSize: 5
+	    };
+	  },
+
+	  assembleTeam: function(event) {
+	    event.preventDefault();
+
+	    if ( this.props.onAssembleTeam ) {
+	      this.props.onAssembleTeam();
+	    }
+	  },
+
+	  removeCharacter: function(character) {
+	    if ( !!this.props.onRemoveCharacter ) {
+	      this.props.onRemoveCharacter(character);
+	    }
+	  },
+
+	  render: function() {
+	    var totalPercentExperience;
+	    totalPercentExperience = Math.round(
+	      this.props.team.experience / this.props.allowedExperience * 100
+	    );
+
+	    function createItem(character, index) {
+	      return (
+	        React.createElement(CharacterSlot, {
+	          character: character, 
+	          key: index, 
+	          onRemove: this.removeCharacter})
+	      );
+	    };
+
+	    return (
+	      React.createElement(Paper, {id: "new_team", zIndex: 2}, 
+	        React.createElement("div", {id: "team_characters"}, 
+	          
+	            getCharacterSlots(
+	              this.props.team.characters,
+	              this.props.maxTeamSize
+	            ).map(createItem.bind(this))
+	          
+	        ), 
+	        React.createElement(LinearProgress, {mode: "determinate", value: totalPercentExperience})
+	      )
+	    );
+	  }
+	});
+
+	module.exports = NewTeam;
+
+
+/***/ },
+/* 356 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(3);
+	var mui    = __webpack_require__(160);
+	var Avatar = mui.Avatar;
+
+	var CharacterSlot;
+
+	CharacterSlot = React.createClass({displayName: "CharacterSlot",
+
+	  propTypes: {
+	    character: React.PropTypes.any,
+	    onRemove:  React.PropTypes.func
+	  },
+
+	  removeCharacter: function() {
+	    if ( !!this.props.onRemove ) {
+	      this.props.onRemove(this.props.character);
+	    }
+	  },
+
+	  render: function() {
+	    var character, characterId;
+	    character = this.props.character;
+	    if ( !!character ) {
+	      characterId = 'team_character_' + character.id;
+
+	      return (
+	        React.createElement("div", {className: "team-character", id: characterId, onClick: this.removeCharacter}, 
+	          React.createElement("div", {className: "character-avatar"}, 
+	            React.createElement(Avatar, {src: character.thumbnail_url}), 
+	            React.createElement("a", {href: "javascript:;", className: "remove-character", onClick: this.removeCharacter}, 
+	              React.createElement(Avatar, {icon: 
+	                React.createElement("i", {className: "material-icons md-dark"}, 
+	                  "clear"
+	                )
+	              })
+	            )
+	          )
+	        )
+	      );
+	    } else {
+	      return (
+	        React.createElement("div", {className: "team-character"}, 
+	          React.createElement(Avatar, {
+	            icon: 
+	              React.createElement("i", {className: "material-icons md-dark"}, "flash_on")
+	            })
+	        )
+	      );
+	    }
+	  }
+	});
+
+	module.exports = CharacterSlot;
+
+
+/***/ },
+/* 357 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React        = __webpack_require__(3);
+	var mui          = __webpack_require__(160);
+	var List         = mui.List;
+	var Paper        = mui.Paper;
+	var Menu         = __webpack_require__(307);
+	var Team         = __webpack_require__(358);
+	var MarvelTheme  = __webpack_require__(159);
+
+	var TeamRankings = React.createClass({displayName: "TeamRankings",
+
+	  mixins: [MarvelTheme],
+
+	  propTypes: {
+	    loggedIn:     React.PropTypes.bool.isRequired,
+	    leaderTeamId: React.PropTypes.number,
+	    teams:        React.PropTypes.array.isRequired
+	  },
+
+	  render: function() {
+	    var topTeamScore;
+
+	    function createTeam(team) {
+	      topTeamScore = topTeamScore || this.props.teams[0].score;
+	      return React.createElement(Team, {team: team, maxScore: topTeamScore, key: team.id})
+	    }
+
+	    return (
+	      React.createElement("div", null, 
+	        React.createElement(Menu, {title: "Leaderboard", 
+	          loggedIn: this.props.loggedIn, 
+	          leaderTeamId: this.props.leaderTeamId}
+	        ), 
+	        React.createElement("div", {id: "main"}, 
+	          (function() {
+	            if ( this.props.teams.length > 0 ) {
+	              return (
+	                React.createElement(List, {id: "ranking_teams"}, 
+	                  this.props.teams.map(createTeam.bind(this))
+	                )
+	              );
+	            } else {
+	              return (
+	                React.createElement(Paper, {zIndex: 1}, 
+	                  React.createElement("p", null, 
+	                    React.createElement("em", null, "No one has created any teams")
+	                  )
+	                )
+	              );
+	            }
+	          }).call(this)
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = TeamRankings;
+
+
+/***/ },
+/* 358 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(3);
+	var mui    = __webpack_require__(160);
+
+	var List           = mui.List;
+	var ListItem       = mui.ListItem;
+	var FontIcon       = mui.FontIcon;
+	var Paper          = mui.Paper;
+	var LinearProgress = mui.LinearProgress;
+	var Avatar         = mui.Avatar;
+	var Character      = __webpack_require__(359);
+
+
+	var Team = React.createClass({displayName: "Team",
+
+	  propTypes: {
+	    team:     React.PropTypes.object.isRequired,
+	    maxScore: React.PropTypes.number.isRequired
+	  },
+
+	  render: function() {
+	    var scorePercent, team;
+	    team = this.props.team;
+	    scorePercent = Math.round(team.score / this.props.maxScore * 100);
+
+	    function createCharacter(character, index) {
+	      return React.createElement(Character, {character: character, key: index})
+	    }
+
+	    return (
+	      React.createElement(Paper, {zDepth: 1, className: "ranking-team-container"}, 
+	        React.createElement(ListItem, {href: '/teams/' + team.id}, 
+	          React.createElement("div", {className: "ranking-team"}, 
+	            React.createElement("div", {className: "leader-icon"}, 
+	              React.createElement(Avatar, {src: team.leader.image + '?type=large', size: 60})
+	            ), 
+	            React.createElement("div", {className: "team-details"}, 
+	              React.createElement("div", {className: "team-name"}, team.rank, ". ", team.name), 
+	              React.createElement(LinearProgress, {mode: "determinate", value: scorePercent}), 
+	              React.createElement("div", {className: "team-characters"}, 
+	                team.characters.map(createCharacter.bind(this))
+	              )
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Team;
+
+
+/***/ },
+/* 359 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React  = __webpack_require__(3);
+	var mui    = __webpack_require__(160);
+	var Avatar = mui.Avatar;
+
+
+	var Character = React.createClass({displayName: "Character",
+
+	  propTypes: {
+	    character: React.PropTypes.object.isRequired
+	  },
+
+	  render: function() {
+	    var character;
+	    character = this.props.character;
+
+	    return (
+	      React.createElement("div", {className: "team-character"}, 
+	        React.createElement(Avatar, {src: character.thumbnail_url, size: 40, key: character.id})
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Character;
+
+
+/***/ },
 /* 360 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React        = __webpack_require__(3);
+	var mui          = __webpack_require__(160);
+	var Paper        = mui.Paper;
+	var Menu         = __webpack_require__(307);
+	var MarvelTheme  = __webpack_require__(159);
+
+	var PrivacyPage = React.createClass({displayName: "PrivacyPage",
+
+	  mixins: [MarvelTheme],
+
+	  propTypes: {
+	    loggedIn:     React.PropTypes.bool.isRequired,
+	    leaderTeamId: React.PropTypes.number,
+	  },
+
+	  render: function() {
+	    return (
+	      React.createElement("div", null, 
+	        React.createElement(Menu, {title: "Leaderboard", 
+	          loggedIn: this.props.loggedIn, 
+	          leaderTeamId: this.props.leaderTeamId}
+	        ), 
+	        React.createElement("div", {id: "main"}, 
+	          React.createElement(Paper, {zIndex: 1}, 
+	            React.createElement("div", {id: "privacy_policy"}, 
+	              React.createElement("h1", null, "Application Privacy Statement"), 
+	              React.createElement("img", {id: "privacy_logo", src: "/images/avengers-assemble-logo-medium.png"}), 
+	              React.createElement("p", null, 
+	                "This privacy statement applies to the treatment of personally identifiable" + " " +
+	                "information submitted by, or otherwise obtained from, you in connection with" + " " +
+	                "the associated application (\"Assemble Avengers\"). The Application is provided" + " " +
+	                "by Norman Development (and may be provided by Norman Development on behalf of" + " " +
+	                "a Norman Development licensor or partner. By using or otherwise accessing the" + " " +
+	                "Application, you acknowledge that you accept the practices and policies" + " " +
+	                "outlined in this Privacy Statement."
+	              ), 
+
+	              React.createElement("h3", null, "WHAT PERSONAL INFORMATION DOES Norman Development COLLECT?"), 
+
+	              React.createElement("p", null, 
+	                "We collect the following types of information from our users:"
+	              ), 
+
+	              React.createElement("p", null, 
+	                React.createElement("strong", null, "Personal Information You Provide to Us:"), 
+	                React.createElement("br", null), 
+	                "We may receive and store any information you submit to the Application" + " " +
+	                "(or otherwise authorize us to obtain – such as, from (for example) your" + " " +
+	                "Facebook account). The types of personal information collected may include" + " " +
+	                "your full name, email address, gender, IP address, browser information," + " " +
+	                "username, demographic information, and any other information necessary for us" + " " +
+	                "to provide the Application services."
+	              ), 
+
+	              React.createElement("p", null, 
+	                React.createElement("strong", null, "Personal Information Collected Automatically:"), 
+	                React.createElement("br", null), 
+	                "We receive and store certain types of usage related information whenever you" + " " +
+	                "interact with Application. For example, Norman Development may automatically" + " " +
+	                "receive and record information regarding your computer’s IP address, browser" + " " +
+	                "information, Facebook user ID, Facebook Page fan status, and URLs accessed." + " " +
+	                "Such information may be shared in aggregate (non-personally identifiable)" + " " +
+	                "form with our partners."
+	              ), 
+
+	              React.createElement("p", null, 
+	                React.createElement("strong", null, "HOW DOES Norman Development USE THE INFORMATION IT COLLECTS?"), 
+	                React.createElement("br", null), 
+	                "Norman Development uses the information described in this Privacy Statement" + " " +
+	                "(i) internally, to analyze, develop and improve its products and services," + " " +
+	                "and (ii) as set forth below in the “Will Norman Development Share any of the" + " " +
+	                "personal information it Collects” section below."
+	              ), 
+
+	              React.createElement("h3", null, "APPLICATION PARTNER TREATMENT OF PERSONAL INFORMATION."), 
+
+	              React.createElement("p", null, 
+	                "Norman Development may provide personal information to the applicable" + " " +
+	                "Application Partner. The Application Partner’s use of your personal information" + " " +
+	                "is subject to the Application Partner’s separate privacy policy – and not this" + " " +
+	                "Privacy Statement. The Application Partner’s privacy policy is linked to from" + " " +
+	                "within the Partner’s Facebook application."
+	              ), 
+
+	              React.createElement("p", null, 
+	                React.createElement("strong", null, 
+	                  "WILL Norman Development SHARE ANY OF THE PERSONAL INFORMATION IT RECEIVES?"
+	                ), 
+	                React.createElement("br", null), 
+	                "Personal information about our users is an integral part of our business." + " " +
+	                "We neither rent nor sell your personal information to anyone (with the" + " " +
+	                "exception of sharing your information with an applicable Application Partner –" + " " +
+	                "see the “Application Partner Treatment” section above). We share your personal" + " " +
+	                "information only as described below."
+	              ), 
+
+	              React.createElement("p", null, 
+	                "Application Partners: We will share your personal information with an applicable" + " " +
+	                "Application Partner (see the “Application Partner Treatment” section above)."
+	              ), 
+
+	              React.createElement("p", null, 
+	                "Agents: We employ other companies and people to perform tasks on our behalf and" + " " +
+	                "need to share your information with them to provide products or services to you." + " " +
+	                "Unless we tell you differently, Norman Development’s agents do not have any" + " " +
+	                "right to use personal information we share with them beyond what is necessary to" + " " +
+	                "assist us. You hereby consent to our sharing of personal information for the" + " " +
+	                "above purposes. Business Transfers: In some cases, we may choose to buy or sell" + " " +
+	                "assets. In these types of transactions, customer information is typically one of" + " " +
+	                "the business assets that are transferred. Moreover, if Norman Development, or" + " " +
+	                "substantially all of its assets were acquired, or in the unlikely event that" + " " +
+	                "Norman Development goes out of business or enters bankruptcy, user information" + " " +
+	                "would be one of the assets that is transferred or acquired by a third party. You" + " " +
+	                "acknowledge that such transfers may occur, and that any acquirer of" + " " +
+	                "Norman Development may continue to use your personal information as set forth" + " " +
+	                "in this policy."
+	              ), 
+
+	              React.createElement("p", null, 
+	                "Protection of Norman Development and Others: We may release personal information" + " " +
+	                "when we believe in good faith that release is necessary to comply with the law;" + " " +
+	                "enforce or apply our conditions of use and other agreements; or protect the" + " " +
+	                "rights, property, or safety of Norman Development, our employees, our users, or" + " " +
+	                "others. This includes exchanging information with other companies and" + " " +
+	                "organizations for fraud protection and credit risk reduction."
+	              ), 
+
+	              React.createElement("p", null, 
+	                "With Your Consent: Except as set forth above, you will be notified when your" + " " +
+	                "personal information may be shared with third parties, and will be able to" + " " +
+	                "prevent the sharing of this information."
+	              ), 
+
+	              React.createElement("h3", null, "CONDITIONS OF USE."), 
+
+	              React.createElement("p", null, 
+	                "If you decide to use or otherwise access the Application, your use/access and" + " " +
+	                "any possible dispute over privacy is subject to this Privacy Statement and our" + " " +
+	                "Terms of Use, including limitations on damages, arbitration of disputes, and" + " " +
+	                "application of California state law."
+	              ), 
+
+	              React.createElement("h3", null, "THIRD PARTY APPLICATIONS/WEBSITES."), 
+
+	              React.createElement("p", null, 
+	                "The Application may permit you to link to other applications or websites. Such" + " " +
+	                "third party applications/websites are not under Norman Development’s control," + " " +
+	                "and such links do not constitute an endorsement by Norman Development of those" + " " +
+	                "other applications/websites or the services offered through them. The privacy" + " " +
+	                "and security practices of such third party application/websites linked to the" + " " +
+	                "Application are not covered by this Privacy Statement, and Norman Development is" + " " +
+	                "not responsible for the privacy or security practices or the content of" + " " +
+	                "such websites."
+	              ), 
+
+	              React.createElement("h3", null, "WHAT PERSONAL INFORMATION CAN I ACCESS?"), 
+
+	              React.createElement("p", null, 
+	                "Norman Development allows you to access the following information about you for" + " " +
+	                "the purpose of viewing, and in certain situations, updating that information." + " " +
+	                "This list may change in the event the Application changes."
+	              ), 
+
+	              React.createElement("ul", null, 
+	                React.createElement("li", null, "Account and user profile information"), 
+	                React.createElement("li", null, "User e-mail address, if applicable"), 
+	                React.createElement("li", null, "Facebook profile information, if applicable"), 
+	                React.createElement("li", null, "User preferences"), 
+	                React.createElement("li", null, "Application specific data")
+	              ), 
+
+	              React.createElement("h3", null, "CAN CHILDREN USE THE APPLICATION?"), 
+
+	              React.createElement("p", null, 
+	                "Our site and the services available through Norman Development are not intended" + " " +
+	                "for children under the age of 13. Norman Development does not knowingly or" + " " +
+	                "specifically collect information about children under the age of 13 and believes" + " " +
+	                "that children of any age should get their parents’ consent before giving out any" + " " +
+	                "personal information. We encourage you to participate in your child’s" + " " +
+	                "web experience."
+	              ), 
+
+	              React.createElement("h3", null, "CHANGES TO THIS PRIVACY STATEMENT."), 
+
+	              React.createElement("p", null, 
+	                "Norman Development may amend this Privacy Statement from time to time. Use of" + " " +
+	                "information we collect now is subject to the Privacy Statement in effect at the" + " " +
+	                "time such information is used. If we make changes in the way we use personal" + " " +
+	                "information, we will notify you by posting an announcement on our Site or" + " " +
+	                "sending you an email. Users are bound by any changes to the Privacy Statement" + " " +
+	                "when he or she uses or otherwise accesses the Application after such changes" + " " +
+	                "have been first posted."
+	              ), 
+
+	              React.createElement("h3", null, "QUESTIONS OR CONCERNS."), 
+
+	              React.createElement("p", null, 
+	                "If you have any questions or concerns regarding privacy on our Website, please" + " " +
+	                "send us a detailed message at ", 
+	                React.createElement("a", {href: "mailto:rsnorman+assembleavengers@gmail.com"}, 
+	                  "rsnorman+assembleavengers@gmail.com"
+	                ), ". We will make every effort to resolve your concerns."
+	              ), 
+
+	              React.createElement("p", null, 
+	                React.createElement("em", null, "Effective Date: November 2nd, 2015")
+	              )
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = PrivacyPage;
+
+
+/***/ },
+/* 361 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React        = __webpack_require__(3);
+	var mui          = __webpack_require__(160);
+	var Paper        = mui.Paper;
+	var Menu         = __webpack_require__(307);
+	var MarvelTheme  = __webpack_require__(159);
+
+	var AboutPage = React.createClass({displayName: "AboutPage",
+
+	  mixins: [MarvelTheme],
+
+	  propTypes: {
+	    loggedIn:     React.PropTypes.bool.isRequired,
+	    leaderTeamId: React.PropTypes.number,
+	  },
+
+	  render: function() {
+	    return (
+	      React.createElement("div", null, 
+	        React.createElement(Menu, {title: "Leaderboard", 
+	          loggedIn: this.props.loggedIn, 
+	          leaderTeamId: this.props.leaderTeamId}
+	        ), 
+	        React.createElement("div", {id: "main"}, 
+	          React.createElement(Paper, {zIndex: 1}, 
+	            React.createElement("div", {id: "about"}, 
+	              React.createElement("h1", null, "About"), 
+	              React.createElement("img", {id: "about_logo", src: "/images/avengers-assemble-logo-medium.png"}), 
+	              React.createElement("p", null, 
+	                "Created by Ryan Norman. Please direct all suggestions," + " " +
+	                "issues and insults to ", 
+	                React.createElement("a", {href: "mailto:rsnorman15+assembleavengers@gmail.com"}, 
+	                  "rsnorman15@gmail.com"
+	                ), "."
+	              )
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = AboutPage;
+
+
+/***/ },
+/* 362 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = function injectTapEventPlugin () {
@@ -47550,14 +47862,14 @@
 	  React.initializeTouchEvents(true);
 
 	  __webpack_require__(71).injection.injectEventPluginsByName({
-	    "ResponderEventPlugin": __webpack_require__(361),
-	    "TapEventPlugin":       __webpack_require__(362)
+	    "ResponderEventPlugin": __webpack_require__(363),
+	    "TapEventPlugin":       __webpack_require__(364)
 	  });
 	};
 
 
 /***/ },
-/* 361 */
+/* 363 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47872,7 +48184,7 @@
 
 
 /***/ },
-/* 362 */
+/* 364 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -47900,7 +48212,7 @@
 	var EventPluginUtils = __webpack_require__(6);
 	var EventPropagators = __webpack_require__(95);
 	var SyntheticUIEvent = __webpack_require__(108);
-	var TouchEventUtils = __webpack_require__(363);
+	var TouchEventUtils = __webpack_require__(365);
 	var ViewportMetrics = __webpack_require__(76);
 
 	var keyOf = __webpack_require__(41);
@@ -48044,7 +48356,7 @@
 
 
 /***/ },
-/* 363 */
+/* 365 */
 /***/ function(module, exports) {
 
 	/**

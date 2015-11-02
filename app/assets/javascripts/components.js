@@ -3,6 +3,8 @@ var Notifier     = require('./components/notifier.js.jsx');
 var TeamBuilder  = require('./components/team_builder/team_builder.js.jsx');
 var TeamRankings = require('./components/team_rankings/team_rankings.js.jsx');
 var TeamProfile  = require('./components/team_profile/team_profile.js.jsx');
+var PrivacyPage  = require('./components/pages/privacy.js.jsx');
+var AboutPage    = require('./components/pages/about.js.jsx');
 
 var injectTapEventPlugin = require("react-tap-event-plugin");
 
@@ -57,6 +59,28 @@ $(document).on('ready page:load', function() {
   if ( teamProfileEl ) {
     React.render(
       React.createElement(TeamProfile, getProps(teamProfileEl)), teamProfileEl
+    );
+  }
+});
+
+$(document).on('ready page:load', function() {
+  var aboutPageEl;
+  aboutPageEl = document.getElementById('about_page');
+
+  if ( aboutPageEl ) {
+    React.render(
+      React.createElement(AboutPage, getProps(aboutPageEl)), aboutPageEl
+    );
+  }
+});
+
+$(document).on('ready page:load', function() {
+  var privacyPolicyPageEl;
+  privacyPolicyPageEl = document.getElementById('privacy_policy_page');
+
+  if ( privacyPolicyPageEl ) {
+    React.render(
+      React.createElement(PrivacyPage, getProps(privacyPolicyPageEl)), privacyPolicyPageEl
     );
   }
 });
