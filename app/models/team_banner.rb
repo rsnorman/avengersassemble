@@ -16,7 +16,7 @@ class TeamBanner
       IMAGE_NAME_TEMPLATE.gsub(
         TEAM_ID_REPLACE_TOKEN, team.characters.pluck(:id).join('-')
       )
-    )
+    ).tap(&:mkdir)
 
     unless File.exists?(path) || Rails.env.production?
       image_data = attributes[:data].gsub(DATA_URL_PREFIX, '')

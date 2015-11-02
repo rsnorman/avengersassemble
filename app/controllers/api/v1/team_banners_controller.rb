@@ -7,8 +7,8 @@ class Api::V1::TeamBannersController < ApplicationController
   private
 
   def banner_params
-    params.require(:banner).permit(:data).tap do |_params|
-      _params[:team_id] = current_user.team.id
+    params.require(:banner).permit(:data).tap do |b_params|
+      b_params[:team_id] = current_user.team.id
     end
   end
 

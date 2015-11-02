@@ -23,7 +23,6 @@ TeamProfile = React.createClass({
     leaderTeamId: React.PropTypes.number,
     team:         React.PropTypes.object.isRequired,
     maxStats:     React.PropTypes.object.isRequired,
-    fbOpenGraphNamespace: React.PropTypes.string.isRequired
   },
 
   getInitialState: function() {
@@ -63,7 +62,7 @@ TeamProfile = React.createClass({
           href:          data.banner.team.url,
           name:          data.banner.team.name,
           picture:       data.banner.url,
-          description:   'Currently ranked number ' + + data.banner.team.rank +'!'
+          description:   'Currently ranked number ' + data.banner.team.rank + '!'
         }, function(response) {
           console.log(response);
           setTimeout(function() {
@@ -72,7 +71,7 @@ TeamProfile = React.createClass({
               shared: false
             });
           }.bind(this), 2000);
-        });
+        }.bind(this));
       }.bind(this),
       error: function() {
         console.log(arguments);
